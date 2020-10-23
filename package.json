@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@octokit/webhooks": "^7.15.0",
+    "@probot/serverless-lambda": "^0.5.3",
     "probot": "^10.9.3"
   },
   "devDependencies": {
