@@ -1,0 +1,21 @@
+service: probot-ops-bot
+
+provider:
+  name: aws
+  region: us-east-2
+  timeout: 10
+  memorySize: 512
+  stage: dev
+  runtime: nodejs12.x
+
+functions:
+  handleProbot:
+    handler: lib/serverless.probot
+    events:
+      - http:
+          path: /
+          method: post
+    environment:
+      APP_ID: ${env:APP_ID}
+      WEBHOOK_SECRET: ${env:WEBHOOK_SECRET}
+      PRIVATE_KEY: ${env:PRIVATE_KEY}
