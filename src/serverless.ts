@@ -1,4 +1,4 @@
 import app from "./index";
-const { serverless } = require("@probot/serverless-lambda");
+import { serverless } from "@probot/serverless-lambda";
 
 export const probot = serverless(app);
