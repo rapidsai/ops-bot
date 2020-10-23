@@ -22,7 +22,7 @@ npm run start
 docker build -t ops-bot .
 
 # 2. Start container
-docker run -e APP_ID=<app-id> -e PRIVATE_KEY=<pem-value> ops-bot
+docker run -e APP_ID=<app-id> -e PRIVATE_KEY=<pem-value> ops-botasd
 ```
 
 ## Contributing
