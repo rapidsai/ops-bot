@@ -19,6 +19,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@octokit/webhooks": "^7.15.0",
     "probot": "^10.9.3"
   },
   "devDependencies": {
