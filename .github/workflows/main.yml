@@ -18,6 +18,8 @@ jobs:
         run: npm install -g serverless
       - name: Install NPM Dependencies
         run: npm install
+      - name: Build ProBot
+        run: npm run build
       - name: Test ProBot
         run: npm run test
       - name: Create env file
