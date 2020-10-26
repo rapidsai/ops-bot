@@ -1,0 +1,16 @@
+name: auto-deploy-probot
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Deploy ProBot
+        run: echo Hello, world!
