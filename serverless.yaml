@@ -10,12 +10,13 @@ provider:
 
 functions:
   handleProbot:
-    handler: lib/serverless.probot
+    handler: dist/serverless.probot
     events:
       - http:
           path: /
           method: post
     environment:
+      LOG_LEVEL: debug
       APP_ID: ${env:APP_ID}
       WEBHOOK_SECRET: ${env:WEBHOOK_SECRET}
       PRIVATE_KEY: ${env:PRIVATE_KEY}
