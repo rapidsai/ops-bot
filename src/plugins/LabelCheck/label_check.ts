@@ -38,7 +38,7 @@ const checkLabels = async (context: PRContext) => {
   if (validLabelsOnPR.length > 1) {
     return await setLabelCheckStatus(
       context,
-      "Too many labels applied.",
+      "Too many labels applied",
       "failure"
     );
   }
