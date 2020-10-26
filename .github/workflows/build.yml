@@ -1,0 +1,12 @@
+name: auto-deploy-probot
+on: 
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    name: Deploy ProBot
+    runs-on: ubuntu-latest
+    steps:
+      - name: it works!
+        run: exit 0
