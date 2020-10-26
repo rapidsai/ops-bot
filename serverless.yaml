@@ -8,13 +8,20 @@ provider:
   stage: dev
   runtime: nodejs12.x
 
+package:
+  exclude:
+    - .env
+
 functions:
   handleProbot:
     handler: dist/serverless.probot
     events:
       - http:
           path: /
-          method: post
+          method: POST
+      - http:
+          path: /probot
+          method: GET
     environment:
       LOG_LEVEL: debug
       APP_ID: ${env:APP_ID}
