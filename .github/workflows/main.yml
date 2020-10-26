@@ -10,7 +10,25 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
 
-      # Runs a single command using the runners shell
-      - name: Deploy ProBot
-        run: echo Hello, world!
+      - name: Install Serverless Framework
+        run: npm install -g serverless
+      - name: Install NPM Dependencies
+        run: npm install
+      - name: Test ProBot
+        run: npm run test
+      - name: Create env file
+        run: |
+          cat > .env <<EOF
+          APP_ID=${{ secrets.APP_ID }}
+          WEBHOOK_SECRET=${{ secrets.WEBHOOK_SECRET }}
+          PRIVATE_KEY={{ secrets.PRIVATE_KEY }}
+          EOF
+
+      - name: Serverless AWS Authentication
+        run: sls config credentials --provider aws --key ${{ secrets.AWS_KEY }} --secret ${{ secrets.AWS_SECRET }}
+      - name: Deploy Lambda to dev
+        run: sls deploy -s dev
