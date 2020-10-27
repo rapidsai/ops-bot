@@ -17,8 +17,6 @@ jobs:
         with:
           node-version: '10.x'
 
-      - name: Install Serverless Framework
-        run: npm install -g serverless
       - name: Install NPM Dependencies
         run: npm install
       - name: Build ProBot
