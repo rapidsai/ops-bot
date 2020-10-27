@@ -2,6 +2,7 @@ name: auto-deploy-probot
 
 on:
   push:
+    branches: main
     paths:
       - "src/**"
       - "package*.json"
