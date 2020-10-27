@@ -23,8 +23,6 @@ jobs:
         run: npm run build
       - name: Test ProBot
         run: npm run test
-      - name: Serverless AWS Authentication
-        run: sls config credentials --provider aws --key ${{ secrets.AWS_KEY }} --secret ${{ secrets.AWS_SECRET }}
       - name: Deploy Lambda to dev
         run: npm run deploy
         env:
