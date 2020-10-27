@@ -10,18 +10,14 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    container: node:latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '10.x'
-
-      - name: Install NPM Dependencies
+      - name: Install npm dependencies
         run: npm ci
-      - name: Build ProBot
+      - name: Build probot app
         run: npm run build
-      - name: Test ProBot
+      - name: Test probot app
         run: npm run test
       - name: Deploy Lambda to dev
         run: npm run deploy
