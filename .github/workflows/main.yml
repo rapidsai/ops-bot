@@ -18,7 +18,7 @@ jobs:
           node-version: '10.x'
 
       - name: Install NPM Dependencies
-        run: npm install
+        run: npm ci
       - name: Build ProBot
         run: npm run build
       - name: Test ProBot
