@@ -25,4 +25,4 @@ const base = (labels: string[] = []) => ({
 
 export const no_labels = base();
 export const correct_labels = base(["bug"]);
-export const extra_labels = base(["bug", "enhancement"]);
+export const extra_labels = base(["bug", "improvement"]);

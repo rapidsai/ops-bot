@@ -17,7 +17,13 @@ export const initLabelCheck = (app: Application) => {
 const checkLabels = async (context: PRContext) => {
   await setLabelCheckStatus(context, "Checking labels...");
 
-  const validLabels = ["bug", "documentation", "enhancement"];
+  const validLabels = [
+    "bug",
+    "doc",
+    "breaking change",
+    "feature request",
+    "improvement",
+  ];
 
   const labelsOnPR = context.payload.pull_request.labels;
 
