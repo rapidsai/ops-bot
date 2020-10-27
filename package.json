@@ -21,11 +21,11 @@
   },
   "dependencies": {
     "@probot/serverless-lambda": "^0.5.3",
+    "@octokit/webhooks": "^7.15.0",
     "probot": "^10.9.5",
     "serverless": "^2.8.0"
   },
   "devDependencies": {
-    "@octokit/webhooks": "^7.15.0",
     "@types/jest": "^26.0.15",
     "@types/nock": "^11.1.0",
     "@types/node": "^14.14.2",
