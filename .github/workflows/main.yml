@@ -8,7 +8,7 @@ on:
       - "serverless.yaml"
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
