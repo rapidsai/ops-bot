@@ -1,0 +1,30 @@
+name: auto-deploy-probot
+
+on:
+  push:
+    branches: main
+    paths:
+      - "src/**"
+      - "package*.json"
+      - "serverless.yaml"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    container: node:latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Build probot app
+        run: npm run build
+      - name: Test probot app
+        run: npm run test
+      - name: Deploy Lambda to dev
+        run: npm run deploy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET }}
+          APP_ID: ${{ secrets.APP_ID }}
+          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
