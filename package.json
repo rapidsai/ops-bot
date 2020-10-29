@@ -23,7 +23,8 @@
     "@probot/serverless-lambda": "^0.5.3",
     "@octokit/webhooks": "^7.15.0",
     "probot": "^10.9.5",
-    "serverless": "^2.8.0"
+    "serverless": "^2.8.0",
+    "release-drafter-github-app": "^5.12.1"
   },
   "devDependencies": {
     "@types/jest": "^26.0.15",
@@ -41,5 +42,8 @@
   },
   "jest": {
     "testEnvironment": "node"
+  },
+  "probot": {
+    "apps": ["release-drafter-github-app"]
   }
 }
