@@ -43,7 +43,4 @@
   "jest": {
     "testEnvironment": "node"
   },
-  "probot": {
-    "apps": ["release-drafter-github-app"]
-  }
 }
