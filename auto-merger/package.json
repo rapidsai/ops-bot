@@ -5,13 +5,15 @@
   "repository": "https://github.com/ajschmidt8/ops-bot.git",
   "main": "index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "npm run clean && tsc",
+    "clean": "rm -rf dist"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@octokit/auth-app": "^2.9.0",
+    "@octokit/plugin-throttling": "^3.3.2",
     "@octokit/rest": "^18.0.6",
     "@octokit/webhooks": "^7.15.1",
     "strip-comments": "^2.0.1"
