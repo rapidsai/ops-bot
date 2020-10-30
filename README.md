@@ -13,3 +13,7 @@ npm run build
 
 # Run
 npm run startasdfasd
+
+# Test
+npm run test
+```
