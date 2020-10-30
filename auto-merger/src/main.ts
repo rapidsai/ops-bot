@@ -4,6 +4,7 @@ import {
   PullsGetResponseData,
   IssuesListEventsForTimelineResponseData,
   UsersGetByUsernameResponseData,
+  Endpoints,
 } from "@octokit/types";
 import { createAppAuth } from "@octokit/auth-app";
 import strip from "strip-comments";
@@ -12,12 +13,14 @@ const MyOctokit = Octokit.plugin(throttling).defaults({
   per_page: 100,
 });
 
-// const privateKey = process.env.PRIVATE_KEY as string;
+const privateKey = process.env.PRIVATE_KEY as string;
 
 interface Author {
   name: string;
   email: string;
 }
+type AppsListReposResponseRepositories = Endpoints["GET /installation/repositories"]["response"]["data"]["repositories"];
+type SearchIssuesAndPullRequestsResponseItems = Endpoints["GET /search/issues"]["response"]["data"]["items"];
 
 // const mergeLabel = "okay to merge";
 const mergeLabel = "doc";
@@ -168,61 +171,108 @@ const createCommitMessage = async (
 
 export const mergePRs = async () => {
   // Get repos with app installed
-  const repositories = await client.paginate(
-    client.apps.listReposAccessibleToInstallation
-  );
+  let repositories: AppsListReposResponseRepositories;
+  try {
+    repositories = await client.paginate(
+      client.apps.listReposAccessibleToInstallation
+    );
+  } catch (error) {
+    throw new Error("Error getting app repos...");
+  }
 
   // Iterate over repos
   for (let i = 0; i < repositories.length; i++) {
     const repo = repositories[i];
-    console.log(`starting repo - ${repo.full_name}`);
+    console.log(`Starting repo - ${repo.full_name}`);
 
     // Query PRs with merge label
-    const queryResults = await client.paginate(
-      client.search.issuesAndPullRequests,
-      {
-        q: `repo:${repo.full_name} is:pr is:open label:"${mergeLabel}"`,
-      }
-    );
+    let queryResults: SearchIssuesAndPullRequestsResponseItems;
+    try {
+      queryResults = await client.paginate(
+        client.search.issuesAndPullRequests,
+        {
+          q: `repo:${repo.full_name} is:pr is:open label:"${mergeLabel}"`,
+        }
+      );
+    } catch (error) {
+      console.error(
+        `Error searching for issues and pull requests in ${repo.full_name}. Skipping to next repo...`
+      );
+      continue;
+    }
 
     // Iterate over & merge PRs
     for (let j = 0; j < queryResults.length; j++) {
       const result = queryResults[j];
+      const iterationDescription = `${repo.full_name} #${result.number} - "${result.title}"`;
 
       // Get full PR info
-      const { data: pr } = await client.pulls.get({
-        owner: org,
-        repo: repo.name,
-        pull_number: result.number,
-      });
-
-      console.log(`starting PR #${pr.number} - ${pr.title}`);
-      if (!(await isPrMergeable(pr))) {
-        console.log(
-          `PR #${pr.number} has conflicts or pending CI checks. Skipping...`
+      let pr: PullsGetResponseData;
+      try {
+        const { data } = await client.pulls.get({
+          owner: org,
+          repo: repo.name,
+          pull_number: result.number,
+        });
+        pr = data;
+      } catch (error) {
+        console.error(
+          `Error getting full PR info for ${iterationDescription}. Skipping...`
         );
         continue;
       }
 
-      const events = await client.paginate(
-        client.issues.listEventsForTimeline,
-        {
+      console.log(`Starting ${iterationDescription}`);
+      if (!isPrMergeable(pr)) {
+        console.log(
+          `${iterationDescription} has conflicts or pending CI checks. Skipping...`
+        );
+        continue;
+      }
+
+      let events: IssuesListEventsForTimelineResponseData;
+      try {
+        events = await client.paginate(client.issues.listEventsForTimeline, {
           owner: org,
           repo: pr.base.repo.name,
           issue_number: pr.number,
-        }
-      );
+        });
+      } catch (error) {
+        console.error(
+          `Error getting events for ${iterationDescription}. Skipping...`
+        );
+        continue;
+      }
 
-      if (!(await hasValidMergeLabelActor(pr, events))) {
+      let mergeLabelActorIsValid: boolean;
+      try {
+        mergeLabelActorIsValid = await hasValidMergeLabelActor(pr, events);
+      } catch (error) {
+        console.error(
+          `Error getting merge label actor for ${iterationDescription}. Skipping...`
+        );
+        continue;
+      }
+
+      if (!mergeLabelActorIsValid) {
         console.log(
-          `PR #${pr.number} has an invalid merge label actor. Skipping...`
+          `${iterationDescription} has an invalid merge label actor. Skipping...`
         );
         continue;
       }
 
       // Merge PR
 
-      const commitMessage = await createCommitMessage(pr, events);
+      let commitMessage: string;
+      try {
+        commitMessage = await createCommitMessage(pr, events);
+      } catch (error) {
+        console.error(
+          `Error creating commit message for ${iterationDescription}. Skipping...`
+        );
+        continue;
+      }
+
       const commitTitle = sanitizePrTitle(pr.title);
       console.log(`Merging PR#${pr.number} - ${pr.title}`);
       console.log(`commit title - ${commitTitle}`);
@@ -236,9 +286,11 @@ export const mergePRs = async () => {
       //   commit_title: commitTitle,
       //   commit_message: commitMessage,
       // });
+      // SHA
+      // v0.17
     }
   }
-  console.log("done!");
+  console.log("Done!");
 };
 
 if (require.main === module) {
