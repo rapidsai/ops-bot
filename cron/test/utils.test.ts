@@ -32,6 +32,7 @@ describe("Utils tests", () => {
   beforeEach(() => {
     paginateSpy.mockClear();
   });
+
   test("isPrMergable", () => {
     let isMergable = isPrMergeable(prToMerge as any);
     expect(isMergable).toBe(true);
@@ -53,6 +54,7 @@ describe("Utils tests", () => {
   });
 
   test("hasValidMergeLabelActor", async () => {
+    // Mocks listMembersInOrg response
     paginateSpy.mockResolvedValue([
       { login: "thecorrectuser" },
       { login: "ajschmidt8" },
@@ -79,9 +81,20 @@ describe("Utils tests", () => {
       prToMerge as any,
       issue_events as any
     );
-    console.log(result);
 
-    expect(result).toBeTruthy();
+    expect(result).toBe(
+      `This is the PR body.
+Authors:
+  - AJ Schmidt <ajschmidt8@users.noreply.github.com>
+  - Ray Douglass <ray@users.noreply.github.com>
+  - Ram (Ramakrishna Prabhu) <ram@users.noreply.github.com>
+Approvers:
+  - rgsl888prabhu
+  - rgsl888prabhu
+  - codereport
+  - cwharris
+URL: https://github.com/rapidsai/cudf/pull/6609`
+    );
     expect(paginateSpy).toBeCalledTimes(1);
   });
 });
