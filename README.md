@@ -4,6 +4,8 @@ This is a dummy commit.
 
 Another dummy commit.
 
+More dummy commits. Keep 'em coming.
+
 # ops-bot
 
 The `ops-bot` consists of the following automations:
