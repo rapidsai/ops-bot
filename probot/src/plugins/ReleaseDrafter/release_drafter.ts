@@ -35,11 +35,12 @@ const draftRelease = async (context: PushContext) => {
   }
 
   const branchVersionNumber: number = parseInt(branchName.split(".")[1]);
-  const compareCommitSHA = await getCompareCommitSHA(
+  const mergeBaseCommitSHA = await getMergeBaseSHA(
     context,
+    branchName,
     branchVersionNumber
   );
-  const commits = await getRangeCommits(context, compareCommitSHA);
+  const commits = await getRangeCommits(context, mergeBaseCommitSHA);
   const commitPRs = await getUniqueCommitPRs(context, commits);
   const releaseName = `v0.${branchVersionNumber}.0`;
   const releaseDraftBody = getReleaseDraftBody(commitPRs, releaseName);
@@ -57,28 +58,31 @@ const draftRelease = async (context: PushContext) => {
 };
 
 /**
- * Returns the SHA of the HEAD commit on the previous release branch
- * (if it exists), otherwise returns an empty string.
+ * Returns the SHA of the merge_base_commit (the common commit between the
+ * current and previous branch). Returns an empty string if no previous branch
+ * exists.
  * @param context
  * @param branchVersionNumber
  */
-const getCompareCommitSHA = async (
+const getMergeBaseSHA = async (
   context: PushContext,
+  branchName: string,
   branchVersionNumber: number
 ): Promise<string> => {
   const owner = context.payload.repository.owner.login;
   const repo = context.payload.repository.name;
   const previousBranchNumber = branchVersionNumber - 1;
-  const previousBranchName = "branch-0." + previousBranchNumber.toString();
+  const previousBranchName = `branch-0.${previousBranchNumber}`;
 
   try {
-    const { data: previousBranchSHA } = await context.github.repos.getBranch({
+    const { data: comparison } = await context.github.repos.compareCommits({
       owner,
       repo,
-      branch: previousBranchName,
+      base: previousBranchName,
+      head: branchName,
     });
 
-    return previousBranchSHA.commit.sha;
+    return comparison.merge_base_commit.sha;
   } catch (error) {
     console.warn(
       `Branch '${previousBranchName}' not found in '${owner}/${repo}'`
@@ -102,11 +106,11 @@ export const isReleaseBranch = (branchName: string): boolean => {
  * ends at either previous branch's HEAD commit or the merge/squash commit
  * branch's first commit.
  * @param context
- * @param compareCommitSHA
+ * @param mergeBaseCommitSHA
  */
 const getRangeCommits = async (
   context: PushContext,
-  compareCommitSHA: string
+  mergeBaseCommitSHA: string
 ): Promise<ReposListCommitsResponseData> => {
   const owner = context.payload.repository.owner.login;
   const repo = context.payload.repository.name;
@@ -124,7 +128,7 @@ const getRangeCommits = async (
     });
     for (let i = 0; i < pageCommits.length; i++) {
       const commit = pageCommits[i];
-      if (commit.sha === compareCommitSHA) {
+      if (commit.sha === mergeBaseCommitSHA) {
         return allCommits;
       }
       allCommits.push(commit);
