@@ -35,12 +35,12 @@ const draftRelease = async (context: PushContext) => {
   }
 
   const branchVersionNumber: number = parseInt(branchName.split(".")[1]);
-  const compareCommitSHA = await getMergeBaseSHA(
+  const mergeBaseCommitSHA = await getMergeBaseSHA(
     context,
     branchName,
     branchVersionNumber
   );
-  const commits = await getRangeCommits(context, compareCommitSHA);
+  const commits = await getRangeCommits(context, mergeBaseCommitSHA);
   const commitPRs = await getUniqueCommitPRs(context, commits);
   const releaseName = `v0.${branchVersionNumber}.0`;
   const releaseDraftBody = getReleaseDraftBody(commitPRs, releaseName);
@@ -106,11 +106,11 @@ export const isReleaseBranch = (branchName: string): boolean => {
  * ends at either previous branch's HEAD commit or the merge/squash commit
  * branch's first commit.
  * @param context
- * @param compareCommitSHA
+ * @param mergeBaseCommitSHA
  */
 const getRangeCommits = async (
   context: PushContext,
-  compareCommitSHA: string
+  mergeBaseCommitSHA: string
 ): Promise<ReposListCommitsResponseData> => {
   const owner = context.payload.repository.owner.login;
   const repo = context.payload.repository.name;
@@ -128,7 +128,7 @@ const getRangeCommits = async (
     });
     for (let i = 0; i < pageCommits.length; i++) {
       const commit = pageCommits[i];
-      if (commit.sha === compareCommitSHA) {
+      if (commit.sha === mergeBaseCommitSHA) {
         return allCommits;
       }
       allCommits.push(commit);
