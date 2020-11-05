@@ -19,18 +19,18 @@ const draftRelease = async (context: PushContext) => {
   const { created, deleted } = context.payload;
   console.log(`Drafting release for branch '${branchName}' of '${repo}'.`);
 
+  // Don't run on branch created/delete pushes
+  if (created || deleted) {
+    const action = created ? "created" : "deleted";
+    console.warn(`Release drafts not generated on action: ${action}`);
+    return;
+  }
+
   // Only run draft-releaser on release branches
   if (!isReleaseBranch(branchName)) {
     console.warn(
       "Release drafts are only supported for 'branch-0.xx' branches."
     );
-    return;
-  }
-
-  // Don't run on branch created/delete pushes
-  if (created || deleted) {
-    const action = created ? "created" : "deleted";
-    console.warn(`Release drafts not generated on action: ${action}`);
     return;
   }
 
