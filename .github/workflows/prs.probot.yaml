@@ -1,5 +1,12 @@
-name: Unit tests
-on: pull_request
+name: Probot PR Checks
+on:
+  pull_request:
+    paths:
+      - "probot/**"
+
+defaults:
+  run:
+    working-directory: probot
 
 jobs:
   tests:
@@ -11,4 +18,4 @@ jobs:
       - name: Install packages
         run: npm ci
       - name: Run unit tests
-        run: npm t
+        run: npm run test
