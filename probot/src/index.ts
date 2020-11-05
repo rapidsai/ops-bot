@@ -1,8 +1,8 @@
 import { Application } from "probot";
 import { initLabelCheck } from "./plugins/LabelCheck/label_check";
-import releaseDrafter from "release-drafter-github-app";
+import { initReleaseDrafter } from "./plugins/ReleaseDrafter/release_drafter";
 
 export = (app: Application) => {
   initLabelCheck(app);
-  releaseDrafter(app);
+  initReleaseDrafter(app);
 };

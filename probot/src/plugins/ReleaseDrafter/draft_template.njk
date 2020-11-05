@@ -1,0 +1,22 @@
+{% macro prEntry(pr) %}
+- {{ pr.name }}
+{%- endmacro %}
+{{ releaseTitle }} (Date TBD)
+
+{% for _, category in categories %}
+  {% if category.prs | length %}
+## {{ category.title }}
+  {% for pr in category.prs %}
+  {{ prEntry(pr) }}
+  {% endfor %}
+
+  {% endif %}
+{% endfor %}
+
+{% if breaking | length %}
+## Breaking Changes
+
+{% for pr in breaking %}
+{{ prEntry(pr) }}
+{% endfor %}
+{% endif -%}
