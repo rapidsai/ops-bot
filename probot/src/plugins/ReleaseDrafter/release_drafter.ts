@@ -16,6 +16,7 @@ export const initReleaseDrafter = (app: Application) => {
 const draftRelease = async (context: PushContext) => {
   const branchName = basename(context.payload.ref);
   const repo = context.payload.repository.name;
+  const { created, deleted } = context.payload;
   console.log(`Drafting release for branch '${branchName}' of '${repo}'.`);
 
   // Only run draft-releaser on release branches
@@ -25,6 +26,14 @@ const draftRelease = async (context: PushContext) => {
     );
     return;
   }
+
+  // Don't run on branch created/delete pushes
+  if (created || deleted) {
+    const action = created ? "created" : "deleted";
+    console.warn(`Release drafts not generated on action: ${action}`);
+    return;
+  }
+
   const branchVersionNumber: number = parseInt(branchName.split(".")[1]);
   const compareCommitSHA = await getCompareCommitSHA(
     context,
@@ -57,20 +66,22 @@ const getCompareCommitSHA = async (
   context: PushContext,
   branchVersionNumber: number
 ): Promise<string> => {
+  const owner = context.payload.repository.owner.login;
+  const repo = context.payload.repository.name;
   const previousBranchNumber = branchVersionNumber - 1;
   const previousBranchName = "branch-0." + previousBranchNumber.toString();
 
   try {
     const { data: previousBranchSHA } = await context.github.repos.getBranch({
-      owner: "rapidsai",
-      repo: context.payload.repository.owner.login,
+      owner,
+      repo,
       branch: previousBranchName,
     });
 
     return previousBranchSHA.commit.sha;
   } catch (error) {
     console.warn(
-      `Branch '${previousBranchName}' not found in '${context.payload.repository.full_name}'`
+      `Branch '${previousBranchName}' not found in '${owner}/${repo}'`
     );
 
     return "";
@@ -97,14 +108,16 @@ const getRangeCommits = async (
   context: PushContext,
   compareCommitSHA: string
 ): Promise<ReposListCommitsResponseData> => {
+  const owner = context.payload.repository.owner.login;
+  const repo = context.payload.repository.name;
   const pushCommitSHA = context.payload.after;
   let page = 1;
   let allCommits: ReposListCommitsResponseData = [];
 
   do {
     var { data: pageCommits } = await context.github.repos.listCommits({
-      owner: context.payload.repository.owner.login,
-      repo: context.payload.repository.name,
+      owner,
+      repo,
       sha: pushCommitSHA,
       per_page: 100,
       page,
@@ -130,6 +143,8 @@ const getUniqueCommitPRs = async (
   context: PushContext,
   commits: ReposListCommitsResponseData
 ): Promise<ReposListPullRequestsAssociatedWithCommitResponseData> => {
+  const owner = context.payload.repository.owner.login;
+  const repo = context.payload.repository.name;
   const uniquePRs: ReposListPullRequestsAssociatedWithCommitResponseData = [];
 
   for (let i = 0; i < commits.length; i++) {
@@ -137,8 +152,8 @@ const getUniqueCommitPRs = async (
     const {
       data: prs,
     } = await context.github.repos.listPullRequestsAssociatedWithCommit({
-      owner: context.payload.repository.owner.login,
-      repo: context.payload.repository.name,
+      owner,
+      repo,
       commit_sha: commit.sha,
     });
 
