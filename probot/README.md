@@ -9,12 +9,11 @@
 npm install
 
 # Compile
-npm run build
+npm run build 
 
 # Run
-npm run start
+npm run start 
 
 # Test
 npm run test
 ```
-
