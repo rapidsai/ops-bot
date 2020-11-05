@@ -3,7 +3,7 @@ service: probot-ops-bot
 provider:
   name: aws
   region: us-east-2
-  timeout: 45
+  timeout: 30
   memorySize: 1024
   stage: dev
   runtime: nodejs12.x
