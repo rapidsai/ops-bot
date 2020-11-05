@@ -22,10 +22,12 @@ jobs:
         uses: actions/checkout@v2
       - name: Install npm dependencies
         run: npm ci
-      - name: Build Probot
-        run: npm run build
       - name: Test Probot
         run: npm run test
+      - name: Build Probot
+        run: npm run build
+      - name: Copy release draft template
+        run: cp src/plugins/ReleaseDrafter/draft_template.njk dist/plugins/ReleaseDrafter
       - name: Deploy Probot
         run: npm run deploy
         env:
