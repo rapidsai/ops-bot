@@ -130,20 +130,26 @@ const getUniqueCommitPRs = async (
   context: PushContext,
   commits: ReposListCommitsResponseData
 ): Promise<ReposListPullRequestsAssociatedWithCommitResponseData> => {
+  const owner = context.payload.repository.owner.login;
+  const repo = context.payload.repository.name;
   const uniquePRs: ReposListPullRequestsAssociatedWithCommitResponseData = [];
 
-  for (let i = 0; i < commits.length; i++) {
-    const commit = commits[i];
-    const {
-      data: prs,
-    } = await context.github.repos.listPullRequestsAssociatedWithCommit({
-      owner: context.payload.repository.owner.login,
-      repo: context.payload.repository.name,
-      commit_sha: commit.sha,
-    });
+  // Get PR associations simultaneously to reduce overall execution time
+  const commitPRs = await Promise.all(
+    commits.map((commit) =>
+      context.github.repos.listPullRequestsAssociatedWithCommit({
+        owner,
+        repo,
+        commit_sha: commit.sha,
+      })
+    )
+  );
+
+  for (let i = 0; i < commitPRs.length; i++) {
+    const { data: prs } = commitPRs[i];
 
     if (!prs.length) {
-      console.log(`No PRs associated with commit ${commit.sha}.`);
+      console.log(`No PRs associated with commit ${commits[i].sha}.`);
       continue;
     }
 
