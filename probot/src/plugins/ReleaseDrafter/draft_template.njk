@@ -1,7 +1,7 @@
 {% macro prEntry(pr) %}
-- {{ pr.name }}
+- {{ pr.title }} (#{{ pr.number }}) @{{ pr.user.login }}
 {%- endmacro %}
-{{ releaseTitle }} (Date TBD)
+# {{ releaseTitle }} (Date TBD)
 
 {% for _, category in categories %}
   {% if category.prs | length %}
