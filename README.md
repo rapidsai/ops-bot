@@ -1,3 +1,5 @@
+`branch-0.18` is a dummy branch and should only be used to test the `release-drafter`. All real commits should be merged into branch-0.17.
+
 # ops-bot
 
 The `ops-bot` consists of the following automations:
