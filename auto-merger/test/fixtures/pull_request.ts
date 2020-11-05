@@ -1,12 +1,14 @@
+type PullRequest = {
+  mergeable?: boolean;
+  mergeable_state?: string;
+  base_default_branch?: string;
+};
+
 const base = ({
   mergeable = true,
   mergeable_state = "clean",
   base_default_branch = "branch-0.17",
-}: {
-  mergeable?: boolean;
-  mergeable_state?: string;
-  base_default_branch?: string;
-} = {}) => ({
+}: PullRequest = {}) => ({
   url: "https://api.github.com/repos/rapidsai/cudf/pulls/6609",
   id: 511241437,
   node_id: "MDExOlB1bGxSZXF1ZXN0NTExMjQxNDM3",
