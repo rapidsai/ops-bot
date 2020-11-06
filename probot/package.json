@@ -14,7 +14,8 @@
     "probot-app"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "npm run clean && tsc --project tsconfig.prod.json",
+    "clean": "rm -rf dist",
     "deploy": "sls deploy",
     "start": "probot run ./dist/index.js",
     "test": "jest"

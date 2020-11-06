@@ -1,4 +1,4 @@
-import { MERGE_LABEL } from "../../src/constants";
+import { MERGE_LABEL } from "../../src/main";
 
 export const issue_events = [
   {

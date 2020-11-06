@@ -14,7 +14,7 @@ export const getClient = () => {
   return new MyOctokit({
     authStrategy: createAppAuth,
     auth: {
-      appId: 85914,
+      appId: process.env.APP_ID,
       privateKey: buff.toString("ascii"),
       installationId: 12543261,
     },

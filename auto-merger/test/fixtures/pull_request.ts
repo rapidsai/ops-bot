@@ -1,13 +1,13 @@
 type PullRequest = {
   mergeable?: boolean;
   mergeable_state?: string;
-  base_default_branch?: string;
+  base_ref?: string;
 };
 
 const base = ({
   mergeable = true,
   mergeable_state = "clean",
-  base_default_branch = "branch-0.17",
+  base_ref = "branch-0.17",
 }: PullRequest = {}) => ({
   url: "https://api.github.com/repos/rapidsai/cudf/pulls/6609",
   id: 511241437,
@@ -279,7 +279,7 @@ const base = ({
   },
   base: {
     label: "rapidsai:branch-0.17",
-    ref: "branch-0.17",
+    ref: base_ref,
     sha: "64bab8fec84db6e4250063268a8cac592d188888",
     user: {
       login: "rapidsai",
@@ -420,7 +420,7 @@ const base = ({
       forks: 444,
       open_issues: 545,
       watchers: 3381,
-      default_branch: base_default_branch,
+      default_branch: "branch-0.17",
     },
   },
   _links: {
@@ -468,8 +468,8 @@ const base = ({
 });
 
 export const prToMerge = base();
-export const notMergingToDefaultBranch = base({
-  base_default_branch: "randombranch",
+export const mergingToMain = base({
+  base_ref: "main",
 });
 export const dirtyState = base({
   mergeable_state: "dirty",
