@@ -2,7 +2,7 @@ name: Deploy Auto-Merger
 
 on:
   push:
-    branches: branch-0.17
+    branches: main
     paths:
       - "auto-merger/src/**"
       - "auto-merger/package*.json"

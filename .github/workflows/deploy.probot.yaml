@@ -2,7 +2,7 @@ name: Deploy Probot
 
 on:
   push:
-    branches: branch-0.17
+    branches: main
     paths:
       - "probot/src/**"
       - "probot/package*.json"
