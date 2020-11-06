@@ -79,15 +79,18 @@ describe("Utils tests", () => {
 
     expect(result).toBe(
       `This is the PR body.
+
 Authors:
   - AJ Schmidt <ajschmidt8@users.noreply.github.com>
   - Ray Douglass <ray@users.noreply.github.com>
   - Ram (Ramakrishna Prabhu) <ram@users.noreply.github.com>
+
 Approvers:
   - rgsl888prabhu
   - rgsl888prabhu
   - codereport
   - cwharris
+
 URL: https://github.com/rapidsai/cudf/pull/6609`
     );
     expect(paginateSpy).toBeCalledTimes(1);

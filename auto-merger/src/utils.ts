@@ -115,6 +115,7 @@ export const createCommitMessage = async (
   const approvers = await getApproverProfiles(client, pr);
 
   commitMsg += `${prBody}\n`;
+  commitMsg += "\n";
 
   commitMsg += "Authors:\n";
   for (let i = 0; i < authors.length; i++) {
@@ -122,6 +123,7 @@ export const createCommitMessage = async (
     commitMsg += `  - ${author.name} <${author.email}>\n`;
   }
 
+  commitMsg += "\n";
   commitMsg += "Approvers:";
   if (approvers.length) commitMsg += "\n";
   if (!approvers.length) commitMsg += " None\n";
@@ -129,6 +131,7 @@ export const createCommitMessage = async (
     const approver = approvers[j];
     commitMsg += `  - ${approver.name}\n`;
   }
+  commitMsg += "\n";
   commitMsg += `URL: ${pr.html_url}`;
 
   return commitMsg;
