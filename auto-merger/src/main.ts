@@ -7,13 +7,15 @@ import {
   AppsListReposResponseRepositories,
   SearchIssuesAndPullRequestsResponseItems,
 } from "./types";
-import { MERGE_LABEL, ORG } from "./constants";
 import {
   createCommitMessage,
   hasValidMergeLabelActor,
   isPrMergeable,
   sanitizePrTitle,
 } from "./utils";
+
+export const MERGE_LABEL = "okay to merge";
+export const ORG = "rapidsai";
 
 export const mergePRs = async () => {
   const client = getClient();
@@ -73,7 +75,7 @@ export const mergePRs = async () => {
       console.log(`Starting ${iterationDescription}`);
       if (!isPrMergeable(pr)) {
         console.log(
-          `${iterationDescription} has conflicts or pending CI checks. Skipping...`
+          `${iterationDescription} has merge conflicts, pending CI checks or is merging to "main" branch. Skipping...`
         );
         continue;
       }
@@ -125,21 +127,27 @@ export const mergePRs = async () => {
         continue;
       }
 
-      const commitTitle = sanitizePrTitle(pr.title);
-      console.log(`Merging PR#${pr.number} - ${pr.title}`);
-      console.log(`commit title - ${commitTitle}`);
-      console.log(`commit message - ${commitMessage}`);
+      const commitTitle = sanitizePrTitle(pr.title) + `(#${pr.number})`;
+      console.log(`Merging ${iterationDescription}`);
 
-      // await client.pulls.merge({
-      //   owner: ORG,
-      //   repo: pr.base.repo.name,
-      //   pull_number: pr.number,
-      //   merge_method: "squash",
-      //   commit_title: commitTitle,
-      //   commit_message: commitMessage,
-      // });
-      // SHA
-      // v0.17
+      try {
+        await client.pulls.merge({
+          owner: ORG,
+          repo: pr.base.repo.name,
+          pull_number: pr.number,
+          merge_method: "squash",
+          commit_title: commitTitle,
+          commit_message: commitMessage,
+        });
+      } catch (error) {
+        console.error(error);
+        console.warn(`Error merging ${iterationDescription}. Continuing...`);
+        continue;
+      }
+    }
+
+    if (!queryResults.length) {
+      console.log(`No PRs w/ merge label found in repo: ${repo.full_name}`);
     }
   }
   console.log("Done!");

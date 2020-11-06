@@ -2,7 +2,7 @@ import { Octokit } from "@octokit/rest";
 import { throttling } from "@octokit/plugin-throttling";
 import { createAppAuth } from "@octokit/auth-app";
 
-const privateKey = process.env.PRIVATE_KEY as string;
+const privateKey = process.env.PRIVATE_KEY || "test_key";
 
 const buff = Buffer.from(privateKey, "base64");
 
@@ -14,7 +14,7 @@ export const getClient = () => {
   return new MyOctokit({
     authStrategy: createAppAuth,
     auth: {
-      appId: 85914,
+      appId: process.env.APP_ID,
       privateKey: buff.toString("ascii"),
       installationId: 12543261,
     },

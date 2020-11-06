@@ -4,13 +4,8 @@ import {
   isPrMergeable,
   sanitizePrTitle,
 } from "../src/utils";
-import {
-  dirtyState,
-  notMergingToDefaultBranch,
-  prToMerge,
-} from "./fixtures/pull_request";
+import { dirtyState, mergingToMain, prToMerge } from "./fixtures/pull_request";
 import { issue_events } from "./fixtures/issue_events";
-import { users } from "./fixtures/users";
 import { pull_request_reviews } from "./fixtures/pull_request_reviews";
 
 describe("Utils tests", () => {
@@ -36,7 +31,7 @@ describe("Utils tests", () => {
   test("isPrMergable", () => {
     let isMergable = isPrMergeable(prToMerge as any);
     expect(isMergable).toBe(true);
-    isMergable = isPrMergeable(notMergingToDefaultBranch as any);
+    isMergable = isPrMergeable(mergingToMain as any);
     expect(isMergable).toBe(false);
     isMergable = isPrMergeable(dirtyState as any);
     expect(isMergable).toBe(false);

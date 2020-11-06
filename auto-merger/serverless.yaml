@@ -1,4 +1,4 @@
-service: ops-bot-probot
+service: ops-bot-merger
 
 provider:
   name: aws
@@ -11,16 +11,10 @@ provider:
 
 functions:
   handleProbot:
-    handler: dist/serverless.probot
+    handler: dist/main.mergePRs
     events:
-      - http:
-          path: /
-          method: POST
-      - http:
-          path: /probot
-          method: GET
+      - schedule: rate(30 minutes)
     environment:
       LOG_LEVEL: debug
       APP_ID: ${env:APP_ID}
-      WEBHOOK_SECRET: ${env:WEBHOOK_SECRET}
       PRIVATE_KEY: ${env:PRIVATE_KEY}

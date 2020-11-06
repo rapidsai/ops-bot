@@ -5,7 +5,7 @@ import {
   UsersGetByUsernameResponseData,
 } from "@octokit/types";
 import strip from "strip-comments";
-import { MERGE_LABEL, ORG } from "./constants";
+import { MERGE_LABEL, ORG } from "./main";
 import { Author } from "./types";
 
 /**
@@ -17,7 +17,7 @@ import { Author } from "./types";
 export const isPrMergeable = (pr: PullsGetResponseData): boolean =>
   pr.mergeable_state === "clean" &&
   pr.mergeable === true &&
-  pr.base.ref === pr.base.repo.default_branch;
+  pr.base.ref !== "main";
 
 /**
  * Determines if user who added merge label has permissions to merge
@@ -121,7 +121,10 @@ export const createCommitMessage = async (
     const author = authors[i];
     commitMsg += `  - ${author.name} <${author.email}>\n`;
   }
-  commitMsg += "Approvers:\n";
+
+  commitMsg += "Approvers:";
+  if (approvers.length) commitMsg += "\n";
+  if (!approvers.length) commitMsg += " None\n";
   for (let j = 0; j < approvers.length; j++) {
     const approver = approvers[j];
     commitMsg += `  - ${approver.name}\n`;
