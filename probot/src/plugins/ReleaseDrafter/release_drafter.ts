@@ -222,12 +222,18 @@ const getReleaseDraftBody = (
 
   const templatePath = resolve(__dirname, "draft_template.njk");
   const templateStr = readFileSync(templatePath, "utf-8");
-  nunjucks.configure({
+
+  const nj = new nunjucks.Environment(null, {
     trimBlocks: true,
     lstripBlocks: true,
   });
 
-  return nunjucks
+  // Remove square brackets from title
+  nj.addFilter("sanitizeTitle", (title) =>
+    title.replace(/\[[\s\S]*?\]/g, "").trim()
+  );
+
+  return nj
     .renderString(templateStr, {
       categories,
       releaseTitle,
