@@ -215,7 +215,7 @@ const getReleaseDraftBody = (
     const category = categoryLabel.name;
     categories[category].prs.push(pr);
 
-    if (pr.labels.find((el) => el.name === "breaking change")) {
+    if (pr.labels.find((el) => el.name === "breaking")) {
       breakingPRs.push(pr);
     }
   }
