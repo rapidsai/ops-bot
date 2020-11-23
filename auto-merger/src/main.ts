@@ -14,7 +14,7 @@ import {
   sanitizePrTitle,
 } from "./utils";
 
-export const MERGE_LABEL = "5 - Ready to Merge";
+export const MERGE_LABEL = "6 - Okay to Auto-Merge";
 export const ORG = "rapidsai";
 
 export const mergePRs = async () => {
