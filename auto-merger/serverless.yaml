@@ -13,7 +13,7 @@ functions:
   handleProbot:
     handler: dist/main.mergePRs
     events:
-      - schedule: rate(30 minutes)
+      - schedule: rate(15 minutes)
     environment:
       LOG_LEVEL: debug
       APP_ID: ${env:APP_ID}
