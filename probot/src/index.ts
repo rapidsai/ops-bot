@@ -1,7 +1,7 @@
 import { Application } from "probot";
 import { LabelChecker } from "./plugins/LabelCheck/label_check";
-import { initReleaseDrafter } from "./plugins/ReleaseDrafter/release_drafter";
-import { PRContext } from "./types";
+import { ReleaseDrafter } from "./plugins/ReleaseDrafter/release_drafter";
+import { PRContext, PushContext } from "./types";
 
 export = ({ app }: { app: Application }) => {
   app.on(
@@ -14,9 +14,13 @@ export = ({ app }: { app: Application }) => {
     ],
     checkLabels
   );
-  initReleaseDrafter(app);
+  app.on(["push"], draftRelease);
 };
 
 const checkLabels = async (context: PRContext): Promise<any> => {
   await new LabelChecker(context).checkLabels();
+};
+
+const draftRelease = async (context: PushContext): Promise<any> => {
+  await new ReleaseDrafter(context).draftRelease();
 };

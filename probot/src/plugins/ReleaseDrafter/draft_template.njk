@@ -6,8 +6,9 @@
 {% for _, category in categories %}
   {% if category.prs | length %}
 ## {{ category.title }}
+
   {% for pr in category.prs %}
-  {{ prEntry(pr) }}
+{{ prEntry(pr) }}
   {% endfor %}
 
   {% endif %}
