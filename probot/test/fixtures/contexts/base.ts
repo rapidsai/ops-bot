@@ -11,7 +11,7 @@ import {
 export const makeContext = (payload) => {
   return {
     payload,
-    github: {
+    octokit: {
       repos: {
         compareCommits: mockCompareCommits,
         createCommitStatus: mockCreateCommitStatus,

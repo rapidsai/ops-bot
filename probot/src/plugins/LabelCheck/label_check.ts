@@ -102,7 +102,7 @@ export class LabelChecker {
       sha: context.payload.pull_request.head.sha,
     };
     const { repository } = context.payload;
-    return await context.github.repos.createCommitStatus({
+    return await context.octokit.repos.createCommitStatus({
       owner: repository.owner.login,
       repo: repository.name,
       ...statusOptions,

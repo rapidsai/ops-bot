@@ -8,6 +8,8 @@ provider:
   stage: dev
   runtime: nodejs12.x
   logRetentionInDays: 60
+  apiGateway:
+    shouldStartNameWithService: true
 
 functions:
   handleProbot:

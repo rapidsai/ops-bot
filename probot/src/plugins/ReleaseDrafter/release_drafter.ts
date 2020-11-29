@@ -72,7 +72,7 @@ export class ReleaseDrafter {
     const previousBranchName = `branch-0.${previousBranchNumber}`;
 
     try {
-      const { data: comparison } = await context.github.repos.compareCommits({
+      const { data: comparison } = await context.octokit.repos.compareCommits({
         owner,
         repo,
         base: previousBranchName,
@@ -115,7 +115,7 @@ export class ReleaseDrafter {
     let allCommits: ReposListCommitsResponseData = [];
 
     do {
-      var { data: pageCommits } = await context.github.repos.listCommits({
+      var { data: pageCommits } = await context.octokit.repos.listCommits({
         owner,
         repo,
         sha: pushCommitSHA,
@@ -150,7 +150,7 @@ export class ReleaseDrafter {
     // Get PR associations simultaneously to reduce overall execution time
     const commitPRs = await Promise.all(
       commits.map((commit) =>
-        context.github.repos.listPullRequestsAssociatedWithCommit({
+        context.octokit.repos.listPullRequestsAssociatedWithCommit({
           owner,
           repo,
           commit_sha: commit.sha,
@@ -246,7 +246,7 @@ export class ReleaseDrafter {
    */
   async getExistingDraftReleaseId(releaseName: string): Promise<number> {
     const context = this.context;
-    const { data: releases } = await context.github.repos.listReleases({
+    const { data: releases } = await context.octokit.repos.listReleases({
       owner: context.payload.repository.owner.login,
       repo: context.payload.repository.name,
       per_page: 20,
@@ -271,7 +271,7 @@ export class ReleaseDrafter {
     const repo = context.payload.repository.name;
 
     if (releaseId !== -1) {
-      await context.github.repos.updateRelease({
+      await context.octokit.repos.updateRelease({
         owner,
         repo,
         release_id: releaseId,
@@ -280,7 +280,7 @@ export class ReleaseDrafter {
       return;
     }
 
-    await context.github.repos.createRelease({
+    await context.octokit.repos.createRelease({
       owner,
       repo,
       tag_name: releaseName,
