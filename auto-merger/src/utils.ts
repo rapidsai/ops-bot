@@ -31,13 +31,20 @@ export const hasValidMergeLabelActor = async (
   events: IssuesListEventsForTimelineResponseData
 ): Promise<boolean> => {
   const repoName = pr.base.repo.name;
+  let mergeUsers: string[];
 
-  const mergeUsers = (
-    await client.paginate(client.teams.listMembersInOrg, {
-      org: ORG,
-      team_slug: `${repoName}-write`,
-    })
-  ).map((el) => el.login);
+  try {
+    mergeUsers = (
+      await client.paginate(client.teams.listMembersInOrg, {
+        org: ORG,
+        team_slug: `${repoName}-write`,
+      })
+    ).map((el) => el.login);
+    
+  } catch (error) {
+    console.warn(`Error getting members of ${repoName}-write team`)
+    return false;
+  }
 
   const mergeLabelActor = events
     .filter(
