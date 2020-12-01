@@ -31,20 +31,6 @@ export const hasValidMergeLabelActor = async (
   events: IssuesListEventsForTimelineResponseData
 ): Promise<boolean> => {
   const repoName = pr.base.repo.name;
-  let mergeUsers: string[];
-
-  try {
-    mergeUsers = (
-      await client.paginate(client.teams.listMembersInOrg, {
-        org: ORG,
-        team_slug: `${repoName}-write`,
-      })
-    ).map((el) => el.login);
-    
-  } catch (error) {
-    console.warn(`Error getting members of ${repoName}-write team`)
-    return false;
-  }
 
   const mergeLabelActor = events
     .filter(
@@ -53,7 +39,13 @@ export const hasValidMergeLabelActor = async (
     .sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at))[0].actor
     .login;
 
-  return mergeUsers.includes(mergeLabelActor);
+  const { data: resp } = await client.repos.getCollaboratorPermissionLevel({
+    owner: ORG,
+    repo: repoName,
+    username: mergeLabelActor,
+  });
+
+  return resp.permission === "admin" || resp.permission === "write";
 };
 
 /**

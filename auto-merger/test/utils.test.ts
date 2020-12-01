@@ -10,6 +10,7 @@ import { pull_request_reviews } from "./fixtures/pull_request_reviews";
 
 describe("Utils tests", () => {
   const paginateSpy = jest.fn();
+  const getCollaboratorPermissionLevelSpy = jest.fn();
   const clientSpy = {
     paginate: paginateSpy,
     teams: {
@@ -23,9 +24,13 @@ describe("Utils tests", () => {
     pulls: {
       listReviews: () => {},
     },
+    repos: {
+      getCollaboratorPermissionLevel: getCollaboratorPermissionLevelSpy,
+    },
   };
   beforeEach(() => {
     paginateSpy.mockClear();
+    getCollaboratorPermissionLevelSpy.mockClear();
   });
 
   test("isPrMergable", () => {
@@ -48,23 +53,27 @@ describe("Utils tests", () => {
     expect(title).toBe("Without square brackets");
   });
 
-  test("hasValidMergeLabelActor", async () => {
+  test.each([
+    ["admin", true],
+    ["write", true],
+    ["read", false],
+  ])("hasValidMergeLabelActor - %s", async (permission, expectedResult) => {
     // Mocks listMembersInOrg response
-    paginateSpy.mockResolvedValue([
-      { login: "thecorrectuser" },
-      { login: "ajschmidt8" },
-    ]);
+    getCollaboratorPermissionLevelSpy.mockResolvedValue({
+      data: { permission },
+    });
 
     let result = await hasValidMergeLabelActor(
       clientSpy as any,
       prToMerge as any,
       issue_events as any
     );
-    expect(result).toBe(true);
-    expect(paginateSpy).toBeCalledTimes(1);
-    expect(paginateSpy.mock.calls[0][1]).toMatchObject({
-      org: "rapidsai",
-      team_slug: "cudf-write",
+    expect(result).toBe(expectedResult);
+    expect(getCollaboratorPermissionLevelSpy).toBeCalledTimes(1);
+    expect(getCollaboratorPermissionLevelSpy.mock.calls[0][0]).toMatchObject({
+      owner: "rapidsai",
+      repo: "cudf",
+      username: "thecorrectuser",
     });
   });
 
