@@ -1,5 +1,5 @@
 import { Application } from "probot";
-import { LabelChecker } from "./plugins/LabelCheck/label_check";
+import { LabelChecker } from "./plugins/LabelChecker/label_checker";
 import { ReleaseDrafter } from "./plugins/ReleaseDrafter/release_drafter";
 import { PRContext, PushContext } from "./types";
 

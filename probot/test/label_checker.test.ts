@@ -1,4 +1,4 @@
-import { LabelChecker } from "../src/plugins/LabelCheck/label_check";
+import { LabelChecker } from "../src/plugins/LabelChecker/label_checker";
 import * as context from "./fixtures/contexts/pull_request";
 import { mockCreateCommitStatus } from "./mocks";
 
