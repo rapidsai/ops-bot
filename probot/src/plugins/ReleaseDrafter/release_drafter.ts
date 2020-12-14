@@ -191,7 +191,7 @@ export class ReleaseDrafter {
     const categories = {
       bug: { title: "Bug Fixes", prs: [] },
       doc: { title: "Documentation", prs: [] },
-      "feature request": { title: "Feature Requests", prs: [] },
+      "feature request": { title: "New Features", prs: [] },
       improvement: { title: "Improvements", prs: [] },
     };
 
