@@ -16,7 +16,10 @@ export = ({ app }: { app: Application }) => {
     checkLabels
   );
   app.on(["push"], draftRelease);
-  app.on(["issue_comment", "pull_request_review", "status"], automerge);
+  app.on(
+    ["issue_comment.created", "pull_request_review.submitted", "status"],
+    automerge
+  );
 };
 
 const checkLabels = async (context: PRContext): Promise<any> => {

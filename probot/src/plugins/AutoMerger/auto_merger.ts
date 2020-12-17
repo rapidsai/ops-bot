@@ -63,9 +63,7 @@ export class AutoMerger {
     if (this.isPRReviewContext(context)) {
       const { payload } = context;
       prNumbers.push(payload.pull_request.number);
-      if (
-        !(payload.action === "submitted" && payload.review.state === "approved")
-      ) {
+      if (payload.review.state !== "approved") {
         console.warn(
           `PR review for ${repo.full_name} #${prNumbers[0]} was not an approval. Skipping...`
         );
