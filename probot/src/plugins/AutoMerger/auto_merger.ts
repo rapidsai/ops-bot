@@ -260,6 +260,11 @@ export class AutoMerger {
     return permissions.includes("admin") || permissions.includes("write");
   }
 
+  /**
+   * Returns a string used for the squash commit that contains the PR body,
+   * PR authors, and PR approvers.
+   * @param pr
+   */
   async createCommitMessage(pr: PullsGetResponseData): Promise<string> {
     const context = this.context;
     let commitMsg = "";
@@ -301,6 +306,10 @@ export class AutoMerger {
     return commitMsg;
   }
 
+  /**
+   * Returns the profiles for all of the authors of a given PR
+   * @param pr
+   */
   async getAuthors(
     pr: PullsGetResponseData
   ): Promise<UsersGetByUsernameResponseData[]> {
@@ -329,6 +338,10 @@ export class AutoMerger {
     );
   }
 
+  /**
+   * Returns the profiles for all of the approvers of a given PR
+   * @param pr
+   */
   async getApprovers(
     pr: PullsGetResponseData
   ): Promise<UsersGetByUsernameResponseData[]> {
@@ -361,6 +374,10 @@ export class AutoMerger {
     );
   }
 
+  /**
+   * Removes square brackets, [], and their contents from a given string
+   * @param rawTitle
+   */
   sanitizePrTitle(rawTitle): string {
     return rawTitle.replace(/\[[\s\S]*?\]/g, "").trim();
   }
