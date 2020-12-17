@@ -64,7 +64,7 @@ export class AutoMerger {
       const { payload } = context;
       prNumber = payload.pull_request.number;
       if (
-        !(payload.review.state === "approved" && payload.action === "submitted")
+        !(payload.action === "submitted" && payload.review.state === "approved")
       ) {
         console.warn(
           `PR review for ${repo.full_name} #${prNumber} was not an approval. Skipping...`
@@ -205,7 +205,7 @@ export class AutoMerger {
    */
   isPrMergeable(pr: PullsGetResponseData): boolean {
     return (
-      pr.mergeable_state === "clean" &&
+      (pr.mergeable_state === "clean" || pr.mergeable_state === "unstable") &&
       pr.mergeable === true &&
       pr.base.ref !== "main"
     );
@@ -226,19 +226,16 @@ export class AutoMerger {
         owner: repo.owner.login,
         repo: repo.name,
         issue_number: prNumber,
-      },
-      (resp) =>
-        resp.data.map((comment) => ({
-          author: comment.user.login,
-          body: comment.body,
-        }))
+      }
     );
 
     const mergeComments = allComments.filter((comment) =>
       this.isMergeComment(comment.body)
     );
 
-    const mergeCommentAuthors = mergeComments.map((comment) => comment.author);
+    const mergeCommentAuthors = mergeComments.map(
+      (comment) => comment.user.login
+    );
 
     const permissions = await Promise.all(
       mergeCommentAuthors.map(async (actor) => {

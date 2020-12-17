@@ -1,7 +1,8 @@
 import { Application } from "probot";
+import { AutoMerger } from "./plugins/AutoMerger/auto_merger";
 import { LabelChecker } from "./plugins/LabelChecker/label_checker";
 import { ReleaseDrafter } from "./plugins/ReleaseDrafter/release_drafter";
-import { PRContext, PushContext } from "./types";
+import { AutoMergerContext, PRContext, PushContext } from "./types";
 
 export = ({ app }: { app: Application }) => {
   app.on(
@@ -15,6 +16,7 @@ export = ({ app }: { app: Application }) => {
     checkLabels
   );
   app.on(["push"], draftRelease);
+  app.on(["issue_comment", "pull_request_review", "status"], automerge);
 };
 
 const checkLabels = async (context: PRContext): Promise<any> => {
@@ -23,4 +25,8 @@ const checkLabels = async (context: PRContext): Promise<any> => {
 
 const draftRelease = async (context: PushContext): Promise<any> => {
   await new ReleaseDrafter(context).draftRelease();
+};
+
+const automerge = async (context: AutoMergerContext): Promise<any> => {
+  await new AutoMerger(context).maybeMergePR();
 };
