@@ -2,34 +2,47 @@ import {
   mockCompareCommits,
   mockCreateCommitStatus,
   mockCreateRelease,
+  mockGetByUsername,
+  mockGetUserPermissionLevel,
+  mockListComments,
   mockListCommits,
-  mockListPullRequestsAssociatedWithCommit,
+  mockListPullRequestsFromCommit,
   mockListReleases,
+  mockListReviews,
+  mockMerge,
+  mockPaginate,
+  mockPullsGet,
   mockUpdateRelease,
 } from "../../mocks";
+import type { WebhookEvents } from "@octokit/webhooks";
 
-export const makeContext = (payload) => {
+export const makeContext = (payload, name: WebhookEvents) => {
   return {
+    name,
     payload,
     octokit: {
+      issues: {
+        listComments: mockListComments,
+      },
+      pulls: {
+        get: mockPullsGet,
+        listReviews: mockListReviews,
+        merge: mockMerge,
+      },
       repos: {
         compareCommits: mockCompareCommits,
         createCommitStatus: mockCreateCommitStatus,
         createRelease: mockCreateRelease,
+        getCollaboratorPermissionLevel: mockGetUserPermissionLevel,
         listCommits: mockListCommits,
-        listPullRequestsAssociatedWithCommit: mockListPullRequestsAssociatedWithCommit,
+        listPullRequestsAssociatedWithCommit: mockListPullRequestsFromCommit,
         listReleases: mockListReleases,
         updateRelease: mockUpdateRelease,
       },
+      users: {
+        getByUsername: mockGetByUsername,
+      },
+      paginate: mockPaginate,
     },
   };
 };
-
-// Probot plugins usage
-// context.payload
-// context.payload.ref
-// context.payload.repository.name
-// context.payload.after
-// context.payload.repository.owner.login
-// context.payload.pull_request.labels
-// context.payload.pull_request.head.sha

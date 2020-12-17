@@ -3,14 +3,14 @@ import * as context from "./fixtures/contexts/push";
 import * as compareCommitsResp from "./fixtures/responses/compare_commits.json";
 import * as listCommitsResp from "./fixtures/responses/list_commits.json";
 import {
-  validPRs,
-  PRMissingLabels,
+  commitPRs,
+  commitPRsNoLabels,
 } from "./fixtures/responses/list_pull_requests_associated_with_commit";
 import { hasExistingRelease } from "./fixtures/responses/list_releases";
 import {
   mockCompareCommits,
   mockListCommits,
-  mockListPullRequestsAssociatedWithCommit,
+  mockListPullRequestsFromCommit,
   mockListReleases,
   mockUpdateRelease,
   mockCreateRelease,
@@ -21,7 +21,7 @@ describe("Label Check", () => {
     mockCompareCommits.mockReset();
     mockCreateRelease.mockReset();
     mockListCommits.mockReset();
-    mockListPullRequestsAssociatedWithCommit.mockReset();
+    mockListPullRequestsFromCommit.mockReset();
     mockListReleases.mockReset();
     mockUpdateRelease.mockReset();
   });
@@ -30,7 +30,7 @@ describe("Label Check", () => {
     await new ReleaseDrafter(context.nonVersionedBranch).draftRelease();
     expect(mockCompareCommits).not.toHaveBeenCalled();
     expect(mockListCommits).not.toHaveBeenCalled();
-    expect(mockListPullRequestsAssociatedWithCommit).not.toHaveBeenCalled();
+    expect(mockListPullRequestsFromCommit).not.toHaveBeenCalled();
     expect(mockListReleases).not.toHaveBeenCalled();
     expect(mockUpdateRelease).not.toHaveBeenCalled();
     expect(mockCreateRelease).not.toHaveBeenCalled();
@@ -41,7 +41,7 @@ describe("Label Check", () => {
     await new ReleaseDrafter(context.deletedPush).draftRelease();
     expect(mockCompareCommits).not.toHaveBeenCalled();
     expect(mockListCommits).not.toHaveBeenCalled();
-    expect(mockListPullRequestsAssociatedWithCommit).not.toHaveBeenCalled();
+    expect(mockListPullRequestsFromCommit).not.toHaveBeenCalled();
     expect(mockListReleases).not.toHaveBeenCalled();
     expect(mockUpdateRelease).not.toHaveBeenCalled();
     expect(mockCreateRelease).not.toHaveBeenCalled();
@@ -50,13 +50,11 @@ describe("Label Check", () => {
   test("update existing release", async () => {
     mockCompareCommits.mockResolvedValueOnce(compareCommitsResp);
     mockListCommits.mockResolvedValueOnce(listCommitsResp);
-    mockListPullRequestsAssociatedWithCommit.mockResolvedValueOnce(validPRs[0]);
-    mockListPullRequestsAssociatedWithCommit.mockResolvedValueOnce(validPRs[1]);
-    mockListPullRequestsAssociatedWithCommit.mockResolvedValueOnce(validPRs[1]);
-    mockListPullRequestsAssociatedWithCommit.mockResolvedValueOnce(
-      PRMissingLabels
-    );
-    mockListPullRequestsAssociatedWithCommit.mockResolvedValueOnce({
+    mockListPullRequestsFromCommit.mockResolvedValueOnce(commitPRs[0]);
+    mockListPullRequestsFromCommit.mockResolvedValueOnce(commitPRs[1]);
+    mockListPullRequestsFromCommit.mockResolvedValueOnce(commitPRs[1]);
+    mockListPullRequestsFromCommit.mockResolvedValueOnce(commitPRsNoLabels);
+    mockListPullRequestsFromCommit.mockResolvedValueOnce({
       data: [],
     });
     mockListReleases.mockResolvedValueOnce(hasExistingRelease);

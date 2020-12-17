@@ -1,4 +1,4 @@
-type ListResponse = {
+type RespParams = {
   id?: number;
   draft?: boolean;
   name?: string;
@@ -8,7 +8,7 @@ const makeResponse = ({
   id = 1,
   draft = true,
   name = "v0.17.0",
-}: ListResponse = {}) => ({
+}: RespParams = {}) => ({
   data: [
     {
       id,

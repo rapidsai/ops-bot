@@ -115,7 +115,7 @@ const makePushContext = ({
     },
   };
 
-  return (makeContext(payload) as unknown) as PushContext;
+  return (makeContext(payload, "push") as unknown) as PushContext;
 };
 
 export const versionedBranch = makePushContext();

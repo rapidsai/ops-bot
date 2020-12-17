@@ -27,7 +27,7 @@ const makePRContext = (labels: string[] = []): PRContext => {
     },
   };
 
-  return (makeContext(payload) as unknown) as PRContext;
+  return (makeContext(payload, "pull_request") as unknown) as PRContext;
 };
 
 // "Missing category & breaking labels",

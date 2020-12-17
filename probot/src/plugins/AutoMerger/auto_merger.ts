@@ -113,10 +113,10 @@ export class AutoMerger {
 
       // Merge PR
       console.log(`Merging ${prDescription}`);
-      const commitTitle = this.sanitizePrTitle(pr.title) + `(#${pr.number})`;
+      const commitTitle = this.sanitizePrTitle(pr.title) + ` (#${pr.number})`;
       await context.octokit.pulls.merge({
         owner: repo.owner.login,
-        repo: pr.base.repo.name,
+        repo: repo.name,
         pull_number: pr.number,
         merge_method: "squash",
         commit_title: commitTitle,

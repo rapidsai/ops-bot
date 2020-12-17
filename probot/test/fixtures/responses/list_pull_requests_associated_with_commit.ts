@@ -23,7 +23,7 @@ const makeResponse = ({
   ],
 });
 
-export const validPRs = [
+export const commitPRs = [
   makeResponse(),
   makeResponse({
     title: "Some Doc PR",
@@ -32,7 +32,7 @@ export const validPRs = [
     login: "ajschmidt8",
   }),
 ];
-export const PRMissingLabels = makeResponse({
+export const commitPRsNoLabels = makeResponse({
   title: "Another Title",
   number: 4567,
   labels: [],
