@@ -19,7 +19,7 @@ export class AutoMerger {
   async maybeMergePR(): Promise<any> {
     const context = this.context;
     const { repository: repo } = context.payload;
-    let prNumber = -1;
+    let prNumbers: number[] = []; // will usually only contain 1 number, except in rare instances w/ status contexts
 
     // Handle "status" context
     if (this.isStatusContext(context)) {
@@ -30,8 +30,8 @@ export class AutoMerger {
         );
         return;
       }
-      prNumber = await this.getPRNumberfromSHA(context);
-      if (prNumber === -1) {
+      prNumbers = await this.getPRNumbersfromSHA(context);
+      if (!prNumbers.length) {
         console.warn(
           `Could not find PR for sha:${sha} in repo:${repo.full_name}. Skipping...`
         );
@@ -42,17 +42,17 @@ export class AutoMerger {
     // Handle "issue_comment" context
     if (this.isIssueCommentContext(context)) {
       const comment = context.payload.comment.body;
-      prNumber = context.payload.issue.number;
+      prNumbers.push(context.payload.issue.number);
       if (!this.isPR(context)) {
         console.warn(
-          `The following comment from ${repo.full_name} #${prNumber} was from an issue, not a PR: ${comment}.\n`,
+          `The following comment from ${repo.full_name} #${prNumbers[0]} was from an issue, not a PR: ${comment}.\n`,
           `Skipping...`
         );
         return;
       }
       if (!this.isMergeComment(comment)) {
         console.warn(
-          `The following comment from ${repo.full_name} #${prNumber} was not a merge comment: ${comment}.\n`,
+          `The following comment from ${repo.full_name} #${prNumbers[0]} was not a merge comment: ${comment}.\n`,
           `Skipping...`
         );
         return;
@@ -62,19 +62,19 @@ export class AutoMerger {
     // Handle "pull_request_review" context
     if (this.isPRReviewContext(context)) {
       const { payload } = context;
-      prNumber = payload.pull_request.number;
+      prNumbers.push(payload.pull_request.number);
       if (
         !(payload.action === "submitted" && payload.review.state === "approved")
       ) {
         console.warn(
-          `PR review for ${repo.full_name} #${prNumber} was not an approval. Skipping...`
+          `PR review for ${repo.full_name} #${prNumbers[0]} was not an approval. Skipping...`
         );
         return;
       }
     }
 
     // Catch-all
-    if (prNumber === -1) {
+    if (!prNumbers.length) {
       const name = context.name;
       console.warn(
         `No matching handler for context:${name} from repo:${repo.full_name}`
@@ -82,43 +82,49 @@ export class AutoMerger {
       return;
     }
 
-    // Get PR info
-    const { data: pr } = await context.octokit.pulls.get({
-      owner: repo.owner.login,
-      repo: repo.name,
-      pull_number: prNumber,
-    });
+    for (let i = 0; i < prNumbers.length; i++) {
+      const prNumber = prNumbers[i];
 
-    const prDescription = `${repo.full_name} #${pr.number} - "${pr.title}"`;
+      // Get PR info
+      const { data: pr } = await context.octokit.pulls.get({
+        owner: repo.owner.login,
+        repo: repo.name,
+        pull_number: prNumber,
+      });
 
-    // Check if PR is mergeable (all green)
-    if (!this.isPrMergeable(pr)) {
-      console.warn(
-        `${prDescription} has merge conflicts, pending CI checks or is merging to "main" branch. Skipping...`
-      );
-      return;
+      const prDescription = `${repo.full_name} #${pr.number} - "${pr.title}"`;
+
+      // Check if PR is mergeable (all green)
+      if (!this.isPrMergeable(pr)) {
+        console.warn(
+          `${prDescription} has merge conflicts, pending CI checks or is merging to "main" branch. Skipping...`
+        );
+        return;
+      }
+
+      // Check if PR has valid merge comment
+      if (!(await this.checkForValidMergeComment(pr.number))) {
+        console.warn(
+          `${prDescription} doesn't have merge comment. Skipping...`
+        );
+        return;
+      }
+
+      // Generate commit message
+      const commitMsg = await this.createCommitMessage(pr);
+
+      // Merge PR
+      console.log(`Merging ${prDescription}`);
+      const commitTitle = this.sanitizePrTitle(pr.title) + `(#${pr.number})`;
+      await context.octokit.pulls.merge({
+        owner: repo.owner.login,
+        repo: pr.base.repo.name,
+        pull_number: pr.number,
+        merge_method: "squash",
+        commit_title: commitTitle,
+        commit_message: commitMsg,
+      });
     }
-
-    // Check if PR has valid merge comment
-    if (!(await this.checkForValidMergeComment(pr.number))) {
-      console.warn(`${prDescription} doesn't have merge comment. Skipping...`);
-      return;
-    }
-
-    // Generate commit message
-    const commitMsg = await this.createCommitMessage(pr);
-
-    // Merge PR
-    console.log(`Merging ${prDescription}`);
-    const commitTitle = this.sanitizePrTitle(pr.title) + `(#${pr.number})`;
-    await context.octokit.pulls.merge({
-      owner: repo.owner.login,
-      repo: pr.base.repo.name,
-      pull_number: pr.number,
-      merge_method: "squash",
-      commit_title: commitTitle,
-      commit_message: commitMsg,
-    });
   }
 
   /**
@@ -151,14 +157,16 @@ export class AutoMerger {
   }
 
   /**
-   * Looks in forked and source repos to determine the PR number associated
-   * with the given commit SHA. Returns -1 if not found.
+   * Looks in forked and source repos to determine the PR numbers associated
+   * with the given commit SHA. Returns empty array if no PRs found.
    * @param context
    */
-  async getPRNumberfromSHA(context: StatusContext): Promise<number> {
+  async getPRNumbersfromSHA(context: StatusContext): Promise<number[]> {
     const repoName = context.payload.repository.name;
     const sourceRepoOwner = context.payload.repository.owner.login;
     const forkedRepoOwner = context.payload.repository.owner.login;
+
+    let prNumbers: number[] = [];
 
     for (const repoOwner of [forkedRepoOwner, sourceRepoOwner]) {
       try {
@@ -170,13 +178,13 @@ export class AutoMerger {
           repo: repoName,
         });
         if (!prs.length) continue;
-        return prs[0].number;
+        prNumbers = [...prNumbers, ...prs.map((pr) => pr.number)];
       } catch (error) {
         continue;
       }
     }
 
-    return -1;
+    return prNumbers;
   }
 
   /**
