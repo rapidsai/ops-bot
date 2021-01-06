@@ -110,8 +110,14 @@ export const createCommitMessage = async (
     preserveNewlines: false,
   }).trim();
   const authors = getUniqueAuthors(events);
-
   const approvers = await getApproverProfiles(client, pr);
+
+  const formatUserName = (user: UsersGetByUsernameResponseData): string => {
+    if (user.name) {
+      return `${user.name} (@${user.login})`;
+    }
+    return `@${user.login}`;
+  };
 
   commitMsg += `${prBody}\n`;
   commitMsg += "\n";
@@ -128,7 +134,7 @@ export const createCommitMessage = async (
   if (!approvers.length) commitMsg += " None\n";
   for (let j = 0; j < approvers.length; j++) {
     const approver = approvers[j];
-    commitMsg += `  - ${approver.name}\n`;
+    commitMsg += `  - ${formatUserName(approver)}\n`;
   }
   commitMsg += "\n";
   commitMsg += `URL: ${pr.html_url}`;

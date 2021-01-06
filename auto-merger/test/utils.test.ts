@@ -18,7 +18,7 @@ describe("Utils tests", () => {
     },
     users: {
       getByUsername: ({ username }) => {
-        return { data: { name: username } };
+        return { data: { login: username } };
       },
     },
     pulls: {
@@ -95,10 +95,10 @@ Authors:
   - Ram (Ramakrishna Prabhu) <ram@users.noreply.github.com>
 
 Approvers:
-  - rgsl888prabhu
-  - rgsl888prabhu
-  - codereport
-  - cwharris
+  - @rgsl888prabhu
+  - @rgsl888prabhu
+  - @codereport
+  - @cwharris
 
 URL: https://github.com/rapidsai/cudf/pull/6609`
     );
