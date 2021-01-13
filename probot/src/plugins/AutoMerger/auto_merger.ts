@@ -9,7 +9,7 @@ import {
 import strip from "strip-comments";
 
 const MERGE_COMMENT = "okay to merge";
-const ENABLED_REPOS = ["ops-bot"];
+const ENABLED_REPOS = ["ops-bot", "rmm"];
 
 export class AutoMerger {
   public context: AutoMergerContext;

@@ -16,6 +16,7 @@ import {
 
 export const MERGE_LABEL = "6 - Okay to Auto-Merge";
 export const ORG = "rapidsai";
+const DISABLED_REPOS = ["rmm"];
 
 export const mergePRs = async () => {
   const client = getClient();
@@ -34,6 +35,13 @@ export const mergePRs = async () => {
   for (let i = 0; i < repositories.length; i++) {
     const repo = repositories[i];
     console.log(`Starting repo - ${repo.full_name}`);
+
+    // For testing purposes:
+    /* istanbul ignore next */
+    if (DISABLED_REPOS.includes(repo.name) && process.env.NODE_ENV !== "test") {
+      console.log("repo name:", repo.name);
+      return;
+    }
 
     // Query PRs with merge label
     let queryResults: SearchIssuesAndPullRequestsResponseItems;
