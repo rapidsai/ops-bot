@@ -8,7 +8,7 @@ import {
 } from "../../types";
 import strip from "strip-comments";
 
-const MERGE_COMMENT = "okay to merge";
+const MERGE_COMMENT = "@gpucibot okay to merge";
 const ENABLED_REPOS = ["ops-bot", "rmm"];
 
 export class AutoMerger {
@@ -228,7 +228,7 @@ export class AutoMerger {
   }
 
   /**
-   * Returns true if the given PR number has the "okay to merge"
+   * Returns true if the given PR number has the "@gpucibot okay to merge"
    * comment and it was posted by a user with "admin" or "write" permissions.
    * @param prNumber
    */
