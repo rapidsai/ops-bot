@@ -162,7 +162,7 @@ export class AutoMerger {
   async getPRNumbersfromSHA(context: StatusContext): Promise<number[]> {
     const repoName = context.payload.repository.name;
     const sourceRepoOwner = context.payload.repository.owner.login;
-    const forkedRepoOwner = context.payload.repository.owner.login;
+    const forkedRepoOwner = context.payload.commit.author.login;
 
     let prNumbers: number[] = [];
 

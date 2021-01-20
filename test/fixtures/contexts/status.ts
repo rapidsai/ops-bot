@@ -5,6 +5,11 @@ const makeStatusContext = (state: string = "success"): StatusContext => {
   const payload = {
     state,
     sha: "somerandomsha1234",
+    commit: {
+      author: {
+        login: "codereport",
+      },
+    },
     repository: {
       name: "cudf",
       full_name: "rapidsai/cudf",
