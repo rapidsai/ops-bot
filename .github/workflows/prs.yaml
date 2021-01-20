@@ -4,9 +4,6 @@ on:
 
 jobs:
   probot:
-    defaults:
-      run:
-        working-directory: probot
     runs-on: ubuntu-latest
     container: node:latest
     steps:
