@@ -1,16 +1,12 @@
-name: Deploy Probot
+name: deploy-probot
 
 on:
   push:
     branches: main
     paths:
-      - "probot/src/**"
-      - "probot/package*.json"
-      - "probot/serverless.yaml"
-
-defaults:
-  run:
-    working-directory: probot
+      - "src/**"
+      - "package*.json"
+      - "serverless.yaml"
 
 jobs:
   deploy:
