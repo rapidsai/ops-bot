@@ -1,25 +1,9 @@
-name: PR Checks
+name: unit-tests
 on:
   pull_request:
 
 jobs:
-  probot-tests:
-    defaults:
-      run:
-        working-directory: probot
-    runs-on: ubuntu-latest
-    container: node:latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Install packages
-        run: npm ci
-      - name: Run unit tests
-        run: npm run test
-  merger-tests:
-    defaults:
-      run:
-        working-directory: auto-merger
+  probot:
     runs-on: ubuntu-latest
     container: node:latest
     steps:

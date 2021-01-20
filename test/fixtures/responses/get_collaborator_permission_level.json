@@ -1,0 +1,25 @@
+{
+  "data": {
+    "permission": "write",
+    "user": {
+      "login": "ajschmidt8",
+      "id": 7400326,
+      "node_id": "MDQ6VXNlcjc0MDAzMjY=",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/7400326?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ajschmidt8",
+      "html_url": "https://github.com/ajschmidt8",
+      "followers_url": "https://api.github.com/users/ajschmidt8/followers",
+      "following_url": "https://api.github.com/users/ajschmidt8/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ajschmidt8/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ajschmidt8/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ajschmidt8/subscriptions",
+      "organizations_url": "https://api.github.com/users/ajschmidt8/orgs",
+      "repos_url": "https://api.github.com/users/ajschmidt8/repos",
+      "events_url": "https://api.github.com/users/ajschmidt8/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ajschmidt8/received_events",
+      "type": "User",
+      "site_admin": false
+    }
+  }
+}

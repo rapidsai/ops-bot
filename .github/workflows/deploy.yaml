@@ -1,0 +1,34 @@
+name: deploy-probot
+
+on:
+  push:
+    branches: main
+    paths:
+      - "src/**"
+      - "package*.json"
+      - "serverless.yaml"
+
+jobs:
+  deploy:
+    name: Deploy Probot Application
+    runs-on: ubuntu-latest
+    container: node:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Test Probot
+        run: npm run test
+      - name: Build Probot
+        run: npm run build
+      - name: Copy release draft template
+        run: cp src/plugins/ReleaseDrafter/draft_template.njk dist/plugins/ReleaseDrafter
+      - name: Deploy Probot
+        run: npm run deploy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET }}
+          APP_ID: ${{ secrets.APP_ID }}
+          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}

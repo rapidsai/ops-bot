@@ -1,0 +1,56 @@
+[
+  {
+    "url": "https://api.github.com/repos/rapidsai/cudf/issues/comments/728170528",
+    "html_url": "https://github.com/rapidsai/cudf/pull/6775#issuecomment-728170528",
+    "issue_url": "https://api.github.com/repos/rapidsai/cudf/issues/6775",
+    "id": 728170528,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDcyODE3MDUyOA==",
+    "user": {
+      "login": "GPUtester",
+      "id": 38199262,
+      "node_id": "MDQ6VXNlcjM4MTk5MjYy",
+      "url": "https://api.github.com/users/GPUtester",
+      "html_url": "https://github.com/GPUtester",
+      "type": "User"
+    },
+    "created_at": "2020-11-16T16:25:54Z",
+    "updated_at": "2020-11-16T16:25:54Z",
+    "body": "Please update the changelog in order to start CI tests.\n\nView the gpuCI docs [here](https://docs.rapids.ai/gpuci#open-pr-or-update-pr)."
+  },
+  {
+    "url": "https://api.github.com/repos/rapidsai/cudf/issues/comments/728274952",
+    "html_url": "https://github.com/rapidsai/cudf/pull/6775#issuecomment-728274952",
+    "issue_url": "https://api.github.com/repos/rapidsai/cudf/issues/6775",
+    "id": 728274952,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDcyODI3NDk1Mg==",
+    "user": {
+      "login": "codecov[bot]",
+      "id": 22429695,
+      "node_id": "MDM6Qm90MjI0Mjk2OTU=",
+      "url": "https://api.github.com/users/codecov%5Bbot%5D",
+      "html_url": "https://github.com/apps/codecov",
+      "type": "Bot"
+    },
+    "created_at": "2020-11-16T19:28:09Z",
+    "updated_at": "2020-12-15T23:31:15Z",
+    "body": "# [Codecov](https://codecov.io/gh/rapidsai/cudf/pull/6775?src=pr&el=h1) Report\n> Merging [#6775](https://codecov.io/gh/rapidsai/cudf/pull/6775?src=pr&el=desc) (3dfbd68) into [branch-0.18](https://codecov.io/gh/rapidsai/cudf/commit/515a17342c7dac64e889b45859d9c042ad0a5c02?el=desc) (515a173) will **increase** coverage by `0.02%`.\n> The diff coverage is `91.11%`.\n\n[![Impacted file tree graph](https://codecov.io/gh/rapidsai/cudf/pull/6775/graphs/tree.svg?width=650&height=150&src=pr&token=iJ7d9NLIQz)](https://codecov.io/gh/rapidsai/cudf/pull/6775?src=pr&el=tree)\n\n```diff\n@@               Coverage Diff               @@\n##           branch-0.18    #6775      +/-   ##\n===============================================\n+ Coverage        82.01%   82.04%   +0.02%     \n===============================================\n  Files               96       96              \n  Lines            16340    16384      +44     \n===============================================\n+ Hits             13402    13443      +41     \n- Misses            2938     2941       +3     \n```\n\n\n| [Impacted Files](https://codecov.io/gh/rapidsai/cudf/pull/6775?src=pr&el=tree) | Coverage Δ | |\n|---|---|---|\n| [python/cudf/cudf/core/column/column.py](https://codecov.io/gh/rapidsai/cudf/pull/6775/diff?src=pr&el=tree#diff-cHl0aG9uL2N1ZGYvY3VkZi9jb3JlL2NvbHVtbi9jb2x1bW4ucHk=) | `88.03% <ø> (+0.10%)` | :arrow_up: |\n| [python/cudf/cudf/core/tools/datetimes.py](https://codecov.io/gh/rapidsai/cudf/pull/6775/diff?src=pr&el=tree#diff-cHl0aG9uL2N1ZGYvY3VkZi9jb3JlL3Rvb2xzL2RhdGV0aW1lcy5weQ==) | `83.01% <88.23%> (+1.41%)` | :arrow_up: |\n| [python/cudf/cudf/\\_\\_init\\_\\_.py](https://codecov.io/gh/rapidsai/cudf/pull/6775/diff?src=pr&el=tree#diff-cHl0aG9uL2N1ZGYvY3VkZi9fX2luaXRfXy5weQ==) | `100.00% <100.00%> (ø)` | |\n| [python/cudf/cudf/core/column/datetime.py](https://codecov.io/gh/rapidsai/cudf/pull/6775/diff?src=pr&el=tree#diff-cHl0aG9uL2N1ZGYvY3VkZi9jb3JlL2NvbHVtbi9kYXRldGltZS5weQ==) | `89.42% <100.00%> (+0.53%)` | :arrow_up: |\n\n------\n\n[Continue to review full report at Codecov](https://codecov.io/gh/rapidsai/cudf/pull/6775?src=pr&el=continue).\n> **Legend** - [Click here to learn more](https://docs.codecov.io/docs/codecov-delta)\n> `Δ = absolute <relative> (impact)`, `ø = not affected`, `? = missing data`\n> Powered by [Codecov](https://codecov.io/gh/rapidsai/cudf/pull/6775?src=pr&el=footer). Last update [515a173...3dfbd68](https://codecov.io/gh/rapidsai/cudf/pull/6775?src=pr&el=lastupdated). Read the [comment docs](https://docs.codecov.io/docs/pull-request-comments).\n"
+  },
+  {
+    "url": "https://api.github.com/repos/rapidsai/cudf/issues/comments/736790268",
+    "html_url": "https://github.com/rapidsai/cudf/pull/6775#issuecomment-736790268",
+    "issue_url": "https://api.github.com/repos/rapidsai/cudf/issues/6775",
+    "id": 736790268,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDczNjc5MDI2OA==",
+    "user": {
+      "login": "ajschmidt8",
+      "id": 53796099,
+      "node_id": "MDQ6VXNlcjUzNzk2MDk5",
+      "url": "https://api.github.com/users/brandon-b-miller",
+      "html_url": "https://github.com/brandon-b-miller",
+      "type": "User"
+    },
+    "created_at": "2020-12-01T20:11:04Z",
+    "updated_at": "2020-12-01T20:11:04Z",
+    "body": "@gpucibot Merge "
+  }
+]

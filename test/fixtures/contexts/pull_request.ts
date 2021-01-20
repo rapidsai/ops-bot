@@ -1,0 +1,71 @@
+import { makeContext } from "./base";
+import { PRContext } from "../../../src/types";
+
+const makePRContext = (labels: string[] = []): PRContext => {
+  const payload = {
+    action: "opened",
+    issue: {
+      number: 1,
+      user: {
+        login: "rapidsuser",
+      },
+    },
+    repository: {
+      name: "somerepo",
+      owner: {
+        login: "rapidsai",
+      },
+    },
+    installation: {
+      id: 2,
+    },
+    pull_request: {
+      labels: labels.map((el) => ({ name: el })),
+      head: {
+        sha: "1234sha",
+      },
+    },
+  };
+
+  return (makeContext(payload, "pull_request") as unknown) as PRContext;
+};
+
+// "Missing category & breaking labels",
+export const noLabels = makePRContext();
+
+// "Missing breaking label",
+export const noBreakingOneCat = makePRContext(["bug"]);
+
+// "Missing category label",
+export const noCatOneBreaking = makePRContext(["breaking"]);
+
+// "Too many breaking labels applied",
+export const manyBreakingOneCat = makePRContext([
+  "breaking",
+  "non-breaking",
+  "bug",
+]);
+
+// "Too many category labels applied",
+export const manyCatOneBreaking = makePRContext([
+  "bug",
+  "improvement",
+  "breaking",
+]);
+
+// "Missing category label & too many breaking labels applied",
+export const manyBreakingNoCat = makePRContext(["non-breaking", "breaking"]);
+
+// "Too many category & breaking labels applied",
+export const manyCatManyBreaking = makePRContext([
+  "bug",
+  "improvement",
+  "breaking",
+  "non-breaking",
+]);
+
+// "Missing breaking label & too many category labels applied",
+export const noBreakingManyCat = makePRContext(["bug", "improvement"]);
+
+// "Correct labels applied",
+export const correctLabels = makePRContext(["bug", "breaking"]);
