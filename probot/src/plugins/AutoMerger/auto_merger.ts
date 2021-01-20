@@ -9,7 +9,6 @@ import {
 import strip from "strip-comments";
 
 const MERGE_COMMENT = "@gpucibot merge";
-const ENABLED_REPOS = ["ops-bot", "rmm"];
 
 export class AutoMerger {
   public context: AutoMergerContext;
@@ -21,15 +20,6 @@ export class AutoMerger {
     const context = this.context;
     const { repository: repo } = context.payload;
     let prNumbers: number[] = []; // will usually only contain 1 number, except in rare instances w/ status contexts
-
-    // For testing purposes:
-    /* istanbul ignore next */
-    if (
-      !(ENABLED_REPOS.includes(repo.name) || process.env.NODE_ENV === "test")
-    ) {
-      console.log("repo name:", repo.name);
-      return;
-    }
 
     // Handle "status" context
     if (this.isStatusContext(context)) {
