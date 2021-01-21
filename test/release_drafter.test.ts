@@ -14,7 +14,7 @@ import {
   mockUpdateRef,
 } from "./mocks";
 
-describe("Label Check", () => {
+describe("Release Drafter", () => {
   beforeEach(() => {
     mockCreateRelease.mockReset();
     mockListReleases.mockReset();
