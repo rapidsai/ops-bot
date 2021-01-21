@@ -15,7 +15,7 @@ const makePushContext = ({
   const payload = {
     ref,
     before: "6113728f27ae82c7b1a177c8d03f9e96e0adf246",
-    after: "0000000000000000000000000000000000000000",
+    after: "c48f35a",
     created,
     deleted,
     forced: false,

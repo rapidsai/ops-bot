@@ -11,6 +11,7 @@ import {
   mockCreateRelease,
   mockPaginate,
   mockListPulls,
+  mockUpdateRef,
 } from "./mocks";
 
 describe("Label Check", () => {
@@ -20,6 +21,7 @@ describe("Label Check", () => {
     mockUpdateRelease.mockReset();
     mockPaginate.mockReset();
     mockListPulls.mockReset();
+    mockUpdateRef.mockReset();
   });
 
   test("doesn't run on non-versioned branches", async () => {
@@ -48,7 +50,7 @@ describe("Label Check", () => {
     expect(mockCreateRelease).not.toHaveBeenCalled();
     expect(mockUpdateRelease.mock.calls[0][0].release_id).toBe(1);
     expect(mockUpdateRelease.mock.calls[0][0].body).toBe(
-      `# v0.17.0 (Date TBD)
+      `# [NIGHTLY] v0.17.0 (Date TBD)
 
 ## Bug Fixes
 
@@ -63,6 +65,8 @@ describe("Label Check", () => {
 
 - Some PR title (#1234) @octokit`
     );
+    expect(mockUpdateRef.mock.calls[0][0].ref).toBe("tags/branch-0.17-latest");
+    expect(mockUpdateRef.mock.calls[0][0].sha).toBe("c48f35a");
   });
 
   test("create new release", async () => {
@@ -73,7 +77,7 @@ describe("Label Check", () => {
     expect(mockPaginate.mock.calls[0][0]).toBe(mockListPulls);
     expect(mockUpdateRelease).not.toHaveBeenCalled();
     expect(mockCreateRelease.mock.calls[0][0].body).toBe(
-      `# v0.17.0 (Date TBD)
+      `# [NIGHTLY] v0.17.0 (Date TBD)
 
 ## Bug Fixes
 
@@ -88,5 +92,6 @@ describe("Label Check", () => {
 
 - Some PR title (#1234) @octokit`
     );
+    expect(mockUpdateRef).not.toHaveBeenCalled();
   });
 });

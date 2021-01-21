@@ -12,3 +12,4 @@ export const mockGetByUsername = jest.fn();
 export const mockListReviews = jest.fn();
 export const mockMerge = jest.fn();
 export const mockListPulls = jest.fn();
+export const mockUpdateRef = jest.fn();

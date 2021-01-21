@@ -12,19 +12,24 @@ export class ReleaseDrafter {
   context: PushContext;
   branchName: string;
   repo: PayloadRepository;
+  releaseTagName: string;
+  branchVersionNumber: number;
+  releaseTitle: string;
+  mergeSHA: string;
 
   constructor(context: PushContext) {
     this.context = context;
     this.branchName = basename(context.payload.ref);
     this.repo = context.payload.repository;
+    this.releaseTagName = `${this.branchName}-latest`;
+    this.branchVersionNumber = parseInt(this.branchName.split(".")[1]);
+    this.releaseTitle = `[NIGHTLY] v0.${this.branchVersionNumber}.0`;
+    this.mergeSHA = context.payload.after;
   }
 
   async draftRelease(): Promise<any> {
     const { context, branchName, repo } = this;
     const { created, deleted } = context.payload;
-    console.log(
-      `Drafting release for branch '${branchName}' of '${repo.name}'.`
-    );
 
     // Don't run on branch created/delete pushes
     if (created || deleted) {
@@ -41,16 +46,12 @@ export class ReleaseDrafter {
       return;
     }
 
-    const branchVersionNumber: number = parseInt(branchName.split(".")[1]);
-    const releaseName = `v0.${branchVersionNumber}.0`;
+    console.log(`Drafting release for branch '${branchName}' of '${repo}'.`);
+
     const prs = await this.getPRsFromBranch();
-    const releaseDraftBody = this.getReleaseDraftBody(prs, releaseName);
-    const releaseId = await this.getExistingDraftReleaseId(releaseName);
-    await this.createOrUpdateDraftRelease(
-      releaseId,
-      releaseName,
-      releaseDraftBody
-    );
+    const releaseDraftBody = this.getReleaseDraftBody(prs);
+    const releaseId = await this.getExistingDraftReleaseId();
+    await this.createOrUpdateDraftRelease(releaseId, releaseDraftBody);
 
     console.log(
       `Release notes for branch '${branchName}' of '${repo.name}' published.`
@@ -61,7 +62,7 @@ export class ReleaseDrafter {
    * Returns true if the branch name matches the "branch-0.xx" pattern
    */
   isVersionedBranch(): boolean {
-    const re = /^branch-0.{1,3}\d/;
+    const re = /^branch-0.{1,3}\d$/;
     return Boolean(this.branchName.match(re));
   }
 
@@ -90,12 +91,9 @@ export class ReleaseDrafter {
   /**
    * Returns the body string for the release draft
    * @param prs
-   * @param releaseTitle
    */
-  getReleaseDraftBody(
-    prs: PullsListResponseData,
-    releaseTitle: string
-  ): string {
+  getReleaseDraftBody(prs: PullsListResponseData): string {
+    const { releaseTitle } = this;
     const categories = {
       bug: { title: "Bug Fixes", prs: [] },
       doc: { title: "Documentation", prs: [] },
@@ -147,20 +145,18 @@ export class ReleaseDrafter {
   }
 
   /**
-   * Returns the ID of an existing draft release whose name is releaseName.
-   * otherwise returns an empty string.
-   * @param context
-   * @param releaseName
+   * Returns the numerical ID of an existing draft release whose name is releaseName.
+   * If no draft release exists, returns -1.
    */
-  async getExistingDraftReleaseId(releaseName: string): Promise<number> {
-    const { context, repo } = this;
+  async getExistingDraftReleaseId(): Promise<number> {
+    const { context, releaseTitle, repo } = this;
     const { data: releases } = await context.octokit.repos.listReleases({
       owner: repo.owner.login,
       repo: repo.name,
       per_page: 20,
     });
     const existingDraftRelease = releases.find(
-      (release) => release.name === releaseName && release.draft === true
+      (release) => release.name === releaseTitle
     );
 
     if (existingDraftRelease) {
@@ -169,12 +165,14 @@ export class ReleaseDrafter {
     return -1;
   }
 
-  async createOrUpdateDraftRelease(
-    releaseId: number,
-    releaseName: string,
-    releaseBody: string
-  ) {
-    const { context, repo } = this;
+  /**
+   * Creates a new release or updates an existing release and the associated
+   * git tag.
+   * @param releaseId
+   * @param releaseBody
+   */
+  async createOrUpdateDraftRelease(releaseId: number, releaseBody: string) {
+    const { context, releaseTitle, releaseTagName, mergeSHA, repo } = this;
     const owner = repo.owner.login;
     const repo_name = repo.name;
 
@@ -185,16 +183,24 @@ export class ReleaseDrafter {
         release_id: releaseId,
         body: releaseBody,
       });
+
+      await context.octokit.git.updateRef({
+        owner,
+        repo: repo_name,
+        sha: mergeSHA,
+        ref: `tags/${releaseTagName}`,
+      });
       return;
     }
 
     await context.octokit.repos.createRelease({
       owner,
       repo: repo_name,
-      tag_name: releaseName,
-      name: releaseName,
-      draft: true,
+      tag_name: releaseTagName,
+      name: releaseTitle,
+      prerelease: true,
       body: releaseBody,
+      target_commitish: mergeSHA,
     });
   }
 }
