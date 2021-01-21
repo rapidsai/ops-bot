@@ -12,6 +12,7 @@ import {
   mockMerge,
   mockPaginate,
   mockPullsGet,
+  mockUpdateRef,
   mockUpdateRelease,
 } from "../../mocks";
 import type { WebhookEvents } from "@octokit/webhooks";
@@ -41,6 +42,9 @@ export const makeContext = (payload, name: WebhookEvents) => {
       },
       users: {
         getByUsername: mockGetByUsername,
+      },
+      git: {
+        updateRef: mockUpdateRef,
       },
       paginate: mockPaginate,
     },

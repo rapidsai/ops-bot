@@ -7,7 +7,7 @@ type RespParams = {
 const makeResponse = ({
   id = 1,
   draft = true,
-  name = "v0.17.0",
+  name = "[NIGHTLY] v0.17.0",
 }: RespParams = {}) => ({
   data: [
     {

@@ -14,9 +14,10 @@ import {
   mockListReleases,
   mockUpdateRelease,
   mockCreateRelease,
+  mockUpdateRef,
 } from "./mocks";
 
-describe("Label Check", () => {
+describe("Release Drafter", () => {
   beforeEach(() => {
     mockCompareCommits.mockReset();
     mockCreateRelease.mockReset();
@@ -62,7 +63,7 @@ describe("Label Check", () => {
     expect(mockCreateRelease).not.toHaveBeenCalled();
     expect(mockUpdateRelease.mock.calls[0][0].release_id).toBe(1);
     expect(mockUpdateRelease.mock.calls[0][0].body).toBe(
-      `# v0.17.0 (Date TBD)
+      `# [NIGHTLY] v0.17.0 (Date TBD)
 
 ## Bug Fixes
 
@@ -77,5 +78,7 @@ describe("Label Check", () => {
 
 - Some PR title (#1234) @octokit`
     );
+    expect(mockUpdateRef.mock.calls[0][0].ref).toBe("tags/branch-0.17-latest");
+    expect(mockUpdateRef.mock.calls[0][0].sha).toBe("c48f35a");
   });
 });
