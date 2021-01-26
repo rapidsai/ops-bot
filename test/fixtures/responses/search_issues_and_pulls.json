@@ -1,0 +1,26 @@
+[
+  {
+    "number": 1234,
+    "title": "[WIP] [skip-ci] Some PR title",
+    "user": {
+      "login": "octokit"
+    },
+    "labels": [{ "name": "breaking" }, { "name": "bug" }]
+  },
+  {
+    "number": 456,
+    "title": "Some Doc PR",
+    "user": {
+      "login": "ajschmidt8"
+    },
+    "labels": [{ "name": "doc" }]
+  },
+  {
+    "number": 4567,
+    "title": "Another Title",
+    "user": {
+      "login": "octokit"
+    },
+    "labels": []
+  }
+]

@@ -23,17 +23,4 @@ const makeResponse = ({
   ],
 });
 
-export const commitPRs = [
-  makeResponse(),
-  makeResponse({
-    title: "Some Doc PR",
-    labels: ["doc"],
-    number: 456,
-    login: "ajschmidt8",
-  }),
-];
-export const commitPRsNoLabels = makeResponse({
-  title: "Another Title",
-  number: 4567,
-  labels: [],
-});
+export const commitPRs = makeResponse();

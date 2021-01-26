@@ -33,7 +33,7 @@ describe("Auto Merger", () => {
   });
 
   test("status context", async () => {
-    mockListPullRequestsFromCommit.mockResolvedValueOnce(commitPRs[0]);
+    mockListPullRequestsFromCommit.mockResolvedValueOnce(commitPRs);
     mockPullsGet.mockResolvedValueOnce(pulls_get);
     mockPaginate.mockResolvedValueOnce(list_comments); // listComments in checkForValidMergeComment
     mockGetUserPermissionLevel.mockResolvedValueOnce(user_permission);
