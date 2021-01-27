@@ -7,7 +7,7 @@ import { data as list_commits } from "./fixtures/responses/list_commits.json";
 import { default as list_reviews } from "./fixtures/responses/list_reviews.json";
 import { default as pulls_get } from "./fixtures/responses/pulls_get.json";
 import { default as user_permission } from "./fixtures/responses/get_collaborator_permission_level.json";
-import { commitPRs } from "./fixtures/responses/list_pull_requests_associated_with_commit";
+import { default as commitPRs } from "./fixtures/responses/list_pull_requests_associated_with_commit.json";
 import { user, userNoName } from "./fixtures/responses/get_by_username";
 import {
   mockGetByUsername,
@@ -33,7 +33,7 @@ describe("Auto Merger", () => {
   });
 
   test("status context", async () => {
-    mockListPullRequestsFromCommit.mockResolvedValueOnce(commitPRs[0]);
+    mockListPullRequestsFromCommit.mockResolvedValueOnce(commitPRs);
     mockPullsGet.mockResolvedValueOnce(pulls_get);
     mockPaginate.mockResolvedValueOnce(list_comments); // listComments in checkForValidMergeComment
     mockGetUserPermissionLevel.mockResolvedValueOnce(user_permission);

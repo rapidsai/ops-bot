@@ -4,6 +4,8 @@ import { EventPayloads } from "@octokit/webhooks";
 import type {
   PullsGetResponseData,
   UsersGetByUsernameResponseData,
+  SearchIssuesAndPullRequestsResponseData,
+  ReposListPullRequestsAssociatedWithCommitResponseData,
 } from "@octokit/plugin-rest-endpoint-methods/node_modules/@octokit/types/";
 
 export type PRContext = Context<EventPayloads.WebhookPayloadPullRequest>;
@@ -15,4 +17,9 @@ export type AutoMergerContext =
   | IssueCommentContext
   | PRReviewContext
   | StatusContext;
-export type { PullsGetResponseData, UsersGetByUsernameResponseData };
+export type {
+  PullsGetResponseData,
+  UsersGetByUsernameResponseData,
+  SearchIssuesAndPullRequestsResponseData,
+};
+export type PayloadRepository = EventPayloads.PayloadRepository;

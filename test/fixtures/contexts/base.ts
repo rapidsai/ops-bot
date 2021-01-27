@@ -1,5 +1,4 @@
 import {
-  mockCompareCommits,
   mockCreateCommitStatus,
   mockCreateRelease,
   mockGetByUsername,
@@ -12,6 +11,7 @@ import {
   mockMerge,
   mockPaginate,
   mockPullsGet,
+  mockSearchIssues,
   mockUpdateRelease,
 } from "../../mocks";
 import type { WebhookEvents } from "@octokit/webhooks";
@@ -30,7 +30,6 @@ export const makeContext = (payload, name: WebhookEvents) => {
         merge: mockMerge,
       },
       repos: {
-        compareCommits: mockCompareCommits,
         createCommitStatus: mockCreateCommitStatus,
         createRelease: mockCreateRelease,
         getCollaboratorPermissionLevel: mockGetUserPermissionLevel,
@@ -41,6 +40,9 @@ export const makeContext = (payload, name: WebhookEvents) => {
       },
       users: {
         getByUsername: mockGetByUsername,
+      },
+      search: {
+        issuesAndPullRequests: mockSearchIssues,
       },
       paginate: mockPaginate,
     },
