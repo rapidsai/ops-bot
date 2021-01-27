@@ -1,6 +1,6 @@
 import { ReleaseDrafter } from "../src/plugins/ReleaseDrafter/release_drafter";
 import * as context from "./fixtures/contexts/push";
-import { default as searchIssuesResp } from "./fixtures/responses/search_issues_and_pulls.json";
+import { default as listPullsResp } from "./fixtures/responses/list_pulls.json";
 import {
   hasExistingRelease,
   hasNoExistingRelease,
@@ -10,7 +10,7 @@ import {
   mockUpdateRelease,
   mockCreateRelease,
   mockPaginate,
-  mockSearchIssues,
+  mockListPulls,
 } from "./mocks";
 
 describe("Label Check", () => {
@@ -19,7 +19,7 @@ describe("Label Check", () => {
     mockListReleases.mockReset();
     mockUpdateRelease.mockReset();
     mockPaginate.mockReset();
-    mockSearchIssues.mockReset();
+    mockListPulls.mockReset();
   });
 
   test("doesn't run on non-versioned branches", async () => {
@@ -40,11 +40,11 @@ describe("Label Check", () => {
   });
 
   test("update existing release", async () => {
-    mockPaginate.mockResolvedValueOnce(searchIssuesResp);
+    mockPaginate.mockResolvedValueOnce(listPullsResp);
     mockListReleases.mockResolvedValueOnce(hasExistingRelease);
     await new ReleaseDrafter(context.versionedBranch).draftRelease();
     expect(mockPaginate).toHaveBeenCalledTimes(1);
-    expect(mockPaginate.mock.calls[0][0]).toBe(mockSearchIssues);
+    expect(mockPaginate.mock.calls[0][0]).toBe(mockListPulls);
     expect(mockCreateRelease).not.toHaveBeenCalled();
     expect(mockUpdateRelease.mock.calls[0][0].release_id).toBe(1);
     expect(mockUpdateRelease.mock.calls[0][0].body).toBe(
@@ -66,11 +66,11 @@ describe("Label Check", () => {
   });
 
   test("create new release", async () => {
-    mockPaginate.mockResolvedValueOnce(searchIssuesResp);
+    mockPaginate.mockResolvedValueOnce(listPullsResp);
     mockListReleases.mockResolvedValueOnce(hasNoExistingRelease);
     await new ReleaseDrafter(context.versionedBranch).draftRelease();
     expect(mockPaginate).toHaveBeenCalledTimes(1);
-    expect(mockPaginate.mock.calls[0][0]).toBe(mockSearchIssues);
+    expect(mockPaginate.mock.calls[0][0]).toBe(mockListPulls);
     expect(mockUpdateRelease).not.toHaveBeenCalled();
     expect(mockCreateRelease.mock.calls[0][0].body).toBe(
       `# v0.17.0 (Date TBD)
