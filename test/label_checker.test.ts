@@ -96,4 +96,13 @@ describe("Label Check", () => {
       "Correct labels applied"
     );
   });
+
+  test("correct labels - GPUTester", async () => {
+    await new LabelChecker(context.gpuTester).checkLabels();
+    expect(mockCreateCommitStatus).toBeCalledTimes(1);
+    expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("success");
+    expect(mockCreateCommitStatus.mock.calls[0][0].description).toBe(
+      "No labels necessary for forward-merging PRs"
+    );
+  });
 });
