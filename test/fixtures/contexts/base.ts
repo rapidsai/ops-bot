@@ -6,12 +6,12 @@ import {
   mockListComments,
   mockListCommits,
   mockListPullRequestsFromCommit,
+  mockListPulls,
   mockListReleases,
   mockListReviews,
   mockMerge,
   mockPaginate,
   mockPullsGet,
-  mockSearchIssues,
   mockUpdateRelease,
 } from "../../mocks";
 import type { WebhookEvents } from "@octokit/webhooks";
@@ -26,6 +26,7 @@ export const makeContext = (payload, name: WebhookEvents) => {
       },
       pulls: {
         get: mockPullsGet,
+        list: mockListPulls,
         listReviews: mockListReviews,
         merge: mockMerge,
       },
@@ -40,9 +41,6 @@ export const makeContext = (payload, name: WebhookEvents) => {
       },
       users: {
         getByUsername: mockGetByUsername,
-      },
-      search: {
-        issuesAndPullRequests: mockSearchIssues,
       },
       paginate: mockPaginate,
     },

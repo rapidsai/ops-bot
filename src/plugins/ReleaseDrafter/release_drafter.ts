@@ -1,7 +1,7 @@
 import {
   PushContext,
   PayloadRepository,
-  SearchIssuesAndPullRequestsResponseData,
+  PullsListResponseData,
 } from "../../types";
 import { basename } from "path";
 import { resolve } from "path";
@@ -69,21 +69,22 @@ export class ReleaseDrafter {
    * Returns all non-forward-merger PRs that have been merged into
    * the repo's base branch.
    */
-  async getPRsFromBranch(): Promise<
-    SearchIssuesAndPullRequestsResponseData["items"]
-  > {
+  async getPRsFromBranch(): Promise<PullsListResponseData> {
     const { context, repo, branchName } = this;
 
-    const prs = await context.octokit.paginate(
-      context.octokit.search.issuesAndPullRequests,
-      {
-        q: `repo:${repo.full_name} base:${branchName} is:pr is:merged`,
-        per_page: 100,
-      }
-    );
-    return prs.filter(
-      (pr) => !pr.title.toLowerCase().startsWith("[gpuci] auto-merge branch-")
-    );
+    const prs = await context.octokit.paginate(context.octokit.pulls.list, {
+      owner: repo.owner.login,
+      repo: repo.name,
+      base: branchName,
+      state: "closed",
+      per_page: 100,
+    });
+
+    return prs
+      .filter(
+        (pr) => !pr.title.toLowerCase().startsWith("[gpuci] auto-merge branch-")
+      )
+      .filter((pr) => pr.merged_at); // merged_at === null for PRs that were closed, but not merged
   }
 
   /**
@@ -92,7 +93,7 @@ export class ReleaseDrafter {
    * @param releaseTitle
    */
   getReleaseDraftBody(
-    prs: SearchIssuesAndPullRequestsResponseData["items"],
+    prs: PullsListResponseData,
     releaseTitle: string
   ): string {
     const categories = {
@@ -102,7 +103,7 @@ export class ReleaseDrafter {
       improvement: { title: "Improvements", prs: [] },
     };
 
-    const breakingPRs: SearchIssuesAndPullRequestsResponseData["items"] = [];
+    const breakingPRs: PullsListResponseData = [];
 
     const labelInCategories = (el) => Object.keys(categories).includes(el.name);
 
