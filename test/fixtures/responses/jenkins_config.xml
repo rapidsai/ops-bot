@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?><flow-definition>
+    <actions/>
+    <description/>
+    <keepDependencies>false</keepDependencies>
+    <properties>
+        <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty plugin="workflow-job@2.40">
+            <triggers>
+                <org.jenkinsci.plugins.ghprb.GhprbTrigger plugin="ghprb@1.42.1">
+                    <spec>H/5 * * * *</spec>
+                    <configVersion>3</configVersion>
+                    <adminlist>mike-wendt
+raydouglass
+kkraus14
+harrism
+dcullinan
+ajschmidt8
+rlratzel
+BradReesWork
+JohnZed
+datametrician
+randerzander
+quasiben
+ChauNvidia
+mikebeaumont
+williamBlazing
+felipeblazing
+mario21ic
+aucahuasi
+tijyojwad
+o8191</adminlist>
+                    <allowMembersOfWhitelistedOrgsAsAdmin>false</allowMembersOfWhitelistedOrgsAsAdmin>
+                    <orgslist>rapidsai</orgslist>
+                    <cron>H/5 * * * *</cron>
+                    <buildDescTemplate/>
+                    <onlyTriggerPhrase>false</onlyTriggerPhrase>
+                    <useGitHubHooks>true</useGitHubHooks>
+                    <permitAll>false</permitAll>
+                    <whitelist>AK-ayush BradReesWork ChuckHastings Iroy30 LeviBarnes NickLeaf OlivierNV Salonijain27 alexvk andersy005 aocsa aschaffer aucahuasi ayushdg beckernick chirayuG-nvidia cmgreen210 danielhanchen dantegd devavret dillon-cullinan eyalroz felipeblazing harrism hhuuggoo j-ieong jeanp413 jirikraus jrhemstad kaatish kkraus14 kovaltan mike-wendt mrocklin mt-jones mtjrider nsakharnykh ogreen pearu randerzander ravigumm rietmann-nv rommelDB seibert shwina sklam teju85 thomcom trstovall vuule wesm williamBlazing yashv28 yidong-nvidia yjk21 kuhushukla mythrocks abc99lr sriramch benfred rongou magnatelee calebwin brycelelbach gaohao95</whitelist>
+                    <autoCloseFailedPullRequests>false</autoCloseFailedPullRequests>
+                    <displayBuildErrorsOnDownstreamBuilds>false</displayBuildErrorsOnDownstreamBuilds>
+                    <whiteListTargetBranches>
+                        <org.jenkinsci.plugins.ghprb.GhprbBranch>
+                            <branch>main</branch>
+                        </org.jenkinsci.plugins.ghprb.GhprbBranch>
+                        <org.jenkinsci.plugins.ghprb.GhprbBranch>
+                            <branch>branch-0.18</branch>
+                        </org.jenkinsci.plugins.ghprb.GhprbBranch>
+                    </whiteListTargetBranches>
+                    <blackListTargetBranches/>
+                    <gitHubAuthId>2b80a1fc-4327-43ff-840a-5872c0dfc8a7</gitHubAuthId>
+                    <triggerPhrase>.*(re)?run\W+tests.*</triggerPhrase>
+                    <skipBuildPhrase>.*\[skip\W+gpuci\].*</skipBuildPhrase>
+                    <blackListCommitAuthor/>
+                    <blackListLabels/>
+                    <whiteListLabels/>
+                    <includedRegions/>
+                    <excludedRegions>CHANGELOG\.md
+README\.md</excludedRegions>
+                    <extensions>
+                        <org.jenkinsci.plugins.ghprb.extensions.build.GhprbCancelBuildsOnUpdate>
+                            <overrideGlobal>true</overrideGlobal>
+                        </org.jenkinsci.plugins.ghprb.extensions.build.GhprbCancelBuildsOnUpdate>
+                        <org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus>
+                            <commitStatusContext>gpuCI/cudf/pr-builder</commitStatusContext>
+                            <showMatrixStatus>false</showMatrixStatus>
+                            <triggeredStatus>Queued</triggeredStatus>
+                            <startedStatus>Running</startedStatus>
+                            <statusUrl/>
+                            <addTestResults>false</addTestResults>
+                            <completedStatus>
+                                <org.jenkinsci.plugins.ghprb.extensions.comments.GhprbBuildResultMessage>
+                                    <message>Build succeeded</message>
+                                    <result>SUCCESS</result>
+                                </org.jenkinsci.plugins.ghprb.extensions.comments.GhprbBuildResultMessage>
+                                <org.jenkinsci.plugins.ghprb.extensions.comments.GhprbBuildResultMessage>
+                                    <message>Build errored</message>
+                                    <result>ERROR</result>
+                                </org.jenkinsci.plugins.ghprb.extensions.comments.GhprbBuildResultMessage>
+                                <org.jenkinsci.plugins.ghprb.extensions.comments.GhprbBuildResultMessage>
+                                    <message>Build failure</message>
+                                    <result>FAILURE</result>
+                                </org.jenkinsci.plugins.ghprb.extensions.comments.GhprbBuildResultMessage>
+                            </completedStatus>
+                        </org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus>
+                    </extensions>
+                </org.jenkinsci.plugins.ghprb.GhprbTrigger>
+            </triggers>
+        </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+        <com.coravy.hudson.plugins.github.GithubProjectProperty>
+            <projectUrl>https://github.com/rapidsai/cudf</projectUrl>
+        </com.coravy.hudson.plugins.github.GithubProjectProperty>
+        <hudson.model.ParametersDefinitionProperty>
+            <parameterDefinitions>
+                <hudson.model.StringParameterDefinition>
+                    <name>CONDA_USERNAME</name>
+                    <defaultValue/>
+                </hudson.model.StringParameterDefinition>
+            </parameterDefinitions>
+        </hudson.model.ParametersDefinitionProperty>
+    </properties>
+    <triggers/>
+    <disabled>false</disabled>
+    <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition">
+        <script>
+
+// Initialize prTitle to avoid non-prb build errors around skip-ci
+env['prTitle'] = ""
+
+if (env['ghprbPullId'] != null){
+    //This is a github PR build
+    env['prId'] = env['ghprbPullId']
+    env['sourceBranch'] = env['ghprbSourceBranch']
+    env['targetBranch'] = env['ghprbTargetBranch']
+    env['commitHash'] = env['sha1']
+    env['reportHash'] = env['ghprbActualCommit']
+    env['prAuthor'] = env['ghprbPullAuthorLogin']
+    env['prTitle'] = env['ghprbPullTitle']
+    env['commentBody'] = env['ghprbCommentBody']
+}else if (env['gitlabMergeRequestIid'] != null) {
+    //This is a gitlab MR build
+    env['prId'] = env['gitlabMergeRequestIid']
+    env['sourceBranch'] = env['gitlabSourceBranch']
+    env['targetBranch'] = env['gitlabTargetBranch']
+    env['commitHash'] = 'merge-requests/'+env['gitlabMergeRequestIid']
+    env['reportHash'] = 'merge-requests/'+env['gitlabMergeRequestIid']
+    env['prAuthor'] = env['gitlabUserName']
+    env['prTitle'] = env['gitlabMergeRequestTitle']
+    env['commentBody'] = env['gitlabTriggerPhrase']
+}
+
+def pattern = ~/.*(re)?run\W+tests.*/
+if(env['commentBody'] &amp;&amp; env['commentBody'] ==~ pattern) {
+    env['buildScope'] = 'FORCE_BUILD'
+} else {
+    env['buildScope'] = 'NORMAL_BUILD'
+}
+
+
+def ghStatusStart(context, description, targetUrl){
+    def (account, repo) = env.ghprbGhRepository.tokenize('/')
+    githubNotify account: account, context: context, credentialsId: 'gputester-username-api-token', description: description, repo: repo, sha: env.reportHash, status: 'PENDING', targetUrl: targetUrl
+}
+def ghStatusDone(context, description, status, targetUrl){
+    def (account, repo) = env.ghprbGhRepository.tokenize('/')
+    githubNotify account: account, context: context, credentialsId: 'gputester-username-api-token', description: description, repo: repo, sha: env.reportHash, status: status, targetUrl: targetUrl
+}
+
+
+def reportJobResult(context, jobBuild){
+  def jobResult = jobBuild.getResult()
+  def jobUrl = jobBuild.getAbsoluteUrl()
+  echo "${context} job finished with result: ${jobResult}"
+  if (jobResult != 'SUCCESS') {
+    ghStatusDone(context, 'Build failure/error', 'FAILURE', jobUrl)
+    error("${context} job failed with result: ${jobResult}")
+  } else {
+    ghStatusDone(context, 'Build success', 'SUCCESS', jobUrl)
+  }
+}
+
+/* Code checks */
+/* Check If Title Contains [skip-ci] */
+def titlePattern = ~/.*\[skip\Wci\].*/
+def changelogTitlePattern = ~/.*\[skip\Wci\Wchangelog\].*/
+
+parallel (
+check_style: {
+    stage('Style Check') {
+        when(!(env['prTitle'] =~ titlePattern)) {
+            ghStatusStart('gpuCI/cudf/check/style','Queued','')
+            build job: 'rapidsai/gpuci/cudf/prb/cudf-style', propagate: true, parameters: [
+                string(name: 'PR_ID', value: env.prId),
+                string(name: 'REPORT_HASH', value: env.reportHash),
+                string(name: 'COMMIT_HASH', value: env.commitHash),
+                string(name: 'SOURCE_BRANCH', value: env.sourceBranch),
+                string(name: 'TARGET_BRANCH', value: env.targetBranch)
+            ]
+            
+        }
+    }
+},
+check_size: {
+    stage('Size Check') {
+            ghStatusStart('gpuCI/cudf/check/size','Queued','')
+            build job: 'rapidsai/gpuci/cudf/prb/cudf-size', propagate: true, parameters: [
+                string(name: 'PR_ID', value: env.prId),
+                string(name: 'REPORT_HASH', value: env.reportHash),
+                string(name: 'COMMIT_HASH', value: env.commitHash),
+                string(name: 'SOURCE_BRANCH', value: env.sourceBranch),
+                string(name: 'TARGET_BRANCH', value: env.targetBranch)
+            ]
+            
+    }
+}
+)
+cuda_build: {
+    stage('CUDA Build'){
+        when(!(env['prTitle'] =~ titlePattern)) {
+            ghStatusStart('gpuCI/cudf/build/cuda','Queued','')
+            def cudaJobBuild = build job: 'rapidsai/gpuci/cudf/prb/cudf-cpu-cuda-build', parameters: [
+                string(name: 'COMMIT_HASH', value: env.commitHash),
+                string(name: 'SOURCE_BRANCH', value: env.sourceBranch),
+                string(name: 'CONDA_USERNAME', value: CONDA_USERNAME),
+                string(name: 'PR_ID', value: env.prId),
+                string(name: 'REPORT_HASH', value: env.reportHash),
+                string(name: 'TARGET_BRANCH', value: env.targetBranch),
+                string(name: 'PR_AUTHOR', value: env.prAuthor),
+                string(name: 'BUILD_SCOPE', value: env.buildScope),
+                string(name: 'FLASH_ID', value: env.prId),
+            ], propagate: false
+            reportJobResult('gpuCI/cudf/build/cuda', cudaJobBuild)
+        }
+    }
+}
+
+parallel (
+python_build: {
+    stage('Python Build'){
+        when(!(env['prTitle'] =~ titlePattern)) {
+            ghStatusStart('gpuCI/cudf/build/python','Queued','')
+            def pythonJobBuild = build job: 'rapidsai/gpuci/cudf/prb/cudf-cpu-python-build', parameters: [
+                string(name: 'COMMIT_HASH', value: env.commitHash),
+                string(name: 'SOURCE_BRANCH', value: env.sourceBranch),
+                string(name: 'CONDA_USERNAME', value: CONDA_USERNAME),
+                string(name: 'PR_ID', value: env.prId),
+                string(name: 'REPORT_HASH', value: env.reportHash),
+                string(name: 'TARGET_BRANCH', value: env.targetBranch),
+                string(name: 'PR_AUTHOR', value: env.prAuthor),
+                string(name: 'BUILD_SCOPE', value: env.buildScope),
+                string(name: 'FLASH_ID', value: env.prId),
+            ], propagate: false
+            reportJobResult('gpuCI/cudf/build/python', pythonJobBuild)
+        }
+    }
+}
+,
+gpu_test: {
+    stage('GPU Test'){
+        when(!(env['prTitle'] =~ titlePattern)) {
+            ghStatusStart('gpuCI/cudf/gpu','Queued','')
+            def gpuJobBuild = build job: 'rapidsai/gpuci/cudf/prb/cudf-gpu-test', parameters: [
+                string(name: 'COMMIT_HASH', value: env.commitHash),
+                string(name: 'SOURCE_BRANCH', value: env.sourceBranch),
+                string(name: 'CONDA_USERNAME', value: CONDA_USERNAME),
+                string(name: 'PR_ID', value: env.prId),
+                string(name: 'REPORT_HASH', value: env.reportHash),
+                string(name: 'TARGET_BRANCH', value: env.targetBranch),
+                string(name: 'PR_AUTHOR', value: env.prAuthor),
+                string(name: 'BUILD_SCOPE', value: env.buildScope),
+                string(name: 'FLASH_ID', value: env.prId),
+            ], propagate: false
+            reportJobResult('gpuCI/cudf/gpu', gpuJobBuild)
+        }
+    }
+}
+
+)
+failFast: false
+</script>
+        <sandbox>false</sandbox>
+    </definition>
+</flow-definition>
