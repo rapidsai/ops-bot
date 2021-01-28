@@ -1,12 +1,9 @@
 import { ReleaseDrafter } from "../src/plugins/ReleaseDrafter/release_drafter";
 import * as context from "./fixtures/contexts/push";
 import { default as listPullsResp } from "./fixtures/responses/list_pulls.json";
+import { default as getReleaseByTagResp } from "./fixtures/responses/get_release_by_tag.json";
 import {
-  hasExistingRelease,
-  hasNoExistingRelease,
-} from "./fixtures/responses/list_releases";
-import {
-  mockListReleases,
+  mockGetReleaseByTag,
   mockUpdateRelease,
   mockCreateRelease,
   mockPaginate,
@@ -17,7 +14,7 @@ import {
 describe("Release Drafter", () => {
   beforeEach(() => {
     mockCreateRelease.mockReset();
-    mockListReleases.mockReset();
+    mockGetReleaseByTag.mockReset();
     mockUpdateRelease.mockReset();
     mockPaginate.mockReset();
     mockListPulls.mockReset();
@@ -27,7 +24,7 @@ describe("Release Drafter", () => {
   test("doesn't run on non-versioned branches", async () => {
     await new ReleaseDrafter(context.nonVersionedBranch).draftRelease();
     expect(mockPaginate).not.toHaveBeenCalled();
-    expect(mockListReleases).not.toHaveBeenCalled();
+    expect(mockGetReleaseByTag).not.toHaveBeenCalled();
     expect(mockUpdateRelease).not.toHaveBeenCalled();
     expect(mockCreateRelease).not.toHaveBeenCalled();
   });
@@ -36,14 +33,14 @@ describe("Release Drafter", () => {
     await new ReleaseDrafter(context.createdPush).draftRelease();
     await new ReleaseDrafter(context.deletedPush).draftRelease();
     expect(mockPaginate).not.toHaveBeenCalled();
-    expect(mockListReleases).not.toHaveBeenCalled();
+    expect(mockGetReleaseByTag).not.toHaveBeenCalled();
     expect(mockUpdateRelease).not.toHaveBeenCalled();
     expect(mockCreateRelease).not.toHaveBeenCalled();
   });
 
   test("update existing release", async () => {
     mockPaginate.mockResolvedValueOnce(listPullsResp);
-    mockListReleases.mockResolvedValueOnce(hasExistingRelease);
+    mockGetReleaseByTag.mockResolvedValueOnce(getReleaseByTagResp);
     await new ReleaseDrafter(context.versionedBranch).draftRelease();
     expect(mockPaginate).toHaveBeenCalledTimes(1);
     expect(mockPaginate.mock.calls[0][0]).toBe(mockListPulls);
@@ -71,7 +68,7 @@ describe("Release Drafter", () => {
 
   test("create new release", async () => {
     mockPaginate.mockResolvedValueOnce(listPullsResp);
-    mockListReleases.mockResolvedValueOnce(hasNoExistingRelease);
+    mockGetReleaseByTag.mockRejectedValueOnce("");
     await new ReleaseDrafter(context.versionedBranch).draftRelease();
     expect(mockPaginate).toHaveBeenCalledTimes(1);
     expect(mockPaginate.mock.calls[0][0]).toBe(mockListPulls);

@@ -145,24 +145,23 @@ export class ReleaseDrafter {
   }
 
   /**
-   * Returns the numerical ID of an existing draft release whose name is releaseName.
-   * If no draft release exists, returns -1.
+   * Returns the numerical ID of an existing prerelease whose tag is <releaseTagName>.
+   * If no prerelease exists, returns -1.
    */
   async getExistingDraftReleaseId(): Promise<number> {
-    const { context, releaseTitle, repo } = this;
-    const { data: releases } = await context.octokit.repos.listReleases({
-      owner: repo.owner.login,
-      repo: repo.name,
-      per_page: 20,
-    });
-    const existingDraftRelease = releases.find(
-      (release) => release.name === releaseTitle
-    );
+    const { context, repo, releaseTagName } = this;
 
-    if (existingDraftRelease) {
-      return existingDraftRelease.id;
+    try {
+      const { data: release } = await context.octokit.repos.getReleaseByTag({
+        repo: repo.name,
+        owner: repo.owner.login,
+        tag: releaseTagName,
+      });
+      return release.id;
+    } catch (error) {
+      console.warn(`No existing release: ${repo.full_name} ${releaseTagName}`);
+      return -1;
     }
-    return -1;
   }
 
   /**
