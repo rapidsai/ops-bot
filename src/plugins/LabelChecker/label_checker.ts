@@ -10,6 +10,14 @@ export class LabelChecker {
 
   async checkLabels(): Promise<any> {
     const context = this.context;
+
+    if (this.isForwardMergePR()) {
+      return await this.setLabelCheckStatus(
+        "No labels necessary for forward-merging PRs",
+        "success"
+      );
+    }
+
     await this.setLabelCheckStatus("Checking labels...");
 
     const categoryLabels = ["bug", "doc", "feature request", "improvement"];
@@ -107,5 +115,15 @@ export class LabelChecker {
       repo: repository.name,
       ...statusOptions,
     });
+  }
+
+  private isForwardMergePR(): boolean {
+    const { context } = this;
+    return (
+      context.payload.sender.login === "GPUtester" &&
+      context.payload.pull_request.title
+        .toLowerCase()
+        .includes("[gpuci] auto-merge")
+    );
   }
 }
