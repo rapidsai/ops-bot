@@ -23,12 +23,14 @@
   "dependencies": {
     "@octokit/webhooks": "^7.15.1",
     "@probot/serverless-lambda": "^1.0.2",
+    "@types/xml2js": "^0.4.8",
     "ajv": "^7.0.3",
     "axios": "^0.21.1",
     "nunjucks": "^3.2.2",
     "probot": "^10.17.2",
     "serverless": "^2.18.0",
-    "strip-comments": "^2.0.1"
+    "strip-comments": "^2.0.1",
+    "xml2js": "^0.4.23"
   },
   "devDependencies": {
     "@types/jest": "^26.0.15",

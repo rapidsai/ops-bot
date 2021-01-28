@@ -50,7 +50,7 @@ export class JobComponentTrigger {
       );
       return;
     }
-    if (!this.permissions.hasPermissionToTrigger(username, repo)) {
+    if (!this.permissions.hasPermissionToTrigger(context)) {
       console.warn(
         `Comment on ${repo.full_name} #${prNumber} by ${username} does not have trigger permissions. Skipping...`
       );
