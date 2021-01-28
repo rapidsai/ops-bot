@@ -42,7 +42,7 @@ export class JenkinsPermissions {
       }
     }
 
-    const { data: comments } = await context.octokit.issues.listComments({
+    const comments = await context.octokit.paginate(context.octokit.issues.listComments, {
       owner: repo.owner.login,
       repo: repo.name,
       issue_number: context.payload.issue.number,
