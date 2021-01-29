@@ -55,7 +55,12 @@ describe("Release Drafter", () => {
     expect(mockCreateRelease).not.toHaveBeenCalled();
     expect(mockUpdateRelease.mock.calls[0][0].release_id).toBe(1);
     expect(mockUpdateRelease.mock.calls[0][0].body).toBe(
-      `# [NIGHTLY] v0.17.0
+      `\
+# [NIGHTLY] v0.17.0
+
+## Breaking Changes 🚨
+
+- Some PR title (#1234) @octokit
 
 ## Bug Fixes 🐛
 
@@ -63,12 +68,8 @@ describe("Release Drafter", () => {
 
 ## Documentation 📖
 
-- Some Doc PR (#456) @ajschmidt8
-
-
-## Breaking Changes 🚨
-
-- Some PR title (#1234) @octokit`
+- Some Doc PR (#456) @ajschmidt8\
+`
     );
     expect(mockUpdateRef.mock.calls[0][0].ref).toBe("tags/branch-0.17-latest");
     expect(mockUpdateRef.mock.calls[0][0].sha).toBe("c48f35a");
@@ -82,7 +83,12 @@ describe("Release Drafter", () => {
     expect(mockPaginate.mock.calls[0][0]).toBe(mockListPulls);
     expect(mockUpdateRelease).not.toHaveBeenCalled();
     expect(mockCreateRelease.mock.calls[0][0].body).toBe(
-      `# [NIGHTLY] v0.17.0
+      `\
+# [NIGHTLY] v0.17.0
+
+## Breaking Changes 🚨
+
+- Some PR title (#1234) @octokit
 
 ## Bug Fixes 🐛
 
@@ -90,12 +96,8 @@ describe("Release Drafter", () => {
 
 ## Documentation 📖
 
-- Some Doc PR (#456) @ajschmidt8
-
-
-## Breaking Changes 🚨
-
-- Some PR title (#1234) @octokit`
+- Some Doc PR (#456) @ajschmidt8\
+`
     );
     expect(mockUpdateRef).not.toHaveBeenCalled();
   });

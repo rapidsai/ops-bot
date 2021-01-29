@@ -4,6 +4,14 @@
 # {{ releaseTitle }}
 
 {% if hasEntries %}
+  {% if breaking | length %}
+## Breaking Changes 🚨
+
+    {% for pr in breaking %}
+{{ prEntry(pr) }}
+    {% endfor %}
+  {% endif %}
+
   {% for _, category in categories %}
     {% if category.prs | length %}
 ## {{ category.title }}
@@ -14,14 +22,6 @@
 
     {% endif %}
   {% endfor %}
-
-  {% if breaking | length %}
-## Breaking Changes 🚨
-
-    {% for pr in breaking %}
-{{ prEntry(pr) }}
-    {% endfor %}
-  {% endif -%}
 {% else %}
   There are no changes for v0.{{ versionNumber }}.0 yet.
 {% endif -%}
