@@ -29,6 +29,14 @@ describe("Release Drafter", () => {
     expect(mockCreateRelease).not.toHaveBeenCalled();
   });
 
+  test("doesn't run on invalid version branches", async () => {
+    await new ReleaseDrafter(context.invalidVersionedBranch).draftRelease();
+    expect(mockPaginate).not.toHaveBeenCalled();
+    expect(mockGetReleaseByTag).not.toHaveBeenCalled();
+    expect(mockUpdateRelease).not.toHaveBeenCalled();
+    expect(mockCreateRelease).not.toHaveBeenCalled();
+  });
+
   test("doesn't run on created/deleted pushes", async () => {
     await new ReleaseDrafter(context.createdPush).draftRelease();
     await new ReleaseDrafter(context.deletedPush).draftRelease();
@@ -41,7 +49,7 @@ describe("Release Drafter", () => {
   test("update existing release", async () => {
     mockPaginate.mockResolvedValueOnce(listPullsResp);
     mockGetReleaseByTag.mockResolvedValueOnce(getReleaseByTagResp);
-    await new ReleaseDrafter(context.versionedBranch).draftRelease();
+    await new ReleaseDrafter(context.validBranch).draftRelease();
     expect(mockPaginate).toHaveBeenCalledTimes(1);
     expect(mockPaginate.mock.calls[0][0]).toBe(mockListPulls);
     expect(mockCreateRelease).not.toHaveBeenCalled();
@@ -69,7 +77,7 @@ describe("Release Drafter", () => {
   test("create new release", async () => {
     mockPaginate.mockResolvedValueOnce(listPullsResp);
     mockGetReleaseByTag.mockRejectedValueOnce("");
-    await new ReleaseDrafter(context.versionedBranch).draftRelease();
+    await new ReleaseDrafter(context.validBranch).draftRelease();
     expect(mockPaginate).toHaveBeenCalledTimes(1);
     expect(mockPaginate.mock.calls[0][0]).toBe(mockListPulls);
     expect(mockUpdateRelease).not.toHaveBeenCalled();

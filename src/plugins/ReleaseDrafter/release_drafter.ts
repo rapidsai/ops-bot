@@ -16,15 +16,17 @@ export class ReleaseDrafter {
   branchVersionNumber: number;
   releaseTitle: string;
   mergeSHA: string;
+  defaultBranch: string;
 
   constructor(context: PushContext) {
     this.context = context;
     this.branchName = basename(context.payload.ref);
     this.repo = context.payload.repository;
     this.releaseTagName = `${this.branchName}-latest`;
-    this.branchVersionNumber = parseInt(this.branchName.split(".")[1]);
+    this.branchVersionNumber = this.getVersionFromBranch(this.branchName);
     this.releaseTitle = `[NIGHTLY] v0.${this.branchVersionNumber}.0`;
     this.mergeSHA = context.payload.after;
+    this.defaultBranch = this.repo.default_branch;
   }
 
   async draftRelease(): Promise<any> {
@@ -39,9 +41,9 @@ export class ReleaseDrafter {
     }
 
     // Only run draft-releaser on release branches
-    if (!this.isVersionedBranch()) {
+    if (!this.isValidBranch()) {
       console.warn(
-        "Release drafts are only supported for 'branch-0.xx' branches."
+        "Release drafts are only supported for default or default+-1 versioned branches"
       );
       return;
     }
@@ -59,11 +61,32 @@ export class ReleaseDrafter {
   }
 
   /**
-   * Returns true if the branch name matches the "branch-0.xx" pattern
+   * Returns true if the branch name is valid. Valid branches should match
+   * the branch-0.xx pattern and have a version that's the same as the repo's
+   * default branch or default branch +- 1.
    */
-  isVersionedBranch(): boolean {
+  isValidBranch(): boolean {
     const re = /^branch-0.{1,3}\d$/;
-    return Boolean(this.branchName.match(re));
+    const isVersionedBranch = Boolean(this.branchName.match(re));
+    if (!isVersionedBranch) return false;
+    const { branchVersionNumber } = this;
+    const defaultBranchVersionNumber = this.getVersionFromBranch(
+      this.defaultBranch
+    );
+
+    return (
+      defaultBranchVersionNumber === branchVersionNumber ||
+      defaultBranchVersionNumber + 1 === branchVersionNumber ||
+      defaultBranchVersionNumber - 1 === branchVersionNumber
+    );
+  }
+
+  /**
+   * Returns the RAPIDS version from a branch name, or
+   * NaN if the branch name is not versioned.
+   */
+  getVersionFromBranch(branchName): number {
+    return parseInt(branchName.split(".")[1]);
   }
 
   /**
