@@ -40,7 +40,7 @@ export class ReleaseDrafter {
       return;
     }
 
-    // Only run draft-releaser on release branches
+    // Only run draft-releaser on valid release branches
     if (!this.isValidBranch()) {
       console.warn(
         "Release drafts are only supported for default or default+-1 versioned branches"
@@ -63,7 +63,7 @@ export class ReleaseDrafter {
   /**
    * Returns true if the branch name is valid. Valid branches should match
    * the branch-0.xx pattern and have a version that's the same as the repo's
-   * default branch or default branch +- 1.
+   * default branch or default branch +- 1 to account for burndown & code-freeze.
    */
   isValidBranch(): boolean {
     const re = /^branch-0.{1,3}\d$/;
@@ -118,10 +118,10 @@ export class ReleaseDrafter {
   getReleaseDraftBody(prs: PullsListResponseData): string {
     const { releaseTitle, branchVersionNumber } = this;
     const categories = {
-      bug: { title: "Bug Fixes", prs: [] },
-      doc: { title: "Documentation", prs: [] },
-      "feature request": { title: "New Features", prs: [] },
-      improvement: { title: "Improvements", prs: [] },
+      bug: { title: "Bug Fixes 🐛", prs: [] },
+      doc: { title: "Documentation 📖", prs: [] },
+      "feature request": { title: "New Features 🚀", prs: [] },
+      improvement: { title: "Improvements 🛠️", prs: [] },
     };
 
     const breakingPRs: PullsListResponseData = [];

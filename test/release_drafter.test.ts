@@ -57,16 +57,16 @@ describe("Release Drafter", () => {
     expect(mockUpdateRelease.mock.calls[0][0].body).toBe(
       `# [NIGHTLY] v0.17.0
 
-## Bug Fixes
+## Bug Fixes 🐛
 
 - Some PR title (#1234) @octokit
 
-## Documentation
+## Documentation 📖
 
 - Some Doc PR (#456) @ajschmidt8
 
 
-## Breaking Changes
+## Breaking Changes 🚨
 
 - Some PR title (#1234) @octokit`
     );
@@ -84,16 +84,16 @@ describe("Release Drafter", () => {
     expect(mockCreateRelease.mock.calls[0][0].body).toBe(
       `# [NIGHTLY] v0.17.0
 
-## Bug Fixes
+## Bug Fixes 🐛
 
 - Some PR title (#1234) @octokit
 
-## Documentation
+## Documentation 📖
 
 - Some Doc PR (#456) @ajschmidt8
 
 
-## Breaking Changes
+## Breaking Changes 🚨
 
 - Some PR title (#1234) @octokit`
     );
