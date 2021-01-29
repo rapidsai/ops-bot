@@ -48,7 +48,7 @@ export class ReleaseDrafter {
       return;
     }
 
-    console.log(`Drafting release for branch '${branchName}' of '${repo}'.`);
+    console.log(`Drafting release for branch ${branchName} of ${repo.name}.`);
 
     const prs = await this.getPRsFromBranch();
     const releaseDraftBody = this.getReleaseDraftBody(prs);
