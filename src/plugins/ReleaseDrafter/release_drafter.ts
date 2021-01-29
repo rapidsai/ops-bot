@@ -93,7 +93,7 @@ export class ReleaseDrafter {
    * @param prs
    */
   getReleaseDraftBody(prs: PullsListResponseData): string {
-    const { releaseTitle } = this;
+    const { releaseTitle, branchVersionNumber } = this;
     const categories = {
       bug: { title: "Bug Fixes", prs: [] },
       doc: { title: "Documentation", prs: [] },
@@ -103,11 +103,12 @@ export class ReleaseDrafter {
 
     const breakingPRs: PullsListResponseData = [];
 
-    const labelInCategories = (el) => Object.keys(categories).includes(el.name);
-
+    const categoryFromLabels = (label) =>
+      Object.keys(categories).includes(label.name);
+    let hasEntries = false;
     for (let i = 0; i < prs.length; i++) {
       const pr = prs[i];
-      const categoryLabel = pr.labels.find(labelInCategories);
+      const categoryLabel = pr.labels.find(categoryFromLabels);
       if (!categoryLabel) {
         console.warn(
           `No category label found for PR ${pr.number} - ${pr.title}. Skipping changelog entry...`
@@ -116,6 +117,7 @@ export class ReleaseDrafter {
       }
       const category = categoryLabel.name;
       categories[category].prs.push(pr);
+      hasEntries = true;
 
       if (pr.labels.find((el) => el.name === "breaking")) {
         breakingPRs.push(pr);
@@ -139,7 +141,9 @@ export class ReleaseDrafter {
       .renderString(templateStr, {
         categories,
         releaseTitle,
+        hasEntries,
         breaking: breakingPRs,
+        versionNumber: branchVersionNumber,
       })
       .trim();
   }

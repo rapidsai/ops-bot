@@ -47,7 +47,7 @@ describe("Release Drafter", () => {
     expect(mockCreateRelease).not.toHaveBeenCalled();
     expect(mockUpdateRelease.mock.calls[0][0].release_id).toBe(1);
     expect(mockUpdateRelease.mock.calls[0][0].body).toBe(
-      `# [NIGHTLY] v0.17.0 (Date TBD)
+      `# [NIGHTLY] v0.17.0
 
 ## Bug Fixes
 
@@ -74,7 +74,7 @@ describe("Release Drafter", () => {
     expect(mockPaginate.mock.calls[0][0]).toBe(mockListPulls);
     expect(mockUpdateRelease).not.toHaveBeenCalled();
     expect(mockCreateRelease.mock.calls[0][0].body).toBe(
-      `# [NIGHTLY] v0.17.0 (Date TBD)
+      `# [NIGHTLY] v0.17.0
 
 ## Bug Fixes
 
