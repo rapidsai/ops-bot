@@ -66,7 +66,7 @@ export class ReleaseDrafter {
    * default branch or default branch +- 1 to account for burndown & code-freeze.
    */
   isValidBranch(): boolean {
-    const re = /^branch-0.{1,3}\d$/;
+    const re = /^branch-0\.\d{1,3}$/;
     const isVersionedBranch = Boolean(this.branchName.match(re));
     if (!isVersionedBranch) return false;
     const { branchVersionNumber } = this;
