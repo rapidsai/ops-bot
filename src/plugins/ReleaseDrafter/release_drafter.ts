@@ -219,6 +219,8 @@ export class ReleaseDrafter {
       return;
     }
 
+    // The createRelease endpoint also creates the tag if
+    // it doesn't exist.
     await context.octokit.repos.createRelease({
       owner,
       repo: repo_name,
