@@ -5,17 +5,19 @@ type PushPayload = {
   ref?: string;
   created?: boolean;
   deleted?: boolean;
+  default_branch?: string;
 };
 
 const makePushContext = ({
   ref = "branch-0.17",
   created = false,
   deleted = false,
+  default_branch = "branch-0.17",
 }: PushPayload = {}): PushContext => {
   const payload = {
     ref,
     before: "6113728f27ae82c7b1a177c8d03f9e96e0adf246",
-    after: "0000000000000000000000000000000000000000",
+    after: "c48f35a",
     created,
     deleted,
     forced: false,
@@ -81,7 +83,7 @@ const makePushContext = ({
       forks: 1,
       open_issues: 2,
       watchers: 0,
-      default_branch: "master",
+      default_branch,
       stargazers: 0,
       master_branch: "master",
     },
@@ -118,7 +120,10 @@ const makePushContext = ({
   return (makeContext(payload, "push") as unknown) as PushContext;
 };
 
-export const versionedBranch = makePushContext();
+export const validBranch = makePushContext();
+export const invalidVersionedBranch = makePushContext({
+  default_branch: "branch-0.13",
+});
 export const nonVersionedBranch = makePushContext({ ref: "main" });
 export const createdPush = makePushContext({ created: true });
 export const deletedPush = makePushContext({ deleted: true });

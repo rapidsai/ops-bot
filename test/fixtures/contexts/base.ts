@@ -2,16 +2,17 @@ import {
   mockCreateCommitStatus,
   mockCreateRelease,
   mockGetByUsername,
+  mockGetReleaseByTag,
   mockGetUserPermissionLevel,
   mockListComments,
   mockListCommits,
   mockListPullRequestsFromCommit,
   mockListPulls,
-  mockListReleases,
   mockListReviews,
   mockMerge,
   mockPaginate,
   mockPullsGet,
+  mockUpdateRef,
   mockUpdateRelease,
 } from "../../mocks";
 import type { WebhookEvents } from "@octokit/webhooks";
@@ -21,6 +22,9 @@ export const makeContext = (payload, name: WebhookEvents) => {
     name,
     payload,
     octokit: {
+      git: {
+        updateRef: mockUpdateRef,
+      },
       issues: {
         listComments: mockListComments,
       },
@@ -36,7 +40,7 @@ export const makeContext = (payload, name: WebhookEvents) => {
         getCollaboratorPermissionLevel: mockGetUserPermissionLevel,
         listCommits: mockListCommits,
         listPullRequestsAssociatedWithCommit: mockListPullRequestsFromCommit,
-        listReleases: mockListReleases,
+        getReleaseByTag: mockGetReleaseByTag,
         updateRelease: mockUpdateRelease,
       },
       users: {

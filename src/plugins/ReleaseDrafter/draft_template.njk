@@ -1,23 +1,27 @@
 {% macro prEntry(pr) %}
 - {{ pr.title | sanitizeTitle }} (#{{ pr.number }}) @{{ pr.user.login }}
 {%- endmacro %}
-# {{ releaseTitle }} (Date TBD)
+# {{ releaseTitle }}
 
-{% for _, category in categories %}
-  {% if category.prs | length %}
+{% if hasEntries %}
+  {% for _, category in categories %}
+    {% if category.prs | length %}
 ## {{ category.title }}
 
-  {% for pr in category.prs %}
+    {% for pr in category.prs %}
 {{ prEntry(pr) }}
+    {% endfor %}
+
+    {% endif %}
   {% endfor %}
 
-  {% endif %}
-{% endfor %}
+  {% if breaking | length %}
+## Breaking Changes 🚨
 
-{% if breaking | length %}
-## Breaking Changes
-
-{% for pr in breaking %}
+    {% for pr in breaking %}
 {{ prEntry(pr) }}
-{% endfor %}
+    {% endfor %}
+  {% endif -%}
+{% else %}
+  There are no changes for v0.{{ versionNumber }}.0 yet.
 {% endif -%}
