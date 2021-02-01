@@ -1,7 +1,6 @@
 {% macro prEntry(pr) %}
 - {{ pr.title | sanitizeTitle }} (#{{ pr.number }}) @{{ pr.user.login }}
 {%- endmacro %}
-# {{ releaseTitle }}
 
 {% if hasEntries %}
   {% if breaking | length %}
