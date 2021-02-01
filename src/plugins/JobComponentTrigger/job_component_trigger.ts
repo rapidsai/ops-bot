@@ -2,6 +2,9 @@ import axios from "axios";
 import { IssueCommentContext } from "../../types";
 import { JenkinsPermissions } from "./jenkins_permission";
 
+/**
+ * The various type of commands which trigger individual jobs
+ */
 export enum TriggerCommand {
   ALL = "all",
   CUDA_ONLY = "cuda",
@@ -10,6 +13,9 @@ export enum TriggerCommand {
   INVALID = "invalid",
 }
 
+/**
+ * Only repos in this list will be processed by JobComponentTrigger
+ */
 export const ENABLED_REPOSITORIES: string[] = [];
 
 export class JobComponentTrigger {
@@ -21,17 +27,22 @@ export class JobComponentTrigger {
     this.permissions = permissions;
   }
 
+  /**
+   * Based on the given IssueComment, potentially trigger a job via POST request to gpuCI
+   */
   async maybeTriggerJobs(): Promise<any> {
     const context = this.context;
 
     const repo = context.payload.repository;
     const prNumber = context.payload.issue.number;
+    //Check if repo is enabled
     if (!ENABLED_REPOSITORIES.includes(repo.full_name)) {
       console.warn(
         `Comment on ${repo.full_name} #${prNumber} was not in the enabled repo list. Skipping...`
       );
       return false;
     }
+    //Only run on PRs
     if (!this.isPR(context)) {
       console.warn(
         `Comment on ${repo.full_name} #${prNumber} was not on a PR. Skipping...`
@@ -50,6 +61,7 @@ export class JobComponentTrigger {
       );
       return false;
     }
+    //Check permissions
     if (!await this.permissions.hasPermissionToTrigger(context)) {
       console.warn(
         `Comment on ${repo.full_name} #${prNumber} by ${username} does not have trigger permissions. Skipping...`
@@ -64,6 +76,7 @@ export class JobComponentTrigger {
       pull_number: prNumber,
     });
 
+    //Build payload to POST to gpuCI - this payload is defined in gpuci-scripts
     const jenkinsPayload = {
       pr_id: prNumber,
       commit_hash: `origin/pr/${prNumber}/merge`,
@@ -75,9 +88,11 @@ export class JobComponentTrigger {
       repository: repo.full_name,
       trigger: command,
     };
+    //Authenticate with gpuCI
     const axiosOptions = {
       headers: { token: process.env.JENKINS_WEBHOOK_TOKEN },
     };
+    //The response is always 200 even if no jobs were triggered and the output is suppressed, so no point in parsing anything
     await axios.post(
       "https://gpuci.gpuopenanalytics.com/generic-webhook-trigger/invoke",
       jenkinsPayload,
