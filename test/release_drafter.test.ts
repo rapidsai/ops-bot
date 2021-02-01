@@ -56,8 +56,6 @@ describe("Release Drafter", () => {
     expect(mockUpdateRelease.mock.calls[0][0].release_id).toBe(1);
     expect(mockUpdateRelease.mock.calls[0][0].body).toBe(
       `\
-# [NIGHTLY] v0.17.0
-
 ## Breaking Changes 🚨
 
 - Some PR title (#1234) @octokit
@@ -84,8 +82,6 @@ describe("Release Drafter", () => {
     expect(mockUpdateRelease).not.toHaveBeenCalled();
     expect(mockCreateRelease.mock.calls[0][0].body).toBe(
       `\
-# [NIGHTLY] v0.17.0
-
 ## Breaking Changes 🚨
 
 - Some PR title (#1234) @octokit
