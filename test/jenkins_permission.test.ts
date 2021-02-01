@@ -24,7 +24,7 @@ describe("Jenkins Permissions", () => {
   test("username in adminlist", async () => {
     const context = makeIssueCommentContext({
       is_pr: true,
-      body: "@gputester run gpu build",
+      body: "@gpucibot run gpu build",
       username: "raydouglass",
     });
 
@@ -39,7 +39,7 @@ describe("Jenkins Permissions", () => {
   test("username in allowlist", async () => {
     const context = makeIssueCommentContext({
       is_pr: true,
-      body: "@gputester run gpu build",
+      body: "@gpucibot run gpu build",
       username: "AK-ayush",
     });
 
@@ -54,7 +54,7 @@ describe("Jenkins Permissions", () => {
   test("username in org", async () => {
     const context = makeIssueCommentContext({
       is_pr: true,
-      body: "@gputester run gpu build",
+      body: "@gpucibot run gpu build",
       username: "someone",
     });
     mockOrgMembership.mockResolvedValueOnce({ status: 204 });
@@ -70,7 +70,7 @@ describe("Jenkins Permissions", () => {
   test("ok to test", async () => {
     const context = makeIssueCommentContext({
       is_pr: true,
-      body: "@gputester run gpu build",
+      body: "@gpucibot run gpu build",
       username: "someone",
     });
     mockOrgMembership.mockResolvedValueOnce({ status: 404 });
@@ -92,7 +92,7 @@ describe("Jenkins Permissions", () => {
   test("ok to test - nonadmin", async () => {
     const context = makeIssueCommentContext({
       is_pr: true,
-      body: "@gputester run gpu build",
+      body: "@gpucibot run gpu build",
       username: "someone",
     });
     mockOrgMembership.mockResolvedValueOnce({ status: 404 });
@@ -102,6 +102,23 @@ describe("Jenkins Permissions", () => {
       },
       body: "ok to test",
     }]);
+
+    const result = await new JenkinsPermissions().hasPermissionToTrigger(
+      context
+    );
+    assert(!result);
+    expect(mockPaginate).toBeCalledTimes(1);
+    expect(mockOrgMembership).toBeCalledTimes(1);
+  });
+
+  test("no comments", async () => {
+    const context = makeIssueCommentContext({
+      is_pr: true,
+      body: "@gpucibot run gpu build",
+      username: "someone",
+    });
+    mockOrgMembership.mockResolvedValueOnce({ status: 404 });
+    mockPaginate.mockResolvedValueOnce([]);
 
     const result = await new JenkinsPermissions().hasPermissionToTrigger(
       context

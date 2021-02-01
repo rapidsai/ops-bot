@@ -2,7 +2,7 @@ import axios from "axios";
 import { IssueCommentContext } from "../../types";
 import { JenkinsPermissions } from "./jenkins_permission";
 
-enum TriggerCommand {
+export enum TriggerCommand {
   ALL = "all",
   CUDA_ONLY = "cuda",
   PYTHON_ONLY = "python",
@@ -10,7 +10,7 @@ enum TriggerCommand {
   INVALID = "invalid",
 }
 
-const ENABLED_REPOSITORIES = ["rapidsai/ops-bot"];
+export const ENABLED_REPOSITORIES: string[] = [];
 
 export class JobComponentTrigger {
   public context: IssueCommentContext;
@@ -30,13 +30,13 @@ export class JobComponentTrigger {
       console.warn(
         `Comment on ${repo.full_name} #${prNumber} was not in the enabled repo list. Skipping...`
       );
-      return;
+      return false;
     }
     if (!this.isPR(context)) {
       console.warn(
         `Comment on ${repo.full_name} #${prNumber} was not on a PR. Skipping...`
       );
-      return;
+      return false;
     }
 
     const commentBody = context.payload.comment.body;
@@ -48,13 +48,13 @@ export class JobComponentTrigger {
       console.warn(
         `Comment on ${repo.full_name} #${prNumber} was not a valid trigger. Skipping...`
       );
-      return;
+      return false;
     }
-    if (!this.permissions.hasPermissionToTrigger(context)) {
+    if (!await this.permissions.hasPermissionToTrigger(context)) {
       console.warn(
         `Comment on ${repo.full_name} #${prNumber} by ${username} does not have trigger permissions. Skipping...`
       );
-      return;
+      return false;
     }
 
     // Get PR info
@@ -83,6 +83,7 @@ export class JobComponentTrigger {
       jenkinsPayload,
       axiosOptions
     );
+    return true;
   }
 
   /**
@@ -94,8 +95,25 @@ export class JobComponentTrigger {
     return "pull_request" in context.payload.issue;
   }
 
+  /**
+   * Parses a comment into a specific TriggerCommand
+   * @param body the body of an issue comment
+   */
   parseCommentBody(body: string): TriggerCommand {
-    //TODO
+    if (body.startsWith("@gpucibot ")) {
+      body = body.replace("@gpucibot ", "");
+      switch (body) {
+        case "rerun tests":
+        case "run tests":
+          return TriggerCommand.ALL;
+        case "run cuda build":
+          return TriggerCommand.CUDA_ONLY;
+        case "run python build":
+          return TriggerCommand.PYTHON_ONLY;
+        case "run gpu build":
+          return TriggerCommand.GPU_ONLY;
+      }
+    }
     return TriggerCommand.INVALID;
   }
 }
