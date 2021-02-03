@@ -1,7 +1,6 @@
 import { JenkinsPermissions } from "../src/plugins/JobComponentTrigger/jenkins_permission";
 import axios from "axios";
 import { readFileSync } from "fs";
-import { assert } from "console";
 import { makeIssueCommentContext } from "./fixtures/contexts/issue_comment";
 import { mockOrgMembership, mockPaginate } from "./mocks";
 
@@ -31,7 +30,7 @@ describe("Jenkins Permissions", () => {
     const result = await new JenkinsPermissions().hasPermissionToTrigger(
       context
     );
-    assert(result);
+    expect(result).toBe(true);
     expect(mockPaginate).toBeCalledTimes(0);
     expect(mockOrgMembership).toBeCalledTimes(0);
   });
@@ -46,7 +45,7 @@ describe("Jenkins Permissions", () => {
     const result = await new JenkinsPermissions().hasPermissionToTrigger(
       context
     );
-    assert(result);
+    expect(result).toBe(true);
     expect(mockPaginate).toBeCalledTimes(0);
     expect(mockOrgMembership).toBeCalledTimes(0);
   });
@@ -62,7 +61,7 @@ describe("Jenkins Permissions", () => {
     const result = await new JenkinsPermissions().hasPermissionToTrigger(
       context
     );
-    assert(result);
+    expect(result).toBe(true);
     expect(mockPaginate).toBeCalledTimes(0);
     expect(mockOrgMembership).toBeCalledTimes(1);
   });
@@ -84,7 +83,7 @@ describe("Jenkins Permissions", () => {
     const result = await new JenkinsPermissions().hasPermissionToTrigger(
       context
     );
-    assert(result);
+    expect(result).toBe(true);
     expect(mockPaginate).toBeCalledTimes(1);
     expect(mockOrgMembership).toBeCalledTimes(1);
   });
@@ -106,7 +105,7 @@ describe("Jenkins Permissions", () => {
     const result = await new JenkinsPermissions().hasPermissionToTrigger(
       context
     );
-    assert(!result);
+    expect(result).toBe(false);
     expect(mockPaginate).toBeCalledTimes(1);
     expect(mockOrgMembership).toBeCalledTimes(1);
   });
@@ -123,7 +122,7 @@ describe("Jenkins Permissions", () => {
     const result = await new JenkinsPermissions().hasPermissionToTrigger(
       context
     );
-    assert(!result);
+    expect(result).toBe(false);
     expect(mockPaginate).toBeCalledTimes(1);
     expect(mockOrgMembership).toBeCalledTimes(1);
   });

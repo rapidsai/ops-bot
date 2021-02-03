@@ -5,8 +5,6 @@ import {
   ENABLED_REPOSITORIES,
 } from "../src/plugins/JobComponentTrigger/job_component_trigger";
 import axios from "axios";
-import { readFileSync } from "fs";
-import { assert } from "console";
 import { makeIssueCommentContext } from "./fixtures/contexts/issue_comment";
 import { mockPullsGet } from "./mocks";
 import { default as pulls_get } from "./fixtures/responses/pulls_get.json";
