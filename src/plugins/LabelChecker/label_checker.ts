@@ -120,7 +120,7 @@ export class LabelChecker {
   private isForwardMergePR(): boolean {
     const { context } = this;
     return (
-      context.payload.sender.login === "GPUtester" &&
+      context.payload.pull_request.user.login === "GPUtester" &&
       context.payload.pull_request.title
         .toLowerCase()
         .includes("[gpuci] auto-merge")

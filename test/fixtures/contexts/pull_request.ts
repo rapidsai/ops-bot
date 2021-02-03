@@ -35,9 +35,9 @@ const makePRContext = ({
       head: {
         sha: "1234sha",
       },
-    },
-    sender: {
-      login: user,
+      user: {
+        login: user,
+      },
     },
   };
 
