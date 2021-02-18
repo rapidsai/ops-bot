@@ -87,6 +87,8 @@ export class JobComponentTrigger {
       flash_id: prNumber,
       repository: repo.full_name,
       trigger: command,
+      trigger_author: username,
+      trigger_url: context.payload.comment.html_url
     };
     //Authenticate with gpuCI
     const axiosOptions = {
