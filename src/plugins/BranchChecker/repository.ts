@@ -17,10 +17,6 @@ export class RepositoryBranchChecker {
       repo: repo.name,
     });
 
-    await Promise.all(
-      prs.map(async (pr) => {
-        await checkPR(context.octokit, pr);
-      })
-    );
+    await Promise.all(prs.map((pr) => checkPR(context.octokit, pr)));
   }
 }
