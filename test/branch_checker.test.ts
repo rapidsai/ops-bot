@@ -9,7 +9,6 @@ describe("Label Checker", () => {
   describe("Pull Request Event", () => {
     beforeEach(() => {
       mockCreateCommitStatus.mockReset();
-      mockPaginate.mockReset();
     });
 
     test("release PR", async () => {
@@ -85,6 +84,7 @@ describe("Label Checker", () => {
   describe("Repository Event", () => {
     beforeEach(() => {
       mockCreateCommitStatus.mockReset();
+      mockPaginate.mockReset();
     });
 
     test("release PR", async () => {
