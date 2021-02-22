@@ -12,6 +12,7 @@ export type PushContext = Context<EventPayloads.WebhookPayloadPush>;
 export type IssueCommentContext = Context<EventPayloads.WebhookPayloadIssueComment>;
 export type PRReviewContext = Context<EventPayloads.WebhookPayloadPullRequestReview>;
 export type StatusContext = Context<EventPayloads.WebhookPayloadStatus>;
+export type RepositoryContext = Context<EventPayloads.WebhookPayloadRepository>;
 export type AutoMergerContext =
   | IssueCommentContext
   | PRReviewContext
@@ -22,3 +23,11 @@ export type {
   UsersGetByUsernameResponseData,
 };
 export type PayloadRepository = EventPayloads.PayloadRepository;
+export type ProbotOctokit = Context["octokit"];
+
+export type CommitStatus = {
+  context: string;
+  owner: string;
+  repo: string;
+  sha: string;
+};
