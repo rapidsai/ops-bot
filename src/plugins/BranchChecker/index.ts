@@ -15,6 +15,6 @@ export const initBranchChecker = (app: Application) => {
     }
   );
   app.on("repository.edited", async (context) => {
-    await new RepositoryBranchChecker(context).checkAllBranches();
+    await new RepositoryBranchChecker(context).checkAllPRs();
   });
 };

@@ -90,7 +90,7 @@ describe("Label Checker", () => {
     test("release PR", async () => {
       mockPaginate.mockResolvedValueOnce(listPullsResp);
       const context = makeRepositoryContext();
-      await new RepositoryBranchChecker(context).checkAllBranches();
+      await new RepositoryBranchChecker(context).checkAllPRs();
       expect(mockPaginate).toBeCalledTimes(1);
       expect(mockPaginate.mock.calls[0][0]).toBe(mockListPulls);
       expect(mockPaginate.mock.calls[0][1]).toStrictEqual({

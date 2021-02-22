@@ -8,7 +8,7 @@ export class RepositoryBranchChecker {
     this.context = context;
   }
 
-  async checkAllBranches() {
+  async checkAllPRs() {
     const { context } = this;
     const repo = context.payload.repository;
 
