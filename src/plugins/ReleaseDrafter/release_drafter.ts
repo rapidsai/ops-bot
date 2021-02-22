@@ -7,6 +7,7 @@ import { basename } from "path";
 import { resolve } from "path";
 import { readFileSync } from "fs";
 import nunjucks from "nunjucks";
+import { getVersionFromBranch, isVersionedBranch } from "../../shared";
 
 export class ReleaseDrafter {
   context: PushContext;
@@ -23,7 +24,7 @@ export class ReleaseDrafter {
     this.branchName = basename(context.payload.ref);
     this.repo = context.payload.repository;
     this.releaseTagName = `${this.branchName}-latest`;
-    this.branchVersionNumber = this.getVersionFromBranch(this.branchName);
+    this.branchVersionNumber = getVersionFromBranch(this.branchName);
     this.releaseTitle = `[NIGHTLY] v0.${this.branchVersionNumber}.0`;
     this.mergeSHA = context.payload.after;
     this.defaultBranch = this.repo.default_branch;
@@ -66,27 +67,15 @@ export class ReleaseDrafter {
    * default branch or default branch +- 1 to account for burndown & code-freeze.
    */
   isValidBranch(): boolean {
-    const re = /^branch-0\.\d{1,3}$/;
-    const isVersionedBranch = Boolean(this.branchName.match(re));
-    if (!isVersionedBranch) return false;
+    if (!isVersionedBranch(this.branchName)) return false;
     const { branchVersionNumber } = this;
-    const defaultBranchVersionNumber = this.getVersionFromBranch(
-      this.defaultBranch
-    );
+    const defaultBranchVersionNumber = getVersionFromBranch(this.defaultBranch);
 
     return (
       defaultBranchVersionNumber === branchVersionNumber ||
       defaultBranchVersionNumber + 1 === branchVersionNumber ||
       defaultBranchVersionNumber - 1 === branchVersionNumber
     );
-  }
-
-  /**
-   * Returns the RAPIDS version from a branch name, or
-   * NaN if the branch name is not versioned.
-   */
-  getVersionFromBranch(branchName): number {
-    return parseInt(branchName.split(".")[1]);
   }
 
   /**
