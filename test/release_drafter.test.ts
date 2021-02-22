@@ -1,6 +1,6 @@
 import { ReleaseDrafter } from "../src/plugins/ReleaseDrafter/release_drafter";
 import * as context from "./fixtures/contexts/push";
-import { default as listPullsResp } from "./fixtures/responses/list_pulls.json";
+import { release_drafter as listPullsResp } from "./fixtures/responses/list_pulls.json";
 import { default as getReleaseByTagResp } from "./fixtures/responses/get_release_by_tag.json";
 import {
   mockGetReleaseByTag,
