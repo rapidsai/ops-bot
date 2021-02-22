@@ -96,6 +96,7 @@ describe("Label Checker", () => {
       expect(mockPaginate.mock.calls[0][1]).toStrictEqual({
         owner: "rapidsai",
         repo: "cudf",
+        per_page: 100,
       });
       expect(mockCreateCommitStatus).toBeCalledTimes(2);
       expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");

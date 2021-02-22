@@ -22,6 +22,8 @@ export const checkPR = async (
     sha: pr.head.sha,
   });
 
+  console.log("Checking base branch on PR:", JSON.stringify(pr));
+
   await setCommitStatus("Checking base branch...", "pending");
 
   if (isReleasePR(pr)) {

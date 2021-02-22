@@ -15,6 +15,7 @@ export class RepositoryBranchChecker {
     const prs = await context.octokit.paginate(context.octokit.pulls.list, {
       owner: repo.owner.login,
       repo: repo.name,
+      per_page: 100,
     });
 
     await Promise.all(prs.map((pr) => checkPR(context.octokit, pr)));

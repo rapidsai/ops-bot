@@ -19,7 +19,7 @@ export const isVersionedBranch = (branchName: string): boolean => {
  * Returns the RAPIDS version from a branch name, or
  * NaN if the branch name is not versioned.
  */
-export const getVersionFromBranch = (branchName): number => {
+export const getVersionFromBranch = (branchName: string): number => {
   return parseInt(branchName.split(".")[1]);
 };
 
