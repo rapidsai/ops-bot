@@ -112,7 +112,7 @@ export class LabelChecker {
       context.payload.pull_request.user.login === "GPUtester" &&
       context.payload.pull_request.title
         .toLowerCase()
-        .includes("[gpuci] auto-merge")
+        .includes("[gpuci] forward-merge")
     );
   }
 }

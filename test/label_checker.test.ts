@@ -118,7 +118,7 @@ describe("Label Checker", () => {
 
   test("correct labels - forward merge PR", async () => {
     const context = makePRContext({
-      title: "[gpuCI] Auto-merge branch-0.18 to branch-0.19 [skip ci]",
+      title: "[gpuCI] Forward-merge branch-0.18 to branch-0.19 [skip ci]",
       user: "GPUtester",
     });
     await new LabelChecker(context).checkLabels();
