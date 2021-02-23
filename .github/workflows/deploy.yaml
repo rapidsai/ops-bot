@@ -13,7 +13,7 @@ jobs:
   deploy:
     name: Deploy Probot Application
     runs-on: ubuntu-latest
-    container: node:lts
+    container: node:14
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
