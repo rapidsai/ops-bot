@@ -107,10 +107,10 @@ export class ReleaseDrafter {
   getReleaseDraftBody(prs: PullsListResponseData): string {
     const { releaseTitle, branchVersionNumber } = this;
     const categories = {
-      bug: { title: "Bug Fixes 🐛", prs: [] },
-      doc: { title: "Documentation 📖", prs: [] },
-      "feature request": { title: "New Features 🚀", prs: [] },
-      improvement: { title: "Improvements 🛠️", prs: [] },
+      bug: { title: "🐛 Bug Fixes", prs: [] },
+      doc: { title: "📖 Documentation", prs: [] },
+      "feature request": { title: "🚀 New Features", prs: [] },
+      improvement: { title: "🛠️ Improvements", prs: [] },
     };
 
     const breakingPRs: PullsListResponseData = [];
