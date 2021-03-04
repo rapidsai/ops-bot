@@ -198,13 +198,6 @@ export class ReleaseDrafter {
         release_id: releaseId,
         body: releaseBody,
       });
-
-      await context.octokit.git.updateRef({
-        owner,
-        repo: repo_name,
-        sha: mergeSHA,
-        ref: `tags/${releaseTagName}`,
-      });
       return;
     }
 

@@ -8,7 +8,6 @@ import {
   mockCreateRelease,
   mockPaginate,
   mockListPulls,
-  mockUpdateRef,
 } from "./mocks";
 
 describe("Release Drafter", () => {
@@ -18,7 +17,6 @@ describe("Release Drafter", () => {
     mockUpdateRelease.mockReset();
     mockPaginate.mockReset();
     mockListPulls.mockReset();
-    mockUpdateRef.mockReset();
   });
 
   test("doesn't run on non-versioned branches", async () => {
@@ -69,8 +67,6 @@ describe("Release Drafter", () => {
 - Some Doc PR (#456) @ajschmidt8\
 `
     );
-    expect(mockUpdateRef.mock.calls[0][0].ref).toBe("tags/branch-0.17-latest");
-    expect(mockUpdateRef.mock.calls[0][0].sha).toBe("c48f35a");
   });
 
   test("create new release", async () => {
@@ -95,6 +91,5 @@ describe("Release Drafter", () => {
 - Some Doc PR (#456) @ajschmidt8\
 `
     );
-    expect(mockUpdateRef).not.toHaveBeenCalled();
   });
 });

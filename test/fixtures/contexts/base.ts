@@ -12,7 +12,6 @@ import {
   mockMerge,
   mockPaginate,
   mockPullsGet,
-  mockUpdateRef,
   mockUpdateRelease,
 } from "../../mocks";
 import type { WebhookEvents } from "@octokit/webhooks";
@@ -22,9 +21,6 @@ export const makeContext = (payload, name: WebhookEvents) => {
     name,
     payload,
     octokit: {
-      git: {
-        updateRef: mockUpdateRef,
-      },
       issues: {
         listComments: mockListComments,
       },
