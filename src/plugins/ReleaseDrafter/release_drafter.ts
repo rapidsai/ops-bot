@@ -23,8 +23,8 @@ export class ReleaseDrafter {
     this.context = context;
     this.branchName = basename(context.payload.ref);
     this.repo = context.payload.repository;
-    this.releaseTagName = `${this.branchName}-latest`;
     this.branchVersionNumber = getVersionFromBranch(this.branchName);
+    this.releaseTagName = `v0.${this.branchVersionNumber}.0a`;
     this.releaseTitle = `[NIGHTLY] v0.${this.branchVersionNumber}.0`;
     this.mergeSHA = context.payload.after;
     this.defaultBranch = this.repo.default_branch;
@@ -105,7 +105,7 @@ export class ReleaseDrafter {
    * @param prs
    */
   getReleaseDraftBody(prs: PullsListResponseData): string {
-    const { releaseTitle, branchVersionNumber } = this;
+    const { releaseTitle, branchVersionNumber, branchName, mergeSHA } = this;
     const categories = {
       bug: { title: "🐛 Bug Fixes", prs: [] },
       doc: { title: "📖 Documentation", prs: [] },
@@ -156,6 +156,8 @@ export class ReleaseDrafter {
         hasEntries,
         breaking: breakingPRs,
         versionNumber: branchVersionNumber,
+        branchName,
+        mergeSHA,
       })
       .trim();
   }
@@ -187,7 +189,7 @@ export class ReleaseDrafter {
    * @param releaseBody
    */
   async createOrUpdateDraftRelease(releaseId: number, releaseBody: string) {
-    const { context, releaseTitle, releaseTagName, mergeSHA, repo } = this;
+    const { context, releaseTitle, releaseTagName, repo } = this;
     const owner = repo.owner.login;
     const repo_name = repo.name;
 
@@ -210,7 +212,6 @@ export class ReleaseDrafter {
       name: releaseTitle,
       prerelease: true,
       body: releaseBody,
-      target_commitish: mergeSHA,
     });
   }
 }

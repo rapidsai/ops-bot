@@ -2,6 +2,11 @@
 - {{ pr.title | sanitizeTitle }} (#{{ pr.number }}) @{{ pr.user.login }}
 {%- endmacro %}
 
+**Links:**
+
+- [Latest Commit](https://github.com/rapidsai/cudf/commit/{{ mergeSHA }})
+- [Compare with `main` branch](https://github.com/rapidsai/cudf/compare/main...{{ branchName }})
+
 {% if hasEntries %}
   {% if breaking | length %}
 ## 🚨 Breaking Changes
