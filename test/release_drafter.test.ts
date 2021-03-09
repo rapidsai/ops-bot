@@ -56,7 +56,7 @@ describe("Release Drafter", () => {
     expect(mockUpdateRelease.mock.calls[0][0].release_id).toBe(1);
     expect(mockUpdateRelease.mock.calls[0][0].body).toBe(
       `\
-## Links:
+## Links
 
 - [Development Branch](https://github.com/rapidsai/cudf/tree/branch-0.17)
 - [Compare with \`main\` branch](https://github.com/rapidsai/cudf/compare/main...branch-0.17)
@@ -87,7 +87,7 @@ describe("Release Drafter", () => {
     expect(mockUpdateRelease).not.toHaveBeenCalled();
     expect(mockCreateRelease.mock.calls[0][0].body).toBe(
       `\
-## Links:
+## Links
 
 - [Development Branch](https://github.com/rapidsai/cudf/tree/branch-0.17)
 - [Compare with \`main\` branch](https://github.com/rapidsai/cudf/compare/main...branch-0.17)
