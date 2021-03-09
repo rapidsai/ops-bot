@@ -2,6 +2,11 @@
 - {{ pr.title | sanitizeTitle }} (#{{ pr.number }}) @{{ pr.user.login }}
 {%- endmacro %}
 
+## 🔗 Links
+
+- [Development Branch](https://github.com/{{ repoFullName }}/tree/{{ branchName }})
+- [Compare with `main` branch](https://github.com/{{ repoFullName }}/compare/main...{{ branchName }})
+
 {% if hasEntries %}
   {% if breaking | length %}
 ## 🚨 Breaking Changes
