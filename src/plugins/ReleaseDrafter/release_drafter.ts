@@ -105,7 +105,7 @@ export class ReleaseDrafter {
    * @param prs
    */
   getReleaseDraftBody(prs: PullsListResponseData): string {
-    const { releaseTitle, branchVersionNumber, branchName, mergeSHA } = this;
+    const { releaseTitle, branchVersionNumber, branchName, repo } = this;
     const categories = {
       bug: { title: "🐛 Bug Fixes", prs: [] },
       doc: { title: "📖 Documentation", prs: [] },
@@ -157,7 +157,7 @@ export class ReleaseDrafter {
         breaking: breakingPRs,
         versionNumber: branchVersionNumber,
         branchName,
-        mergeSHA,
+        repoFullName: repo.full_name,
       })
       .trim();
   }

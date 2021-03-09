@@ -2,10 +2,10 @@
 - {{ pr.title | sanitizeTitle }} (#{{ pr.number }}) @{{ pr.user.login }}
 {%- endmacro %}
 
-**Links:**
+## Links:
 
-- [Latest Commit](https://github.com/rapidsai/cudf/commit/{{ mergeSHA }})
-- [Compare with `main` branch](https://github.com/rapidsai/cudf/compare/main...{{ branchName }})
+- [Development Branch](https://github.com/{{ repoFullName }}/tree/{{ branchName }})
+- [Compare with `main` branch](https://github.com/{{ repoFullName }}/compare/main...{{ branchName }})
 
 {% if hasEntries %}
   {% if breaking | length %}
