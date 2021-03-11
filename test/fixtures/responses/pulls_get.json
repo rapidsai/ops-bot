@@ -92,15 +92,6 @@
         "description": "Testing and reviews complete, ready to merge"
       },
       {
-        "id": 2531411848,
-        "node_id": "MDU6TGFiZWwyNTMxNDExODQ4",
-        "url": "https://api.github.com/repos/rapidsai/cudf/labels/6%20-%20Okay%20to%20Auto-Merge",
-        "name": "6 - Okay to Auto-Merge",
-        "color": "ddff9b",
-        "default": false,
-        "description": "Triggers gpuCI auto-merge process"
-      },
-      {
         "id": 1221761547,
         "node_id": "MDU6TGFiZWwxMjIxNzYxNTQ3",
         "url": "https://api.github.com/repos/rapidsai/cudf/labels/Cython",

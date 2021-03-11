@@ -1,6 +1,6 @@
 import { ReleaseDrafter } from "../src/plugins/ReleaseDrafter/release_drafter";
 import * as context from "./fixtures/contexts/push";
-import { default as listPullsResp } from "./fixtures/responses/list_pulls.json";
+import { release_drafter as listPullsResp } from "./fixtures/responses/list_pulls.json";
 import { default as getReleaseByTagResp } from "./fixtures/responses/get_release_by_tag.json";
 import {
   mockGetReleaseByTag,
@@ -8,7 +8,6 @@ import {
   mockCreateRelease,
   mockPaginate,
   mockListPulls,
-  mockUpdateRef,
 } from "./mocks";
 
 describe("Release Drafter", () => {
@@ -18,7 +17,6 @@ describe("Release Drafter", () => {
     mockUpdateRelease.mockReset();
     mockPaginate.mockReset();
     mockListPulls.mockReset();
-    mockUpdateRef.mockReset();
   });
 
   test("doesn't run on non-versioned branches", async () => {
@@ -52,27 +50,30 @@ describe("Release Drafter", () => {
     await new ReleaseDrafter(context.validBranch).draftRelease();
     expect(mockPaginate).toHaveBeenCalledTimes(1);
     expect(mockPaginate.mock.calls[0][0]).toBe(mockListPulls);
+    expect(mockGetReleaseByTag).toHaveBeenCalledTimes(1);
+    expect(mockGetReleaseByTag.mock.calls[0][0].tag).toBe("v0.17.0a");
     expect(mockCreateRelease).not.toHaveBeenCalled();
     expect(mockUpdateRelease.mock.calls[0][0].release_id).toBe(1);
     expect(mockUpdateRelease.mock.calls[0][0].body).toBe(
       `\
-# [NIGHTLY] v0.17.0
+## 🔗 Links
 
-## Breaking Changes 🚨
+- [Development Branch](https://github.com/rapidsai/cudf/tree/branch-0.17)
+- [Compare with \`main\` branch](https://github.com/rapidsai/cudf/compare/main...branch-0.17)
+
+## 🚨 Breaking Changes
 
 - Some PR title (#1234) @octokit
 
-## Bug Fixes 🐛
+## 🐛 Bug Fixes
 
 - Some PR title (#1234) @octokit
 
-## Documentation 📖
+## 📖 Documentation
 
 - Some Doc PR (#456) @ajschmidt8\
 `
     );
-    expect(mockUpdateRef.mock.calls[0][0].ref).toBe("tags/branch-0.17-latest");
-    expect(mockUpdateRef.mock.calls[0][0].sha).toBe("c48f35a");
   });
 
   test("create new release", async () => {
@@ -81,24 +82,28 @@ describe("Release Drafter", () => {
     await new ReleaseDrafter(context.validBranch).draftRelease();
     expect(mockPaginate).toHaveBeenCalledTimes(1);
     expect(mockPaginate.mock.calls[0][0]).toBe(mockListPulls);
+    expect(mockGetReleaseByTag).toHaveBeenCalledTimes(1);
+    expect(mockGetReleaseByTag.mock.calls[0][0].tag).toBe("v0.17.0a");
     expect(mockUpdateRelease).not.toHaveBeenCalled();
     expect(mockCreateRelease.mock.calls[0][0].body).toBe(
       `\
-# [NIGHTLY] v0.17.0
+## 🔗 Links
 
-## Breaking Changes 🚨
+- [Development Branch](https://github.com/rapidsai/cudf/tree/branch-0.17)
+- [Compare with \`main\` branch](https://github.com/rapidsai/cudf/compare/main...branch-0.17)
+
+## 🚨 Breaking Changes
 
 - Some PR title (#1234) @octokit
 
-## Bug Fixes 🐛
+## 🐛 Bug Fixes
 
 - Some PR title (#1234) @octokit
 
-## Documentation 📖
+## 📖 Documentation
 
 - Some Doc PR (#456) @ajschmidt8\
 `
     );
-    expect(mockUpdateRef).not.toHaveBeenCalled();
   });
 });

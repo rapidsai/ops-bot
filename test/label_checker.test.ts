@@ -1,5 +1,5 @@
 import { LabelChecker } from "../src/plugins/LabelChecker/label_checker";
-import * as context from "./fixtures/contexts/pull_request";
+import { makePRContext } from "./fixtures/contexts/pull_request";
 import { mockCreateCommitStatus } from "./mocks";
 
 describe("Label Checker", () => {
@@ -8,7 +8,8 @@ describe("Label Checker", () => {
   });
 
   test("no labels", async () => {
-    await new LabelChecker(context.noLabels).checkLabels();
+    const context = makePRContext({ labels: [] });
+    await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
@@ -18,7 +19,8 @@ describe("Label Checker", () => {
   });
 
   test("no breaking, one category", async () => {
-    await new LabelChecker(context.noBreakingOneCat).checkLabels();
+    const context = makePRContext({ labels: ["bug"] });
+    await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
@@ -28,7 +30,8 @@ describe("Label Checker", () => {
   });
 
   test("no category, one breaking", async () => {
-    await new LabelChecker(context.noCatOneBreaking).checkLabels();
+    const context = makePRContext({ labels: ["breaking"] });
+    await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
@@ -38,7 +41,10 @@ describe("Label Checker", () => {
   });
 
   test("many breaking, one category", async () => {
-    await new LabelChecker(context.manyBreakingOneCat).checkLabels();
+    const context = makePRContext({
+      labels: ["breaking", "non-breaking", "bug"],
+    });
+    await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
@@ -48,7 +54,10 @@ describe("Label Checker", () => {
   });
 
   test("many category, one breaking", async () => {
-    await new LabelChecker(context.manyCatOneBreaking).checkLabels();
+    const context = makePRContext({
+      labels: ["bug", "improvement", "breaking"],
+    });
+    await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
@@ -58,7 +67,10 @@ describe("Label Checker", () => {
   });
 
   test("many breaking, no category", async () => {
-    await new LabelChecker(context.manyBreakingNoCat).checkLabels();
+    const context = makePRContext({
+      labels: ["non-breaking", "breaking"],
+    });
+    await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
@@ -68,7 +80,10 @@ describe("Label Checker", () => {
   });
 
   test("many category, many breaking", async () => {
-    await new LabelChecker(context.manyCatManyBreaking).checkLabels();
+    const context = makePRContext({
+      labels: ["bug", "improvement", "breaking", "non-breaking"],
+    });
+    await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
@@ -78,7 +93,10 @@ describe("Label Checker", () => {
   });
 
   test("no breaking, many category", async () => {
-    await new LabelChecker(context.noBreakingManyCat).checkLabels();
+    const context = makePRContext({
+      labels: ["bug", "improvement"],
+    });
+    await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
@@ -88,7 +106,8 @@ describe("Label Checker", () => {
   });
 
   test("correct labels", async () => {
-    await new LabelChecker(context.correctLabels).checkLabels();
+    const context = makePRContext({ labels: ["bug", "breaking"] });
+    await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
@@ -97,12 +116,37 @@ describe("Label Checker", () => {
     );
   });
 
-  test("correct labels - GPUTester", async () => {
-    await new LabelChecker(context.gpuTester).checkLabels();
-    expect(mockCreateCommitStatus).toBeCalledTimes(1);
-    expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("success");
+  test("correct labels - forward merge PR", async () => {
+    const context = makePRContext({
+      title: "[gpuCI] Forward-merge branch-0.18 to branch-0.19 [skip ci]",
+      user: "GPUtester",
+    });
+    await new LabelChecker(context).checkLabels();
+    expect(mockCreateCommitStatus).toBeCalledTimes(2);
+    expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
     expect(mockCreateCommitStatus.mock.calls[0][0].description).toBe(
+      "Checking labels..."
+    );
+    expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
+    expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
       "No labels necessary for forward-merging PRs"
+    );
+  });
+
+  test("correct labels - release PR", async () => {
+    const context = makePRContext({
+      title: "[RELEASE] cuml v0.18",
+      user: "GPUtester",
+    });
+    await new LabelChecker(context).checkLabels();
+    expect(mockCreateCommitStatus).toBeCalledTimes(2);
+    expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
+    expect(mockCreateCommitStatus.mock.calls[0][0].description).toBe(
+      "Checking labels..."
+    );
+    expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
+    expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
+      "No labels necessary for release PRs"
     );
   });
 });

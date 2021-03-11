@@ -29,8 +29,8 @@ const makePushContext = ({
     repository: {
       id: 186853002,
       node_id: "MDEwOlJlcG9zaXRvcnkxODY4NTMwMDI=",
-      name: "Hello-World",
-      full_name: "Codertocat/Hello-World",
+      name: "cudf",
+      full_name: "rapidsai/cudf",
       private: false,
       owner: {
         name: "Codertocat",

@@ -10,11 +10,8 @@ The plugins are listed in the [src/plugins](./src/plugins) folder directory.
   - `bug`, `doc`, `feature request`, or `improvement`
   - `breaking` or `non-breaking`
 - **Release Drafter** - Opens up a draft release on GitHub anytime a PR is merged to a versioned branch (i.e. `branch-0.17`, `branch-0.18`, etc.). The draft body includes a categorized changelog consisting of the PRs that have been merged on that branch.
-- **Auto Merger** - Automatically merges PRs that include the `@gpucibot merge` comment and meet the following merge criteria:
-  - All **required** (not optional) CI checks must be passing
-  - Must not have merge conflicts
-  - Must not be merging to the `main` branch
-  - Any user who left the `@gpucibot merge` comment must have `write` or `admin` privileges on the repo
+- **Auto Merger** - Automatically merges PRs that include the `@gpucibot merge` comment and meet the merge criteria outlined in [kb/42](https://github.com/rapidsai/kb/issues/42).
+- **Branch Checker** - Set a status on PRs that checks whether they are targeting either the repo's _default branch_ or _default branch + 1_
 
 ## Deployment
 

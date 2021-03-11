@@ -7,6 +7,7 @@ import { basename } from "path";
 import { resolve } from "path";
 import { readFileSync } from "fs";
 import nunjucks from "nunjucks";
+import { getVersionFromBranch, isVersionedBranch } from "../../shared";
 
 export class ReleaseDrafter {
   context: PushContext;
@@ -22,8 +23,8 @@ export class ReleaseDrafter {
     this.context = context;
     this.branchName = basename(context.payload.ref);
     this.repo = context.payload.repository;
-    this.releaseTagName = `${this.branchName}-latest`;
-    this.branchVersionNumber = this.getVersionFromBranch(this.branchName);
+    this.branchVersionNumber = getVersionFromBranch(this.branchName);
+    this.releaseTagName = `v0.${this.branchVersionNumber}.0a`;
     this.releaseTitle = `[NIGHTLY] v0.${this.branchVersionNumber}.0`;
     this.mergeSHA = context.payload.after;
     this.defaultBranch = this.repo.default_branch;
@@ -66,27 +67,15 @@ export class ReleaseDrafter {
    * default branch or default branch +- 1 to account for burndown & code-freeze.
    */
   isValidBranch(): boolean {
-    const re = /^branch-0\.\d{1,3}$/;
-    const isVersionedBranch = Boolean(this.branchName.match(re));
-    if (!isVersionedBranch) return false;
+    if (!isVersionedBranch(this.branchName)) return false;
     const { branchVersionNumber } = this;
-    const defaultBranchVersionNumber = this.getVersionFromBranch(
-      this.defaultBranch
-    );
+    const defaultBranchVersionNumber = getVersionFromBranch(this.defaultBranch);
 
     return (
       defaultBranchVersionNumber === branchVersionNumber ||
       defaultBranchVersionNumber + 1 === branchVersionNumber ||
       defaultBranchVersionNumber - 1 === branchVersionNumber
     );
-  }
-
-  /**
-   * Returns the RAPIDS version from a branch name, or
-   * NaN if the branch name is not versioned.
-   */
-  getVersionFromBranch(branchName): number {
-    return parseInt(branchName.split(".")[1]);
   }
 
   /**
@@ -106,7 +95,7 @@ export class ReleaseDrafter {
 
     return prs
       .filter(
-        (pr) => !pr.title.toLowerCase().startsWith("[gpuci] auto-merge branch-")
+        (pr) => !pr.title.toLowerCase().startsWith("[gpuci] forward-merge branch-")
       )
       .filter((pr) => pr.merged_at); // merged_at === null for PRs that were closed, but not merged
   }
@@ -116,12 +105,12 @@ export class ReleaseDrafter {
    * @param prs
    */
   getReleaseDraftBody(prs: PullsListResponseData): string {
-    const { releaseTitle, branchVersionNumber } = this;
+    const { releaseTitle, branchVersionNumber, branchName, repo } = this;
     const categories = {
-      bug: { title: "Bug Fixes 🐛", prs: [] },
-      doc: { title: "Documentation 📖", prs: [] },
-      "feature request": { title: "New Features 🚀", prs: [] },
-      improvement: { title: "Improvements 🛠️", prs: [] },
+      bug: { title: "🐛 Bug Fixes", prs: [] },
+      doc: { title: "📖 Documentation", prs: [] },
+      "feature request": { title: "🚀 New Features", prs: [] },
+      improvement: { title: "🛠️ Improvements", prs: [] },
     };
 
     const breakingPRs: PullsListResponseData = [];
@@ -167,6 +156,8 @@ export class ReleaseDrafter {
         hasEntries,
         breaking: breakingPRs,
         versionNumber: branchVersionNumber,
+        branchName,
+        repoFullName: repo.full_name,
       })
       .trim();
   }
@@ -198,7 +189,7 @@ export class ReleaseDrafter {
    * @param releaseBody
    */
   async createOrUpdateDraftRelease(releaseId: number, releaseBody: string) {
-    const { context, releaseTitle, releaseTagName, mergeSHA, repo } = this;
+    const { context, releaseTitle, releaseTagName, repo } = this;
     const owner = repo.owner.login;
     const repo_name = repo.name;
 
@@ -208,13 +199,6 @@ export class ReleaseDrafter {
         repo: repo_name,
         release_id: releaseId,
         body: releaseBody,
-      });
-
-      await context.octokit.git.updateRef({
-        owner,
-        repo: repo_name,
-        sha: mergeSHA,
-        ref: `tags/${releaseTagName}`,
       });
       return;
     }
@@ -228,7 +212,6 @@ export class ReleaseDrafter {
       name: releaseTitle,
       prerelease: true,
       body: releaseBody,
-      target_commitish: mergeSHA,
     });
   }
 }

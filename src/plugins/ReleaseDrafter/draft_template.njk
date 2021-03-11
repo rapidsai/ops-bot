@@ -1,11 +1,15 @@
 {% macro prEntry(pr) %}
 - {{ pr.title | sanitizeTitle }} (#{{ pr.number }}) @{{ pr.user.login }}
 {%- endmacro %}
-# {{ releaseTitle }}
+
+## 🔗 Links
+
+- [Development Branch](https://github.com/{{ repoFullName }}/tree/{{ branchName }})
+- [Compare with `main` branch](https://github.com/{{ repoFullName }}/compare/main...{{ branchName }})
 
 {% if hasEntries %}
   {% if breaking | length %}
-## Breaking Changes 🚨
+## 🚨 Breaking Changes
 
     {% for pr in breaking %}
 {{ prEntry(pr) }}

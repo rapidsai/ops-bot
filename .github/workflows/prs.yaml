@@ -5,7 +5,7 @@ on:
 jobs:
   probot:
     runs-on: ubuntu-latest
-    container: node:latest
+    container: node:14
     steps:
       - name: Checkout code
         uses: actions/checkout@v2

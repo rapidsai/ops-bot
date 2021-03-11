@@ -1,47 +1,72 @@
-[
-  {
-    "number": 1234,
-    "title": "[WIP] [skip-ci] Some PR title",
-    "user": {
-      "login": "octokit"
+{
+  "branch_checker": [
+    {
+      "number": 1234,
+      "title": "[RELEASE] cuml v0.18",
+      "user": {
+        "login": "GPUtester"
+      },
+      "labels": [{ "name": "breaking" }, { "name": "bug" }],
+      "merged_at": "2021-01-27T13:38:56Z",
+      "base": {
+        "repo": {
+          "name": "cudf",
+          "default_branch": "branch-0.18",
+          "owner": {
+            "login": "rapidsai"
+          }
+        }
+      },
+      "head": {
+        "sha": "randomsha1234"
+      }
+    }
+  ],
+  "release_drafter": [
+    {
+      "number": 1234,
+      "title": "[WIP] [skip-ci] Some PR title",
+      "user": {
+        "login": "octokit"
+      },
+      "labels": [{ "name": "breaking" }, { "name": "bug" }],
+      "merged_at": "2021-01-27T13:38:56Z"
     },
-    "labels": [{ "name": "breaking" }, { "name": "bug" }],
-    "merged_at": "2021-01-27T13:38:56Z"
-  },
-  {
-    "number": 456,
-    "title": "Some Doc PR",
-    "user": {
-      "login": "ajschmidt8"
+    {
+      "number": 456,
+      "title": "Some Doc PR",
+      "user": {
+        "login": "ajschmidt8"
+      },
+      "labels": [{ "name": "doc" }],
+      "merged_at": "2021-01-27T13:38:56Z"
     },
-    "labels": [{ "name": "doc" }],
-    "merged_at": "2021-01-27T13:38:56Z"
-  },
-  {
-    "number": 4567,
-    "title": "Another Title",
-    "user": {
-      "login": "octokit"
+    {
+      "number": 4567,
+      "title": "Another Title",
+      "user": {
+        "login": "octokit"
+      },
+      "labels": [],
+      "merged_at": "2021-01-27T13:38:56Z"
     },
-    "labels": [],
-    "merged_at": "2021-01-27T13:38:56Z"
-  },
-  {
-    "number": 6432,
-    "title": "Another Title",
-    "user": {
-      "login": "octokit"
+    {
+      "number": 6432,
+      "title": "Another Title",
+      "user": {
+        "login": "octokit"
+      },
+      "labels": [{ "name": "doc" }],
+      "merged_at": null
     },
-    "labels": [{ "name": "doc" }],
-    "merged_at": null
-  },
-  {
-    "number": 9134,
-    "title": "[gpuCI] Auto-merge branch-0.17 to branch-0.18 [skip ci]",
-    "user": {
-      "login": "octokit"
-    },
-    "labels": [{ "name": "doc" }],
-    "merged_at": "2021-01-27T13:38:56Z"
-  }
-]
+    {
+      "number": 9134,
+      "title": "[gpuCI] Forward-merge branch-0.17 to branch-0.18 [skip ci]",
+      "user": {
+        "login": "octokit"
+      },
+      "labels": [{ "name": "doc" }],
+      "merged_at": "2021-01-27T13:38:56Z"
+    }
+  ]
+}
