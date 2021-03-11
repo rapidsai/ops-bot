@@ -61,7 +61,7 @@
     },
     {
       "number": 9134,
-      "title": "[gpuCI] Auto-merge branch-0.17 to branch-0.18 [skip ci]",
+      "title": "[gpuCI] Forward-merge branch-0.17 to branch-0.18 [skip ci]",
       "user": {
         "login": "octokit"
       },

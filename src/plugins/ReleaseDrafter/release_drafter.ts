@@ -95,7 +95,7 @@ export class ReleaseDrafter {
 
     return prs
       .filter(
-        (pr) => !pr.title.toLowerCase().startsWith("[gpuci] auto-merge branch-")
+        (pr) => !pr.title.toLowerCase().startsWith("[gpuci] forward-merge branch-")
       )
       .filter((pr) => pr.merged_at); // merged_at === null for PRs that were closed, but not merged
   }
