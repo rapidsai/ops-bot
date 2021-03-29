@@ -16,7 +16,7 @@ export enum TriggerCommand {
 /**
  * Only repos in this list will be processed by JobComponentTrigger
  */
-export const ENABLED_REPOSITORIES: string[] = [];
+export const ENABLED_REPOSITORIES: string[] = ['rapidsai/rmm-testbed'];
 
 export class JobComponentTrigger {
   public context: IssueCommentContext;
