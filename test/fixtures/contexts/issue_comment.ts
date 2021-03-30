@@ -3,18 +3,23 @@ import { IssueCommentContext } from "../../../src/types";
 type RespParams = {
   is_pr?: boolean;
   body?: string;
+  username?: string;
 };
 
-const makeIssueCommentContext = ({
+export const makeIssueCommentContext = ({
   is_pr = false,
   body = "some random text",
+  username = "someone",
 }: RespParams = {}): IssueCommentContext => {
   const payload = {
     issue: {
       number: 468,
     },
     comment: {
-      body,
+      body: body,
+      user: {
+        login: username,
+      },
     },
     repository: {
       name: "cudf",
