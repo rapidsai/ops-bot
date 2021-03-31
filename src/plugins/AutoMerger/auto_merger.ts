@@ -276,9 +276,9 @@ export class AutoMerger {
     const approvers = await this.getApprovers(pr);
     const formatUserName = (user: UsersGetByUsernameResponseData): string => {
       if (user.name) {
-        return `${user.name} (@${user.login})`;
+        return `${user.name} (${user.html_url})`;
       }
-      return `@${user.login}`;
+      return `${user.html_url}`;
     };
 
     commitMsg += `${prBody}\n`;

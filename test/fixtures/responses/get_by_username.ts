@@ -7,6 +7,7 @@ const makeResponse = ({ name = "", login = "VibhuJawa" }: RespParams = {}) => ({
   data: {
     name,
     login,
+    html_url: `https://github.com/${login}`,
   },
 });
 
