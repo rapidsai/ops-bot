@@ -57,10 +57,10 @@ describe("Auto Merger", () => {
 Closes https://github.com/rapidsai/cudf/issues/6754
 
 Authors:
-  - @VibhuJawa
+  - https://github.com/VibhuJawa
 
 Approvers:
-  - Keith Kraus (@kkraus14)
+  - Keith Kraus (https://github.com/kkraus14)
 
 URL: https://github.com/rapidsai/cudf/pull/6775`,
     });
