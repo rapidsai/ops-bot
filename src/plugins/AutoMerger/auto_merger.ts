@@ -210,10 +210,23 @@ export class AutoMerger {
    * @param pr
    */
   isPrMergeable(pr: PullsGetResponseData): boolean {
+    const repo = pr.base.repo.name;
+    const number = pr.number;
+    const mergeable_state = pr.mergeable_state;
+    const mergeable = pr.mergeable;
+    const baseRef = pr.base.ref;
+    console.log(`${repo} ${number} merge stats:`); // i.e. "cudf 3075 merge stats"
+    console.log(
+      JSON.stringify({
+        mergeable_state,
+        mergeable,
+        baseRef,
+      })
+    );
     return (
-      (pr.mergeable_state === "clean" || pr.mergeable_state === "unstable") &&
-      pr.mergeable === true &&
-      pr.base.ref !== "main"
+      (mergeable_state === "clean" || mergeable_state === "unstable") &&
+      mergeable === true &&
+      baseRef !== "main"
     );
   }
 
