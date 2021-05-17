@@ -51,15 +51,15 @@ describe("Release Drafter", () => {
     expect(mockPaginate).toHaveBeenCalledTimes(1);
     expect(mockPaginate.mock.calls[0][0]).toBe(mockListPulls);
     expect(mockGetReleaseByTag).toHaveBeenCalledTimes(1);
-    expect(mockGetReleaseByTag.mock.calls[0][0].tag).toBe("v0.17.0a");
+    expect(mockGetReleaseByTag.mock.calls[0][0].tag).toBe("v21.06.00a");
     expect(mockCreateRelease).not.toHaveBeenCalled();
     expect(mockUpdateRelease.mock.calls[0][0].release_id).toBe(1);
     expect(mockUpdateRelease.mock.calls[0][0].body).toBe(
       `\
 ## 🔗 Links
 
-- [Development Branch](https://github.com/rapidsai/cudf/tree/branch-0.17)
-- [Compare with \`main\` branch](https://github.com/rapidsai/cudf/compare/main...branch-0.17)
+- [Development Branch](https://github.com/rapidsai/cudf/tree/branch-21.06)
+- [Compare with \`main\` branch](https://github.com/rapidsai/cudf/compare/main...branch-21.06)
 
 ## 🚨 Breaking Changes
 
@@ -83,14 +83,14 @@ describe("Release Drafter", () => {
     expect(mockPaginate).toHaveBeenCalledTimes(1);
     expect(mockPaginate.mock.calls[0][0]).toBe(mockListPulls);
     expect(mockGetReleaseByTag).toHaveBeenCalledTimes(1);
-    expect(mockGetReleaseByTag.mock.calls[0][0].tag).toBe("v0.17.0a");
+    expect(mockGetReleaseByTag.mock.calls[0][0].tag).toBe("v21.06.00a");
     expect(mockUpdateRelease).not.toHaveBeenCalled();
     expect(mockCreateRelease.mock.calls[0][0].body).toBe(
       `\
 ## 🔗 Links
 
-- [Development Branch](https://github.com/rapidsai/cudf/tree/branch-0.17)
-- [Compare with \`main\` branch](https://github.com/rapidsai/cudf/compare/main...branch-0.17)
+- [Development Branch](https://github.com/rapidsai/cudf/tree/branch-21.06)
+- [Compare with \`main\` branch](https://github.com/rapidsai/cudf/compare/main...branch-21.06)
 
 ## 🚨 Breaking Changes
 
