@@ -14,7 +14,7 @@ export class ReleaseDrafter {
   branchName: string;
   repo: PayloadRepository;
   releaseTagName: string;
-  branchVersionNumber: number;
+  branchVersionNumber: string;
   releaseTitle: string;
   mergeSHA: string;
   defaultBranch: string;
@@ -24,8 +24,8 @@ export class ReleaseDrafter {
     this.branchName = basename(context.payload.ref);
     this.repo = context.payload.repository;
     this.branchVersionNumber = getVersionFromBranch(this.branchName);
-    this.releaseTagName = `v0.${this.branchVersionNumber}.0a`;
-    this.releaseTitle = `[NIGHTLY] v0.${this.branchVersionNumber}.0`;
+    this.releaseTagName = `v${this.branchVersionNumber}.00a`;
+    this.releaseTitle = `[NIGHTLY] v${this.branchVersionNumber}.00`;
     this.mergeSHA = context.payload.after;
     this.defaultBranch = this.repo.default_branch;
   }
@@ -63,8 +63,8 @@ export class ReleaseDrafter {
 
   /**
    * Returns true if the branch name is valid. Valid branches should match
-   * the branch-0.xx pattern and have a version that's the same as the repo's
-   * default branch or default branch +- 1 to account for burndown & code-freeze.
+   * the branch-yy.mm pattern and have a version that's the same as the repo's
+   * default branch
    */
   isValidBranch(): boolean {
     if (!isVersionedBranch(this.branchName)) return false;
@@ -72,9 +72,7 @@ export class ReleaseDrafter {
     const defaultBranchVersionNumber = getVersionFromBranch(this.defaultBranch);
 
     return (
-      defaultBranchVersionNumber === branchVersionNumber ||
-      defaultBranchVersionNumber + 1 === branchVersionNumber ||
-      defaultBranchVersionNumber - 1 === branchVersionNumber
+      defaultBranchVersionNumber === branchVersionNumber
     );
   }
 
