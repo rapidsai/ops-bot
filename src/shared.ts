@@ -2,13 +2,13 @@ import { CommitStatus, ProbotOctokit, PullsGetResponseData } from "./types";
 
 /**
  * RegEx representing RAPIDS branch name patterns
- * (i.e. "branch-0.18", "branch-0.19", etc.)
+ * (i.e. "branch-21.06", "branch-22.08", etc.)
  */
-export const versionedBranchExp = /^branch-0\.\d{1,3}$/;
+export const versionedBranchExp = /^branch-\d\d\.\d\d$/;
 
 /**
  * Returns true if the provided string is a versioned branch
- * (i.e. "branch-0.18", "branch-0.19", etc.)
+ * (i.e. "branch-21.06", "branch-22.08", etc.)
  * @param branchName
  */
 export const isVersionedBranch = (branchName: string): boolean => {
@@ -16,11 +16,10 @@ export const isVersionedBranch = (branchName: string): boolean => {
 };
 
 /**
- * Returns the RAPIDS version from a branch name, or
- * NaN if the branch name is not versioned.
+ * Returns the RAPIDS version from a versioned branch name
  */
-export const getVersionFromBranch = (branchName: string): number => {
-  return parseInt(branchName.split(".")[1]);
+export const getVersionFromBranch = (branchName: string): string => {
+  return branchName.split("-")[1];
 };
 
 /**

@@ -54,11 +54,10 @@ export const checkPR = async (
  * @param prBaseBranchVersion
  */
 const isActiveBranch = (
-  defaultBranchVersion: number,
-  prBaseBranchVersion: number
+  defaultBranchVersion: string,
+  prBaseBranchVersion: string
 ) => {
   return (
-    prBaseBranchVersion === defaultBranchVersion ||
-    prBaseBranchVersion === defaultBranchVersion + 1
+    prBaseBranchVersion === defaultBranchVersion
   );
 };
