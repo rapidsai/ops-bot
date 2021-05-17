@@ -68,8 +68,8 @@ describe("Label Checker", () => {
 
     test("active development branch", async () => {
       const context = makePRContext({
-        baseRef: "branch-0.19",
-        baseDefaultBranch: "branch-0.18",
+        baseRef: "branch-21.06",
+        baseDefaultBranch: "branch-21.06",
       });
       await new PRBranchChecker(context).checkPR();
       expect(mockCreateCommitStatus).toBeCalledTimes(2);
@@ -79,7 +79,22 @@ describe("Label Checker", () => {
         "Base branch is under active development"
       );
     });
-  });
+  
+    test("next development branch", async () => {
+      //TODO Update this when next branch is supported, for now assert failure
+      const context = makePRContext({
+        baseRef: "branch-21.08",
+        baseDefaultBranch: "branch-21.06",
+      });
+      await new PRBranchChecker(context).checkPR();
+      expect(mockCreateCommitStatus).toBeCalledTimes(2);
+      expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
+      expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
+      expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
+        "Base branch is not under active development"
+      );
+    });
+});
 
   describe("Repository Event", () => {
     beforeEach(() => {

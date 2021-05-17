@@ -9,10 +9,10 @@ type PushPayload = {
 };
 
 const makePushContext = ({
-  ref = "branch-0.17",
+  ref = "branch-21.06",
   created = false,
   deleted = false,
-  default_branch = "branch-0.17",
+  default_branch = "branch-21.06",
 }: PushPayload = {}): PushContext => {
   const payload = {
     ref,
