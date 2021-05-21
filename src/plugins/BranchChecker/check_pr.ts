@@ -37,16 +37,7 @@ export const checkPR = async (
 
   const prBaseBranchVersion = getVersionFromBranch(prBaseBranch);
 
-  if (isActiveBranch(repoDefaultBranchVersion, prBaseBranchVersion)) {
-    return await setCommitStatus(
-      "Base branch is under active development",
-      "success"
-    );
-  }
-
-  const { data: releases } = await axios.get('https://raw.githubusercontent.com/rapidsai/docs/gh-pages/_data/releases.json');
-  const nextNightlyBranchVersion = releases['next_nightly']['version'];
-  if (isActiveBranch(nextNightlyBranchVersion, prBaseBranchVersion)) {
+  if (await isActiveBranch(repoDefaultBranchVersion, prBaseBranchVersion)) {
     return await setCommitStatus(
       "Base branch is under active development",
       "success"
@@ -63,11 +54,21 @@ export const checkPR = async (
  * @param defaultBranchVersion
  * @param prBaseBranchVersion
  */
-const isActiveBranch = (
+const isActiveBranch = async (
   defaultBranchVersion: string,
   prBaseBranchVersion: string
 ) => {
-  return (
-    prBaseBranchVersion === defaultBranchVersion
+  if (prBaseBranchVersion === defaultBranchVersion) {
+    return true;
+  }
+
+  const { data: releases } = await axios.get(
+    "https://raw.githubusercontent.com/rapidsai/docs/gh-pages/_data/releases.json"
   );
+  const nextNightlyBranchVersion = releases["next_nightly"]["version"];
+
+  if (prBaseBranchVersion === nextNightlyBranchVersion) {
+    return true;
+  }
+  return false;
 };
