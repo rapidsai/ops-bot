@@ -45,8 +45,8 @@ export const checkPR = async (
   }
 
   const { data: releases } = await axios.get('https://raw.githubusercontent.com/rapidsai/docs/gh-pages/_data/releases.json');
-  const nextNightlyBranch = 'branch-'+releases.next_nightly.version;
-  if (isActiveBranch(nextNightlyBranch, prBaseBranchVersion)) {
+  const nextNightlyBranchVersion = releases['next_nightly']['version'];
+  if (isActiveBranch(nextNightlyBranchVersion, prBaseBranchVersion)) {
     return await setCommitStatus(
       "Base branch is under active development",
       "success"

@@ -4,11 +4,19 @@ import { makePRContext } from "./fixtures/contexts/pull_request";
 import { makeRepositoryContext } from "./fixtures/contexts/repository";
 import { mockCreateCommitStatus, mockListPulls, mockPaginate } from "./mocks";
 import { branch_checker as listPullsResp } from "./fixtures/responses/list_pulls.json";
+import { default as releasesJson } from "./fixtures/responses/releases.json";
+import axios from "axios";
+
+jest.mock("axios");
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe("Label Checker", () => {
   describe("Pull Request Event", () => {
     beforeEach(() => {
       mockCreateCommitStatus.mockReset();
+
+      const resp = { data: releasesJson };
+      mockedAxios.get.mockResolvedValue(resp);
     });
 
     test("release PR", async () => {
@@ -81,9 +89,22 @@ describe("Label Checker", () => {
     });
   
     test("next development branch", async () => {
-      //TODO Update this when next branch is supported, for now assert failure
       const context = makePRContext({
         baseRef: "branch-21.08",
+        baseDefaultBranch: "branch-21.06",
+      });
+      await new PRBranchChecker(context).checkPR();
+      expect(mockCreateCommitStatus).toBeCalledTimes(2);
+      expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
+      expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
+      expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
+        "Base branch is under active development"
+      );
+    });
+
+    test("future development branch", async () => {
+      const context = makePRContext({
+        baseRef: "branch-21.10",
         baseDefaultBranch: "branch-21.06",
       });
       await new PRBranchChecker(context).checkPR();
