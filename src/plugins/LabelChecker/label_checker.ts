@@ -20,6 +20,10 @@ export class LabelChecker {
 
     await setCommitStatus("Checking labels...", "pending");
 
+    if (context.name === "pull_request.labeled") {
+      await new Promise((res) => setTimeout(res, 500));
+    }
+
     if (this.isForwardMergePR()) {
       return await setCommitStatus(
         "No labels necessary for forward-merging PRs",
