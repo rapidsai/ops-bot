@@ -5,6 +5,7 @@ import {
   getVersionFromBranch,
 } from "../../shared";
 import { PRContext, ProbotOctokit, PullsListResponseData } from "../../types";
+import axios from "axios";
 
 export const checkPR = async (
   octokit: ProbotOctokit,
@@ -37,6 +38,15 @@ export const checkPR = async (
   const prBaseBranchVersion = getVersionFromBranch(prBaseBranch);
 
   if (isActiveBranch(repoDefaultBranchVersion, prBaseBranchVersion)) {
+    return await setCommitStatus(
+      "Base branch is under active development",
+      "success"
+    );
+  }
+
+  const { data: releases } = await axios.get('https://raw.githubusercontent.com/rapidsai/docs/gh-pages/_data/releases.json');
+  const nextNightlyBranch = 'branch-'+releases.next_nightly.version;
+  if (isActiveBranch(nextNightlyBranch, prBaseBranchVersion)) {
     return await setCommitStatus(
       "Base branch is under active development",
       "success"
