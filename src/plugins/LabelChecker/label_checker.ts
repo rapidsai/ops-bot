@@ -24,7 +24,7 @@ export class LabelChecker {
     // "pull_request.opened" events. This is required to prevent race conditions from occurring
     // when opening PRs programmatically with the "gh" or "r3" CLI tools.
     if (
-      context.name === "pull_request.labeled" &&
+      context.payload.action === "labeled" &&
       process.env.NODE_ENV !== "test"
     ) {
       await new Promise((res) => setTimeout(res, 2000));
