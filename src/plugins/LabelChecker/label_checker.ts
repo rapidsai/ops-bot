@@ -20,8 +20,14 @@ export class LabelChecker {
 
     await setCommitStatus("Checking labels...", "pending");
 
-    if (context.name === "pull_request.labeled") {
-      await new Promise((res) => setTimeout(res, 500));
+    // An arbitrary delay to ensure that "pull_request.labeled" events are processed after
+    // "pull_request.opened" events. This is required to prevent race conditions from occurring
+    // when opening PRs programmatically with the "gh" or "r3" CLI tools.
+    if (
+      context.name === "pull_request.labeled" &&
+      process.env.NODE_ENV !== "test"
+    ) {
+      await new Promise((res) => setTimeout(res, 2000));
     }
 
     if (this.isForwardMergePR()) {
