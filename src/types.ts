@@ -4,8 +4,8 @@ import { EventPayloads } from "@octokit/webhooks";
 import type {
   PullsGetResponseData,
   UsersGetByUsernameResponseData,
-  PullsListResponseData, 
-  ReposListCommitStatusesForRefResponseData
+  PullsListResponseData,
+  ReposListCommitStatusesForRefResponseData,
 } from "@octokit/plugin-rest-endpoint-methods/node_modules/@octokit/types/";
 
 export type PRContext = Context<EventPayloads.WebhookPayloadPullRequest>;
@@ -22,7 +22,7 @@ export type {
   PullsGetResponseData,
   PullsListResponseData,
   UsersGetByUsernameResponseData,
-  ReposListCommitStatusesForRefResponseData
+  ReposListCommitStatusesForRefResponseData,
 };
 export type PayloadRepository = EventPayloads.PayloadRepository;
 export type ProbotOctokit = Context["octokit"];
@@ -32,4 +32,5 @@ export type CommitStatus = {
   owner: string;
   repo: string;
   sha: string;
+  target_url?: string;
 };

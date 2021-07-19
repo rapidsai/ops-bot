@@ -12,9 +12,15 @@ describe("Label Checker", () => {
     await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
+    expect(mockCreateCommitStatus.mock.calls[0][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
+    );
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
     expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
       "Missing category & breaking labels"
+    );
+    expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
     );
   });
 
@@ -23,9 +29,15 @@ describe("Label Checker", () => {
     await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
+    expect(mockCreateCommitStatus.mock.calls[0][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
+    );
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
     expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
       "Missing breaking label"
+    );
+    expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
     );
   });
 
@@ -34,9 +46,15 @@ describe("Label Checker", () => {
     await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
+    expect(mockCreateCommitStatus.mock.calls[0][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
+    );
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
     expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
       "Missing category label"
+    );
+    expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
     );
   });
 
@@ -47,9 +65,15 @@ describe("Label Checker", () => {
     await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
+    expect(mockCreateCommitStatus.mock.calls[0][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
+    );
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
     expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
       "Too many breaking labels applied"
+    );
+    expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
     );
   });
 
@@ -60,9 +84,15 @@ describe("Label Checker", () => {
     await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
+    expect(mockCreateCommitStatus.mock.calls[0][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
+    );
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
     expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
       "Too many category labels applied"
+    );
+    expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
     );
   });
 
@@ -73,9 +103,15 @@ describe("Label Checker", () => {
     await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
+    expect(mockCreateCommitStatus.mock.calls[0][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
+    );
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
     expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
       "Missing category label & too many breaking labels applied"
+    );
+    expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
     );
   });
 
@@ -86,9 +122,15 @@ describe("Label Checker", () => {
     await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
+    expect(mockCreateCommitStatus.mock.calls[0][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
+    );
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
     expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
       "Too many category & breaking labels applied"
+    );
+    expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
     );
   });
 
@@ -99,9 +141,15 @@ describe("Label Checker", () => {
     await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
+    expect(mockCreateCommitStatus.mock.calls[0][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
+    );
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
     expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
       "Missing breaking label & too many category labels applied"
+    );
+    expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
     );
   });
 
@@ -110,9 +158,15 @@ describe("Label Checker", () => {
     await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
+    expect(mockCreateCommitStatus.mock.calls[0][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
+    );
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
     expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
       "Correct labels applied"
+    );
+    expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
     );
   });
 
@@ -124,12 +178,18 @@ describe("Label Checker", () => {
     await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
+    expect(mockCreateCommitStatus.mock.calls[0][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
+    );
     expect(mockCreateCommitStatus.mock.calls[0][0].description).toBe(
       "Checking labels..."
     );
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
     expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
       "No labels necessary for forward-merging PRs"
+    );
+    expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
     );
   });
 
@@ -141,12 +201,18 @@ describe("Label Checker", () => {
     await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
     expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
+    expect(mockCreateCommitStatus.mock.calls[0][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
+    );
     expect(mockCreateCommitStatus.mock.calls[0][0].description).toBe(
       "Checking labels..."
     );
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
     expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
       "No labels necessary for release PRs"
+    );
+    expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
     );
   });
 });
