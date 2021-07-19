@@ -16,6 +16,7 @@ export class LabelChecker {
       owner: context.payload.repository.owner.login,
       repo: context.payload.repository.name,
       sha: context.payload.pull_request.head.sha,
+      target_url: "https://docs.rapids.ai/resources/label-checker/",
     });
 
     await setCommitStatus("Checking labels...", "pending");

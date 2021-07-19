@@ -24,15 +24,21 @@ export const getVersionFromBranch = (branchName: string): string => {
 
 /**
  * Returns an async function that will set a status on a given
- * commit. The returned function accepts a description and a state.
+ * commit. The returned function accepts a description, a state,
+ * and an optional target URL.
  */
 export const createSetCommitStatus = (
   octokit: ProbotOctokit,
-  { context, owner, repo, sha }: CommitStatus
+  { context, owner, repo, sha, target_url = "" }: CommitStatus
 ) => {
   type StateStrings = "success" | "failure" | "error" | "pending";
 
-  return async (description: string, state: StateStrings) => {
+  const initialTargetUrl = target_url;
+  return async (
+    description: string,
+    state: StateStrings,
+    target_url = initialTargetUrl
+  ) => {
     await octokit.repos.createCommitStatus({
       context,
       owner,
@@ -40,6 +46,7 @@ export const createSetCommitStatus = (
       sha,
       state,
       description,
+      target_url,
     });
   };
 };
