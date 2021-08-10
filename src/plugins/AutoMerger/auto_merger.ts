@@ -277,10 +277,9 @@ export class AutoMerger {
    * @param pr
    */
   async createCommitMessage(pr: PullsGetResponseData): Promise<string> {
-    const context = this.context;
     let commitMsg = "";
 
-    const prBody = strip(pr.body, {
+    const prBody = strip(pr.body || "", {
       language: "html",
       preserveNewlines: false,
     }).trim();
