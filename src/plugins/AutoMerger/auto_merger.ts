@@ -279,7 +279,9 @@ export class AutoMerger {
     return permissions.includes("admin") || permissions.includes("write");
   }
 
-
+  /**
+   * Returns true if the PR has a label that includes the text "DO NOT MERGE"
+   */
   hasDoNotMergeLabel(pr: PullsGetResponseData): boolean {
     return pr.labels.map(c => c.name).includes('DO NOT MERGE')
   }
