@@ -108,6 +108,14 @@ export class AutoMerger {
         return;
       }
 
+      // PR must not have a DO NOT MERGE label
+      if(this.hasDoNotMergeLabel(pr)) {
+        console.warn(
+          `${prDescription} has a \`DO NOT MERGE\` label. Skipping...`
+        );
+        return;
+      }
+
       // Generate commit message
       const commitMsg = await this.createCommitMessage(pr);
 
@@ -269,6 +277,11 @@ export class AutoMerger {
     );
 
     return permissions.includes("admin") || permissions.includes("write");
+  }
+
+
+  hasDoNotMergeLabel(pr: PullsGetResponseData): boolean {
+    return pr.labels.map(c => c.name).includes('DO NOT MERGE')
   }
 
   /**
