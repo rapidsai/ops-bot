@@ -283,8 +283,7 @@ export class AutoMerger {
    * Returns true if the PR has a label that includes the text "DO NOT MERGE"
    */
   hasDoNotMergeLabel(pr: PullsGetResponseData): boolean {
-    return pr.labels.map(label => label.name.trim().toLowerCase())
-                    .filter(name => name.includes('do not merge')).length > 0
+    return pr.labels.filter(label => label.name.trim().toLowerCase().includes('do not merge')).length > 0
   }
 
   /**
