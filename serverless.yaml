@@ -1,4 +1,4 @@
-service: ops-bot-probot
+service: gpuci-serverless-ops-bot-probot
 
 provider:
   name: aws
@@ -10,6 +10,8 @@ provider:
   logRetentionInDays: 60
   apiGateway:
     shouldStartNameWithService: true
+  deploymentBucket:
+    name: rapids-serverless-deployments
 
 functions:
   handleProbot:
