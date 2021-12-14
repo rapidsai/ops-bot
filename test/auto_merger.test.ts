@@ -94,16 +94,4 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
     expect(mockPaginate).toBeCalledTimes(0);
     expect(mockPullsGet).toBeCalledTimes(0);
   });
-
-  test('PR with DO NOT MERGE label', async () => {
-    let mockPulls = pulls_get
-    mockPulls.data.labels = <any[]> [{
-      name: 'DO NOT MERGE'
-    }]
-    mockPullsGet.mockResolvedValueOnce(mockPulls);
-    await new AutoMerger(prReviewContext.approved).maybeMergePR();
-
-    expect(mockPaginate).toBeCalledTimes(0);
-    expect(mockMerge).toBeCalledTimes(0);
-  })
 });
