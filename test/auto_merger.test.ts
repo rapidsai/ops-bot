@@ -95,7 +95,6 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
     expect(mockPullsGet).toBeCalledTimes(0);
   });
 
-
   test('PR with DO NOT MERGE label', async () => {
     let mockPulls = pulls_get
     mockPulls.data.labels = <any[]> [{

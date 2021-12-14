@@ -115,6 +115,25 @@ describe("Label Checker", () => {
     );
   });
 
+  test("do not merge", async () => {
+    const context = makePRContext({
+      labels: ["DO NOT MERGE"],
+    });
+    await new LabelChecker(context).checkLabels();
+    expect(mockCreateCommitStatus).toBeCalledTimes(2);
+    expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
+    expect(mockCreateCommitStatus.mock.calls[0][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
+    );
+    expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
+    expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
+      "Contains a \`DO NOT MERGE\` label"
+    );
+    expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
+      "https://docs.rapids.ai/resources/label-checker/"
+    );
+  });
+
   test("many category, many breaking", async () => {
     const context = makePRContext({
       labels: ["bug", "improvement", "breaking", "non-breaking"],

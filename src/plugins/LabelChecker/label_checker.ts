@@ -47,6 +47,7 @@ export class LabelChecker {
 
     const categoryLabels = ["bug", "doc", "feature request", "improvement"];
     const breakingLabels = ["breaking", "non-breaking"];
+    const doNotMergeLabelText = 'do not merge';
     const labelsOnPR = context.payload.pull_request.labels;
 
     let categoryLabelCount = 0;
@@ -54,6 +55,13 @@ export class LabelChecker {
 
     for (let i = 0; i < labelsOnPR.length; i++) {
       const label = labelsOnPR[i];
+
+      if (label.name.trim().toLowerCase().includes(doNotMergeLabelText)) {
+        return await setCommitStatus(
+          "Contains a \`DO NOT MERGE\` label",
+          "failure"
+        );
+      }
 
       if (categoryLabels.includes(label.name)) {
         categoryLabelCount++;
