@@ -30,4 +30,3 @@ const makePRReviewContext = ({
 };
 
 export const commented = makePRReviewContext();
-export const approved = makePRReviewContext({state: "approved"})
