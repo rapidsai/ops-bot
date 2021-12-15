@@ -100,14 +100,6 @@ export class AutoMerger {
         return;
       }
 
-      // PR must not have a DO NOT MERGE label
-      if(this.hasDoNotMergeLabel(pr)) {
-        console.warn(
-          `${prDescription} contains a \`DO NOT MERGE\` label. Skipping...`
-        );
-        return;
-      }
-
       // Check if PR has valid merge comment
       if (!(await this.checkForValidMergeComment(pr.number))) {
         console.warn(
@@ -277,13 +269,6 @@ export class AutoMerger {
     );
 
     return permissions.includes("admin") || permissions.includes("write");
-  }
-
-  /**
-   * Returns true if the PR has a label that includes the text "DO NOT MERGE"
-   */
-  hasDoNotMergeLabel(pr: PullsGetResponseData): boolean {
-    return pr.labels.some(label => label.name.trim().toLowerCase().includes('do not merge'))
   }
 
   /**
