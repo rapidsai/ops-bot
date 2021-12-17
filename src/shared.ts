@@ -69,13 +69,6 @@ export const isReleasePR = (
 };
 
 /**
- * Returns true if the PR has a label that includes the text "DO NOT MERGE"
- */
-export const hasDoNotMergeLabel = (pr: PullsGetResponseData): boolean => {
-  return pr.labels.some(label => label.name.trim().toLowerCase().includes('do not merge'))
-};
-
-/**
  * Returns true if the payload associated with the provided context
  * is from a GitHub Pull Request (as opposed to a GitHub Issue).
  * @param context

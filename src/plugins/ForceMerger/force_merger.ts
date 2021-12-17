@@ -3,7 +3,6 @@ import {
   PullsGetResponseData,
 } from "../../types";
 import {
-  hasDoNotMergeLabel,
   isPR,
   createCommitMessage,
   sanitizePrTitle,
@@ -49,6 +48,14 @@ export class ForceMerger {
     });
 
     const prDescription = `${repo.full_name} #${pr.number} - "${pr.title}"`;
+
+    // Check if PR is mergeable (all green)
+    if (!this.isPrForceMergeable(pr)) {
+      console.warn(
+        `${prDescription} is merging to "main" branch. Skipping...`
+      );
+      return;
+    }
 
     // Check if PR has valid force merge comment
     if (!(await this.checkForValidForceMergeComment(pr.number))) {

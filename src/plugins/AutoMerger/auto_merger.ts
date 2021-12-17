@@ -6,7 +6,6 @@ import {
   StatusContext,
 } from "../../types";
 import {
-  hasDoNotMergeLabel,
   isPR,
   createCommitMessage,
   sanitizePrTitle,
