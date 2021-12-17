@@ -92,7 +92,7 @@ export class ForceMerger {
 
   /**
    * Returns true if PR is being merged into the default branch.
-   * Unlike AutoMerger, this doesn't care about CI status by design
+   * Unlike AutoMerger, this doesn't care about PR checks or CI status by design
    *
    * @param pr
    */
