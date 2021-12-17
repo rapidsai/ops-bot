@@ -40,7 +40,7 @@ describe("Force Merger", () => {
     mockGetByUsername.mockResolvedValueOnce(userNoName);
     mockPaginate.mockResolvedValueOnce(list_reviews); // listReviews in getApprovers
     mockGetByUsername.mockResolvedValueOnce(user);
-    await new ForceMerger(issueContext.prCommentForceMergeOpsTeamMember).maybeMergePR();
+    await new ForceMerger(issueContext.prCommentForceMerge).maybeMergePR();
 
     expect(mockPullsGet).toBeCalledTimes(1);
     expect(mockPullsGet.mock.calls[0][0].pull_number).toBe(468);
@@ -74,7 +74,7 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
     mockGetByUsername.mockResolvedValueOnce(userNoName);
     mockPaginate.mockResolvedValueOnce(list_reviews); // listReviews in getApprovers
     mockGetByUsername.mockResolvedValueOnce(user);
-    await new ForceMerger(issueContext.prCommentForceMergeOpsTeamMember).maybeMergePR();
+    await new ForceMerger(issueContext.prCommentForceMerge).maybeMergePR();
 
     expect(mockPullsGet).toBeCalledTimes(1);
     expect(mockPullsGet.mock.calls[0][0].pull_number).toBe(468);
