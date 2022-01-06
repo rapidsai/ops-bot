@@ -23,6 +23,7 @@ export class ForceMerger {
     const { repository: repo } = context.payload;
 
     const comment = context.payload.comment.body;
+    const commentAuthor = context.payload.comment.user.login;
     const prNumber = context.payload.issue.number;
 
     if (!isPR(context)) {
@@ -35,6 +36,13 @@ export class ForceMerger {
     if (!this.isForceMergeComment(comment)) {
       console.warn(
         `The following comment from ${repo.full_name} #${prNumber} was not a merge comment: ${comment}.\n`,
+        `Skipping...`
+      );
+      return;
+    }
+    if (!this.isAuthorAllowedToForceMerge(commentAuthor)) {
+      console.warn(
+        `The comment author is not allowed to force merge: ${commentAuthor}.\n`,
         `Skipping...`
       );
       return;
@@ -53,14 +61,6 @@ export class ForceMerger {
     if (!this.isPrForceMergeable(pr)) {
       console.warn(
         `${prDescription} is merging to "main" branch. Skipping...`
-      );
-      return;
-    }
-
-    // Check if PR has valid force merge comment
-    if (!(await this.checkForValidForceMergeComment(pr.number))) {
-      console.warn(
-        `${prDescription} doesn't have force merge comment. Skipping...`
       );
       return;
     }
@@ -112,44 +112,24 @@ export class ForceMerger {
   }
 
   /**
-   * Returns true if the given PR number has the "@gpucibot force merge"
-   * comment and it was posted by a user that's a member of the "ops"
-   * team in the "rapidsai" organization
-   * @param prNumber
+   * Returns true if the comment author is a member of the 'ops' team of the rapidsai org
+   *
+   * @param commentAuthor
    */
-  async checkForValidForceMergeComment(prNumber: number): Promise<boolean> {
+  async isAuthorAllowedToForceMerge(commentAuthor: string): Promise<boolean> {
     const context = this.context;
-    const repo = context.payload.repository;
-
-    const allComments = await context.octokit.paginate(
-      context.octokit.issues.listComments,
-      {
-        owner: repo.owner.login,
-        repo: repo.name,
-        issue_number: prNumber,
-      }
-    );
-
-    const forceMergeComments = allComments.filter((comment) =>
-      this.isForceMergeComment(comment.body)
-    );
-
-    const forceMergeCommentAuthors = forceMergeComments.map(
-      (comment) => comment.user.login
-    );
-
-    const allowedTeamMembership = await Promise.all(
-      forceMergeCommentAuthors.map(async (actor) => {
-        return (
-          await context.octokit.teams.getMembershipForUserInOrg({
-            org: GITHUB_ORG,
-            team_slug: FORCE_MERGE_ALLOWED_TEAM,
-            username: actor,
-          })
-        ).data.state;
+    const authorTeamMembership = await context.octokit.teams.getMembershipForUserInOrg({
+      org: GITHUB_ORG,
+      team_slug: FORCE_MERGE_ALLOWED_TEAM,
+      username: commentAuthor,
+    });
+    console.log(`${commentAuthor} team membership:`);
+    console.log(
+      JSON.stringify({
+        authorTeamMembership,
       })
     );
 
-    return allowedTeamMembership.includes("active");
+    return authorTeamMembership.data.state == "active";
   }
 }

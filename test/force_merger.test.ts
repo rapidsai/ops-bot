@@ -36,7 +36,6 @@ describe("Force Merger", () => {
     mockPullsGet.mockResolvedValueOnce(pulls_get);
     mockPaginate.mockResolvedValueOnce(list_comments); // listComments in checkForValidForceMergeComment
     mockTeamMembership.mockResolvedValueOnce(ops_member_user);
-    mockPaginate.mockResolvedValueOnce(list_commits); // listCommits in getAuthors
     mockGetByUsername.mockResolvedValueOnce(userNoName);
     mockPaginate.mockResolvedValueOnce(list_reviews); // listReviews in getApprovers
     mockGetByUsername.mockResolvedValueOnce(user);
