@@ -118,18 +118,15 @@ export class ForceMerger {
    */
   async isAuthorAllowedToForceMerge(commentAuthor: string): Promise<boolean> {
     const context = this.context;
-    const authorTeamMembership = await context.octokit.teams.getMembershipForUserInOrg({
-      org: GITHUB_ORG,
-      team_slug: FORCE_MERGE_ALLOWED_TEAM,
-      username: commentAuthor,
-    });
-    console.log(`${commentAuthor} team membership:`);
-    console.log(
-      JSON.stringify({
-        authorTeamMembership,
-      })
-    );
-
-    return authorTeamMembership.data.state == "active";
+    try {
+      await context.octokit.teams.getMembershipForUserInOrg({
+        org: GITHUB_ORG,
+        team_slug: FORCE_MERGE_ALLOWED_TEAM,
+        username: commentAuthor,
+      });
+      return true;
+    } catch(e) {
+      return false;
+    }
   }
 }
