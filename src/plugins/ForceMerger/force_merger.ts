@@ -40,7 +40,7 @@ export class ForceMerger {
       );
       return;
     }
-    if (!this.isAuthorAllowedToForceMerge(commentAuthor)) {
+    if (!(await this.isAuthorAllowedToForceMerge(commentAuthor))) {
       console.warn(
         `The comment author is not allowed to force merge: ${commentAuthor}.\n`,
         `Skipping...`
