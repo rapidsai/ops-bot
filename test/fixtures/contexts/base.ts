@@ -11,6 +11,7 @@ import {
   mockListReviews,
   mockMerge,
   mockOrgMembership,
+  mockTeamMembership,
   mockPaginate,
   mockPullsGet,
   mockUpdateRelease,
@@ -44,7 +45,10 @@ export const makeContext = (payload, name: WebhookEvents) => {
         getByUsername: mockGetByUsername,
       },
       orgs : {
-        checkMembershipForUser: mockOrgMembership
+        checkMembershipForUser: mockOrgMembership,
+      },
+      teams: {
+        getMembershipForUserInOrg: mockTeamMembership,
       },
       paginate: mockPaginate,
     },
