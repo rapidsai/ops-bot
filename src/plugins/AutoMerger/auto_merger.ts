@@ -4,12 +4,9 @@ import {
   PRReviewContext,
   PullsGetResponseData,
   StatusContext,
+  UsersGetByUsernameResponseData,
 } from "../../types";
-import {
-  isPR,
-  createCommitMessage,
-  sanitizePrTitle,
-} from "../../shared";
+import strip from "strip-comments";
 
 const MERGE_COMMENT = "@gpucibot merge";
 
@@ -46,7 +43,7 @@ export class AutoMerger {
     if (this.isIssueCommentContext(context)) {
       const comment = context.payload.comment.body;
       prNumbers.push(context.payload.issue.number);
-      if (!isPR(context)) {
+      if (!this.isPR(context)) {
         console.warn(
           `The following comment from ${repo.full_name} #${prNumbers[0]} was from an issue, not a PR: ${comment}.\n`,
           `Skipping...`
@@ -112,11 +109,11 @@ export class AutoMerger {
       }
 
       // Generate commit message
-      const commitMsg = await createCommitMessage(pr, this.context);
+      const commitMsg = await this.createCommitMessage(pr);
 
       // Merge PR
       console.log(`Merging ${prDescription}`);
-      const commitTitle = sanitizePrTitle(pr.title) + ` (#${pr.number})`;
+      const commitTitle = this.sanitizePrTitle(pr.title) + ` (#${pr.number})`;
       await context.octokit.pulls.merge({
         owner: repo.owner.login,
         repo: repo.name,
@@ -198,6 +195,15 @@ export class AutoMerger {
   }
 
   /**
+   * Returns true if the payload associated with the provided context
+   * is from a GitHub Pull Request (as opposed to a GitHub Issue).
+   * @param context
+   */
+  isPR(context: IssueCommentContext): boolean {
+    return "pull_request" in context.payload.issue;
+  }
+
+  /**
    * Returns true if PR's checks are all passing and it is being
    * merged into the default branch.
    *
@@ -263,5 +269,126 @@ export class AutoMerger {
     );
 
     return permissions.includes("admin") || permissions.includes("write");
+  }
+
+  /**
+   * Returns a string used for the squash commit that contains the PR body,
+   * PR authors, and PR approvers.
+   * @param pr
+   */
+  async createCommitMessage(pr: PullsGetResponseData): Promise<string> {
+    let commitMsg = "";
+
+    const prBody = strip(pr.body || "", {
+      language: "html",
+      preserveNewlines: false,
+    }).trim();
+
+    const authors = await this.getAuthors(pr);
+    const approvers = await this.getApprovers(pr);
+    const formatUserName = (user: UsersGetByUsernameResponseData): string => {
+      if (user.name) {
+        return `${user.name} (${user.html_url})`;
+      }
+      return `${user.html_url}`;
+    };
+
+    commitMsg += `${prBody}\n`;
+    commitMsg += "\n";
+
+    commitMsg += "Authors:\n";
+    for (let i = 0; i < authors.length; i++) {
+      const author = authors[i];
+      commitMsg += `  - ${formatUserName(author)}\n`;
+    }
+
+    commitMsg += "\n";
+    commitMsg += "Approvers:";
+    if (approvers.length) commitMsg += "\n";
+    if (!approvers.length) commitMsg += " None\n";
+    for (let j = 0; j < approvers.length; j++) {
+      const approver = approvers[j];
+      commitMsg += `  - ${formatUserName(approver)}\n`;
+    }
+    commitMsg += "\n";
+    commitMsg += `URL: ${pr.html_url}`;
+
+    return commitMsg;
+  }
+
+  /**
+   * Returns the profiles for all of the authors of a given PR
+   * @param pr
+   */
+  async getAuthors(
+    pr: PullsGetResponseData
+  ): Promise<UsersGetByUsernameResponseData[]> {
+    const { octokit } = this.context;
+    const uniqueAuthors: string[] = [pr.user.login];
+
+    const commits = await octokit.paginate(octokit.pulls.listCommits, {
+      owner: pr.base.repo.owner.login,
+      repo: pr.base.repo.name,
+      pull_number: pr.number,
+    });
+
+    for (let i = 0; i < commits.length; i++) {
+      const commit = commits[i];
+      if (!commit.author) continue;
+      const commitAuthor = commit.author.login;
+      if (uniqueAuthors.includes(commitAuthor)) continue;
+      uniqueAuthors.push(commitAuthor);
+    }
+
+    return Promise.all(
+      uniqueAuthors.map(
+        async (author) =>
+          (await octokit.users.getByUsername({ username: author })).data
+      )
+    );
+  }
+
+  /**
+   * Returns the profiles for all of the approvers of a given PR
+   * @param pr
+   */
+  async getApprovers(
+    pr: PullsGetResponseData
+  ): Promise<UsersGetByUsernameResponseData[]> {
+    const { octokit } = this.context;
+    const uniqueApprovers: string[] = [];
+
+    const reviewers = await octokit.paginate(octokit.pulls.listReviews, {
+      owner: pr.base.repo.owner.login,
+      repo: pr.base.repo.name,
+      pull_number: pr.number,
+    });
+    const approvers = reviewers.filter((review) => review.state === "APPROVED");
+
+    for (let i = 0; i < approvers.length; i++) {
+      const approver = approvers[i];
+      const commitAuthor = approver.user.login;
+      if (uniqueApprovers.includes(commitAuthor)) continue;
+      uniqueApprovers.push(commitAuthor);
+    }
+
+    return Promise.all(
+      uniqueApprovers.map(
+        async (approver) =>
+          (
+            await octokit.users.getByUsername({
+              username: approver,
+            })
+          ).data
+      )
+    );
+  }
+
+  /**
+   * Removes square brackets, [], and their contents from a given string
+   * @param rawTitle
+   */
+  sanitizePrTitle(rawTitle): string {
+    return rawTitle.replace(/\[[\s\S]*?\]/g, "").trim();
   }
 }
