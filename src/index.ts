@@ -1,6 +1,5 @@
 import { Application } from "probot";
 import { initAutoMerger } from "./plugins/AutoMerger";
-import { initForceMerger } from "./plugins/ForceMerger";
 import { initBranchChecker } from "./plugins/BranchChecker";
 import { initJobComponentTrigger } from "./plugins/JobComponentTrigger";
 import { initLabelChecker } from "./plugins/LabelChecker";
@@ -11,6 +10,5 @@ export = ({ app }: { app: Application }) => {
   initLabelChecker(app);
   initReleaseDrafter(app);
   initAutoMerger(app);
-  initForceMerger(app);
   initJobComponentTrigger(app);
 };

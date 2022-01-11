@@ -14,4 +14,3 @@ export const mockMerge = jest.fn();
 export const mockListPulls = jest.fn();
 export const mockUpdateRef = jest.fn();
 export const mockOrgMembership = jest.fn();
-export const mockTeamMembership = jest.fn();

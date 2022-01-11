@@ -52,23 +52,5 @@
     "created_at": "2020-12-01T20:11:04Z",
     "updated_at": "2020-12-01T20:11:04Z",
     "body": "@gpucibot Merge "
-  },
-  {
-    "url": "https://api.github.com/repos/rapidsai/cudf/issues/comments/736790268",
-    "html_url": "https://github.com/rapidsai/cudf/pull/6775#issuecomment-736790268",
-    "issue_url": "https://api.github.com/repos/rapidsai/cudf/issues/6775",
-    "id": 736790268,
-    "node_id": "MDEyOklzc3VlQ29tbWVudDczNjc5MDI2OA==",
-    "user": {
-      "login": "ajschmidt8",
-      "id": 53796099,
-      "node_id": "MDQ6VXNlcjUzNzk2MDk5",
-      "url": "https://api.github.com/users/brandon-b-miller",
-      "html_url": "https://github.com/brandon-b-miller",
-      "type": "User"
-    },
-    "created_at": "2020-12-01T20:11:04Z",
-    "updated_at": "2020-12-01T20:11:04Z",
-    "body": "@gpucibot force merge"
   }
 ]

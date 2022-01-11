@@ -40,4 +40,3 @@ export const makeIssueCommentContext = ({
 
 export const nonPrComment = makeIssueCommentContext({ is_pr: false });
 export const prCommentNoMerge = makeIssueCommentContext({ is_pr: true });
-export const prCommentForceMerge = makeIssueCommentContext({ is_pr: true, body: "@gpucibot force merge" });
