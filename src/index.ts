@@ -6,9 +6,6 @@ import { initLabelChecker } from "./plugins/LabelChecker";
 import { initReleaseDrafter } from "./plugins/ReleaseDrafter";
 
 export = (app: Probot) => {
-  app.on("pull_request", (context) => {
-    context.octokit.issues.listComments();
-  });
   initBranchChecker(app);
   initLabelChecker(app);
   initReleaseDrafter(app);
