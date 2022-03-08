@@ -61,7 +61,7 @@ export class JenkinsPermissions {
     for (const comment of comments) {
       if (
         comment.body === "ok to test" &&
-        admins.includes(comment.user.login)
+        admins.includes(comment.user?.login)
       ) {
         return true;
       }

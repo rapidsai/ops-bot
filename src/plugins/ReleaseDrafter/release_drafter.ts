@@ -71,9 +71,7 @@ export class ReleaseDrafter {
     const { branchVersionNumber } = this;
     const defaultBranchVersionNumber = getVersionFromBranch(this.defaultBranch);
 
-    return (
-      defaultBranchVersionNumber === branchVersionNumber
-    );
+    return defaultBranchVersionNumber === branchVersionNumber;
   }
 
   /**
@@ -93,7 +91,8 @@ export class ReleaseDrafter {
 
     return prs
       .filter(
-        (pr) => !pr.title.toLowerCase().startsWith("[gpuci] forward-merge branch-")
+        (pr) =>
+          !pr.title.toLowerCase().startsWith("[gpuci] forward-merge branch-")
       )
       .filter((pr) => pr.merged_at); // merged_at === null for PRs that were closed, but not merged
   }
@@ -125,7 +124,7 @@ export class ReleaseDrafter {
         );
         continue;
       }
-      const category = categoryLabel.name;
+      const category = categoryLabel.name as string; // this will be a string based on checks above
       categories[category].prs.push(pr);
       hasEntries = true;
 
