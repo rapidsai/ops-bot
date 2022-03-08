@@ -23,7 +23,6 @@ export class AutoMerger {
 
     // Handle "status" context
     if (this.isStatusContext(context)) {
-      // @ts-ignore // ignore ts2590 error. no fix currently. seems harmless to ignore & doesn't cause side-effects
       const sha = context.payload.sha;
       if (context.payload.state !== "success") {
         console.warn(
@@ -163,20 +162,19 @@ export class AutoMerger {
   async getPRNumbersfromSHA(context: StatusContext): Promise<number[]> {
     const repoName = context.payload.repository.name;
     const sourceRepoOwner = context.payload.repository.owner.login;
-    const repoOwners = [sourceRepoOwner];
-    const forkedRepoOwner = context.payload.commit.author?.login;
-    if (forkedRepoOwner) repoOwners.push(forkedRepoOwner);
+    const forkedRepoOwner = context.payload.commit.author.login;
 
     let prNumbers: number[] = [];
 
-    for (const repoOwner of repoOwners) {
+    for (const repoOwner of [forkedRepoOwner, sourceRepoOwner]) {
       try {
-        const { data: prs } =
-          await context.octokit.repos.listPullRequestsAssociatedWithCommit({
-            commit_sha: context.payload.sha,
-            owner: repoOwner,
-            repo: repoName,
-          });
+        const {
+          data: prs,
+        } = await context.octokit.repos.listPullRequestsAssociatedWithCommit({
+          commit_sha: context.payload.sha,
+          owner: repoOwner,
+          repo: repoName,
+        });
         if (!prs.length) continue;
         prNumbers = [...prNumbers, ...prs.map((pr) => pr.number)];
       } catch (error) {
@@ -251,12 +249,12 @@ export class AutoMerger {
     );
 
     const mergeComments = allComments.filter((comment) =>
-      this.isMergeComment(comment.body || "")
+      this.isMergeComment(comment.body)
     );
 
-    const mergeCommentAuthors = mergeComments
-      .map((comment) => comment.user?.login)
-      .filter(Boolean);
+    const mergeCommentAuthors = mergeComments.map(
+      (comment) => comment.user.login
+    );
 
     const permissions = await Promise.all(
       mergeCommentAuthors.map(async (actor) => {
@@ -264,7 +262,7 @@ export class AutoMerger {
           await context.octokit.repos.getCollaboratorPermissionLevel({
             owner: repo.owner.login,
             repo: repo.name,
-            username: actor as string,
+            username: actor,
           })
         ).data.permission;
       })
@@ -326,9 +324,7 @@ export class AutoMerger {
     pr: PullsGetResponseData
   ): Promise<UsersGetByUsernameResponseData[]> {
     const { octokit } = this.context;
-    const uniqueAuthors: string[] = [];
-    const prAuthor = pr.user?.login;
-    if (prAuthor) uniqueAuthors.push(prAuthor);
+    const uniqueAuthors: string[] = [pr.user.login];
 
     const commits = await octokit.paginate(octokit.pulls.listCommits, {
       owner: pr.base.repo.owner.login,
@@ -371,10 +367,9 @@ export class AutoMerger {
 
     for (let i = 0; i < approvers.length; i++) {
       const approver = approvers[i];
-      if (!approver.user) continue;
-      const approvalAuthor = approver.user.login;
-      if (uniqueApprovers.includes(approvalAuthor)) continue;
-      uniqueApprovers.push(approvalAuthor);
+      const commitAuthor = approver.user.login;
+      if (uniqueApprovers.includes(commitAuthor)) continue;
+      uniqueApprovers.push(commitAuthor);
     }
 
     return Promise.all(

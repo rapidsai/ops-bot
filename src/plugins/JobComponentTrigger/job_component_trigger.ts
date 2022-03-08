@@ -81,7 +81,7 @@ export class JobComponentTrigger {
       pr_id: prNumber,
       commit_hash: `origin/pr/${prNumber}/merge`,
       report_hash: pr.head.sha,
-      pr_author: pr.user!.login,
+      pr_author: pr.user.login,
       source_branch: pr.head.ref,
       target_branch: pr.base.ref,
       flash_id: prNumber,
@@ -92,7 +92,7 @@ export class JobComponentTrigger {
     };
     //Authenticate with gpuCI
     const axiosOptions = {
-      headers: { token: process.env.JENKINS_WEBHOOK_TOKEN as string },
+      headers: { token: process.env.JENKINS_WEBHOOK_TOKEN },
     };
     //The response is always 200 even if no jobs were triggered and the output is suppressed, so no point in parsing anything
     await axios.post(

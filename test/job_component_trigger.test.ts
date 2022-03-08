@@ -115,7 +115,7 @@ describe("Job Component Triggering", () => {
     expect(result).toBe(true);
     expect(mockedHasPermissionToTrigger).toBeCalledTimes(1);
     expect(mockedAxios.post).toBeCalledTimes(1);
-    const jenkinsPayload: any = mockedAxios.post.mock.calls[0][1];
+    const jenkinsPayload = mockedAxios.post.mock.calls[0][1];
     expect(jenkinsPayload.pr_id).toBe(468);
     expect(jenkinsPayload.commit_hash).toBe("origin/pr/468/merge");
     expect(jenkinsPayload.report_hash).toBe(pulls_get.data.head.sha);

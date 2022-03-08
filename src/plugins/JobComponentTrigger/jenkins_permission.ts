@@ -46,8 +46,7 @@ export class JenkinsPermissions {
         org: org,
         username: username,
       });
-      // @ts-ignore // typescript thinks "status" is always 302
-      if (status === 204) {
+      if (status == 204) {
         return true;
       }
     }
@@ -62,7 +61,7 @@ export class JenkinsPermissions {
     for (const comment of comments) {
       if (
         comment.body === "ok to test" &&
-        admins.includes(comment.user?.login)
+        admins.includes(comment.user.login)
       ) {
         return true;
       }

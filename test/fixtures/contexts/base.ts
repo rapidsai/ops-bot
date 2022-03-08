@@ -15,9 +15,9 @@ import {
   mockPullsGet,
   mockUpdateRelease,
 } from "../../mocks";
-import type { EmitterWebhookEventName } from "@octokit/webhooks/dist-types/types";
+import type { WebhookEvents } from "@octokit/webhooks";
 
-export const makeContext = (payload, name: EmitterWebhookEventName) => {
+export const makeContext = (payload, name: WebhookEvents) => {
   return {
     name,
     payload,
