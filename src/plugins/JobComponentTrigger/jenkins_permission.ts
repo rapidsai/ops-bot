@@ -46,7 +46,8 @@ export class JenkinsPermissions {
         org: org,
         username: username,
       });
-      if (status == 204) {
+      // @ts-ignore // typescript thinks "status" is always 302
+      if (status === 204) {
         return true;
       }
     }
