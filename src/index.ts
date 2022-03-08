@@ -5,7 +5,7 @@ import { initJobComponentTrigger } from "./plugins/JobComponentTrigger";
 import { initLabelChecker } from "./plugins/LabelChecker";
 import { initReleaseDrafter } from "./plugins/ReleaseDrafter";
 
-export = ({ app }: { app: Probot }) => {
+export = (app: Probot) => {
   app.on("pull_request", (context) => {
     context.octokit.issues.listComments();
   });
