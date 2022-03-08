@@ -55,7 +55,7 @@ export const isReleasePR = (
   pullRequest: Pick<PullsGetResponseData, "title" | "user">
 ): boolean => {
   return (
-    pullRequest.user.login === "GPUtester" &&
+    pullRequest.user?.login === "GPUtester" &&
     pullRequest.title.toLowerCase().includes("[release]")
   );
 };
