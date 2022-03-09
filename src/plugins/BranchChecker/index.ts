@@ -1,8 +1,8 @@
-import { Application } from "probot";
+import { Probot } from "probot";
 import { PRBranchChecker } from "./pull_request";
 import { RepositoryBranchChecker } from "./repository";
 
-export const initBranchChecker = (app: Application) => {
+export const initBranchChecker = (app: Probot) => {
   app.on(
     [
       "pull_request.opened",

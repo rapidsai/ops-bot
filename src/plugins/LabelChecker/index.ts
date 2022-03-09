@@ -1,7 +1,7 @@
-import { Application } from "probot";
+import { Probot } from "probot";
 import { LabelChecker } from "./label_checker";
 
-export const initLabelChecker = (app: Application) => {
+export const initLabelChecker = (app: Probot) => {
   app.on(
     [
       "pull_request.opened",
