@@ -23,7 +23,6 @@ export class AutoMerger {
 
     // Handle "status" context
     if (this.isStatusContext(context)) {
-      // @ts-ignore // ignore ts2590 error. no fix currently. seems harmless to ignore & doesn't cause side-effects
       const sha = context.payload.sha;
       if (context.payload.state !== "success") {
         console.warn(

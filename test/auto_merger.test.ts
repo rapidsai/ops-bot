@@ -41,7 +41,7 @@ describe("Auto Merger", () => {
     mockGetByUsername.mockResolvedValueOnce(userNoName);
     mockPaginate.mockResolvedValueOnce(list_reviews); // listReviews in getApprovers
     mockGetByUsername.mockResolvedValueOnce(user);
-    // @ts-ignore // ignore ts2590 error. no fix currently. seems harmless to ignore & doesn't cause side-effects
+
     await new AutoMerger(statusContext.successStatus).maybeMergePR();
 
     expect(mockPullsGet).toBeCalledTimes(1);
