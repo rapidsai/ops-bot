@@ -2,6 +2,9 @@ export const mockConfigGet = jest.fn();
 export const mockContextRepo = jest.fn();
 export const mockCreateCommitStatus = jest.fn();
 export const mockCreateRelease = jest.fn();
+export const mockExit = jest
+  .spyOn(process, "exit")
+  .mockImplementation(() => null as never);
 export const mockGetByUsername = jest.fn();
 export const mockGetReleaseByTag = jest.fn();
 export const mockGetUserPermissionLevel = jest.fn();

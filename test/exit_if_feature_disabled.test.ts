@@ -1,17 +1,9 @@
-import { OpsBotConfig } from "../src/config";
 import { LabelChecker } from "../src/plugins/LabelChecker/label_checker";
 import { makePRContext } from "./fixtures/contexts/pull_request";
-import { mockConfigGet, mockContextRepo } from "./mocks";
+import { mockConfigGet, mockContextRepo, mockExit } from "./mocks";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
+import { makeConfigReponse } from "./fixtures/responses/get_config";
 
-const makeConfigReponse = <E extends Partial<OpsBotConfig>>(
-  opsBotConfig: E
-): { config: E } => {
-  return { config: opsBotConfig };
-};
-
-// @ts-ignore // ignore type errors for process.exit stub
-const mockExit = jest.spyOn(process, "exit").mockImplementation(() => {});
 const context = makePRContext({ labels: [] });
 mockContextRepo.mockReturnValue(repoResp);
 
