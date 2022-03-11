@@ -1,3 +1,5 @@
+import { Context } from "probot";
+import { DefaultOpsBotConfig, OpsBotConfig, OpsBotConfigPath } from "./config";
 import { CommitStatus, ProbotOctokit, PullsGetResponseData } from "./types";
 
 /**
@@ -58,4 +60,27 @@ export const isReleasePR = (
     pullRequest.user?.login === "GPUtester" &&
     pullRequest.title.toLowerCase().includes("[release]")
   );
+};
+
+/**
+ *
+ * Exits the NodeJS process if a specified feature is not enabled.
+ * The configuration file is fetched from the repository's default branch.
+ */
+export const exitIfFeatureIsDisabled = async (
+  context: Context,
+  feature: keyof OpsBotConfig
+): Promise<any> => {
+  const repoParams = context.repo();
+  const { config } = await context.octokit.config.get({
+    ...repoParams,
+    path: OpsBotConfigPath,
+    defaults: DefaultOpsBotConfig,
+  });
+
+  console.log(`${repoParams.repo} config: `, JSON.stringify(config, null, 2));
+  if (config[feature]) return;
+
+  console.warn(`${feature} is not enabled on ${repoParams.repo}. Exiting...`);
+  process.exit(0);
 };
