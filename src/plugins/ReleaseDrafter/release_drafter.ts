@@ -7,7 +7,11 @@ import { basename } from "path";
 import { resolve } from "path";
 import { readFileSync } from "fs";
 import nunjucks from "nunjucks";
-import { getVersionFromBranch, isVersionedBranch } from "../../shared";
+import {
+  exitIfFeatureIsDisabled,
+  getVersionFromBranch,
+  isVersionedBranch,
+} from "../../shared";
 
 export class ReleaseDrafter {
   context: PushContext;
@@ -32,6 +36,7 @@ export class ReleaseDrafter {
 
   async draftRelease(): Promise<any> {
     const { context, branchName, repo } = this;
+    await exitIfFeatureIsDisabled(context, "release_drafter");
     const { created, deleted } = context.payload;
 
     // Don't run on branch created/delete pushes
