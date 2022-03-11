@@ -1,4 +1,8 @@
-import { createSetCommitStatus, isReleasePR } from "../../shared";
+import {
+  createSetCommitStatus,
+  exitIfFeatureIsDisabled,
+  isReleasePR,
+} from "../../shared";
 import { PRContext } from "../../types";
 
 export class LabelChecker {
@@ -10,6 +14,8 @@ export class LabelChecker {
 
   async checkLabels(): Promise<any> {
     const context = this.context;
+
+    await exitIfFeatureIsDisabled(context, "label_checker");
 
     const setCommitStatus = createSetCommitStatus(context.octokit, {
       context: "Label Checker",
@@ -47,7 +53,7 @@ export class LabelChecker {
 
     const categoryLabels = ["bug", "doc", "feature request", "improvement"];
     const breakingLabels = ["breaking", "non-breaking"];
-    const doNotMergeLabelText = 'do not merge';
+    const doNotMergeLabelText = "do not merge";
     const labelsOnPR = context.payload.pull_request.labels;
 
     let categoryLabelCount = 0;
@@ -58,7 +64,7 @@ export class LabelChecker {
 
       if (label.name.trim().toLowerCase().includes(doNotMergeLabelText)) {
         return await setCommitStatus(
-          "Contains a \`DO NOT MERGE\` label",
+          "Contains a `DO NOT MERGE` label",
           "failure"
         );
       }
