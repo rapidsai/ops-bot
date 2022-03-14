@@ -10,6 +10,9 @@ import { default as user_permission } from "./fixtures/responses/get_collaborato
 import { default as commitPRs } from "./fixtures/responses/list_pull_requests_associated_with_commit.json";
 import { user, userNoName } from "./fixtures/responses/get_by_username";
 import {
+  mockConfigGet,
+  mockContextRepo,
+  mockExit,
   mockGetByUsername,
   mockGetUserPermissionLevel,
   mockListComments,
@@ -19,6 +22,8 @@ import {
   mockPaginate,
   mockPullsGet,
 } from "./mocks";
+import { default as repoResp } from "./fixtures/responses/context_repo.json";
+import { makeConfigReponse } from "./fixtures/responses/get_config";
 
 describe("Auto Merger", () => {
   beforeEach(() => {
@@ -30,6 +35,16 @@ describe("Auto Merger", () => {
     mockMerge.mockReset();
     mockPaginate.mockReset();
     mockPullsGet.mockReset();
+  });
+
+  beforeAll(() => {
+    mockContextRepo.mockReturnValue(repoResp);
+    mockExit.mockReset();
+    mockConfigGet.mockResolvedValue(makeConfigReponse({ auto_merger: true }));
+  });
+
+  afterAll(() => {
+    expect(mockExit).toBeCalledTimes(0);
   });
 
   test("status context", async () => {

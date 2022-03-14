@@ -1,10 +1,27 @@
 import { LabelChecker } from "../src/plugins/LabelChecker/label_checker";
 import { makePRContext } from "./fixtures/contexts/pull_request";
-import { mockCreateCommitStatus } from "./mocks";
+import { makeConfigReponse } from "./fixtures/responses/get_config";
+import {
+  mockConfigGet,
+  mockContextRepo,
+  mockCreateCommitStatus,
+  mockExit,
+} from "./mocks";
+import { default as repoResp } from "./fixtures/responses/context_repo.json";
 
 describe("Label Checker", () => {
   beforeEach(() => {
     mockCreateCommitStatus.mockReset();
+  });
+
+  beforeAll(() => {
+    mockContextRepo.mockReturnValue(repoResp);
+    mockExit.mockReset();
+    mockConfigGet.mockResolvedValue(makeConfigReponse({ label_checker: true }));
+  });
+
+  afterAll(() => {
+    expect(mockExit).toBeCalledTimes(0);
   });
 
   test("no labels", async () => {
@@ -127,7 +144,7 @@ describe("Label Checker", () => {
     );
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
     expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
-      "Contains a \`DO NOT MERGE\` label"
+      "Contains a `DO NOT MERGE` label"
     );
     expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
       "https://docs.rapids.ai/resources/label-checker/"

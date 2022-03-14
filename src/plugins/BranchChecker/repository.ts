@@ -1,3 +1,4 @@
+import { exitIfFeatureIsDisabled } from "../../shared";
 import { RepositoryContext } from "../../types";
 import { checkPR } from "./check_pr";
 
@@ -10,6 +11,7 @@ export class RepositoryBranchChecker {
 
   async checkAllPRs() {
     const { context } = this;
+    await exitIfFeatureIsDisabled(context, "branch_checker");
     const repo = context.payload.repository;
 
     const prs = await context.octokit.paginate(context.octokit.pulls.list, {

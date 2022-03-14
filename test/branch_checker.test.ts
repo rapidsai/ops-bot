@@ -2,10 +2,19 @@ import { PRBranchChecker } from "../src/plugins/BranchChecker/pull_request";
 import { RepositoryBranchChecker } from "../src/plugins/BranchChecker/repository";
 import { makePRContext } from "./fixtures/contexts/pull_request";
 import { makeRepositoryContext } from "./fixtures/contexts/repository";
-import { mockCreateCommitStatus, mockListPulls, mockPaginate } from "./mocks";
+import {
+  mockConfigGet,
+  mockContextRepo,
+  mockCreateCommitStatus,
+  mockExit,
+  mockListPulls,
+  mockPaginate,
+} from "./mocks";
 import { branch_checker as listPullsResp } from "./fixtures/responses/list_pulls.json";
 import { default as releasesJson } from "./fixtures/responses/releases.json";
 import axios from "axios";
+import { default as repoResp } from "./fixtures/responses/context_repo.json";
+import { makeConfigReponse } from "./fixtures/responses/get_config";
 
 jest.mock("axios");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -14,9 +23,20 @@ describe("Label Checker", () => {
   describe("Pull Request Event", () => {
     beforeEach(() => {
       mockCreateCommitStatus.mockReset();
+    });
 
+    beforeAll(() => {
+      mockContextRepo.mockReturnValue(repoResp);
       const resp = { data: releasesJson };
       mockedAxios.get.mockResolvedValue(resp);
+      mockExit.mockReset();
+      mockConfigGet.mockResolvedValue(
+        makeConfigReponse({ branch_checker: true })
+      );
+    });
+
+    afterAll(() => {
+      expect(mockExit).toBeCalledTimes(0);
     });
 
     test("release PR", async () => {
@@ -87,7 +107,7 @@ describe("Label Checker", () => {
         "Base branch is under active development"
       );
     });
-  
+
     test("next development branch", async () => {
       const context = makePRContext({
         baseRef: "branch-21.08",
@@ -115,7 +135,7 @@ describe("Label Checker", () => {
         "Base branch is not under active development"
       );
     });
-});
+  });
 
   describe("Repository Event", () => {
     beforeEach(() => {

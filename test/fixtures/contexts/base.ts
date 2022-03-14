@@ -1,4 +1,6 @@
 import {
+  mockConfigGet,
+  mockContextRepo,
   mockCreateCommitStatus,
   mockCreateRelease,
   mockGetByUsername,
@@ -21,6 +23,7 @@ export const makeContext = (payload, name: EmitterWebhookEventName) => {
   return {
     name,
     payload,
+    repo: mockContextRepo,
     octokit: {
       issues: {
         listComments: mockListComments,
@@ -43,10 +46,13 @@ export const makeContext = (payload, name: EmitterWebhookEventName) => {
       users: {
         getByUsername: mockGetByUsername,
       },
-      orgs : {
-        checkMembershipForUser: mockOrgMembership
+      orgs: {
+        checkMembershipForUser: mockOrgMembership,
       },
       paginate: mockPaginate,
+      config: {
+        get: mockConfigGet,
+      },
     },
   };
 };
