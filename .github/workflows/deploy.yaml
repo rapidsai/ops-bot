@@ -35,5 +35,3 @@ jobs:
           APP_ID: ${{ secrets.APP_ID }}
           WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          JENKINS_WEBHOOK_TOKEN: ${{ secrets.JENKINS_WEBHOOK_TOKEN }}
-          JENKINS_API_TOKEN: ${{ secrets.JENKINS_API_TOKEN }}
