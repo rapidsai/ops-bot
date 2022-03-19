@@ -1,6 +1,6 @@
 import { Context } from "probot";
 import { DefaultOpsBotConfig, OpsBotConfig, OpsBotConfigPath } from "./config";
-import { CommitStatus, ProbotOctokit, PullsGetResponseData } from "./types";
+import { CommitStatus, IssueCommentContext, ProbotOctokit, PullsGetResponseData } from "./types";
 
 /**
  * RegEx representing RAPIDS branch name patterns
@@ -84,3 +84,14 @@ export const exitIfFeatureIsDisabled = async (
   console.warn(`${feature} is not enabled on ${repoParams.repo}. Exiting...`);
   process.exit(0);
 };
+
+
+
+/**
+ * Returns true if the payload associated with the provided context
+ * is from a GitHub Pull Request (as opposed to a GitHub Issue).
+ * @param context
+ */
+export const issueIsPR = (context: IssueCommentContext): boolean => {
+  return "pull_request" in context.payload.issue;
+}
