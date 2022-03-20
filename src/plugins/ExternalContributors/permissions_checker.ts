@@ -1,4 +1,5 @@
 import axios from "axios";
+import { readFileSync } from "fs";
 import { ProbotOctokit } from "probot";
 import xm2js from "xml2js";
 
@@ -17,12 +18,15 @@ export class PermissionsChecker {
     
     //Get the config.xml for the repo's PRB job - this has the GitHub PRB configuration
     const prbConfigUrl = `https://gpuci.gpuopenanalytics.com/job/${repoOwner}/job/gpuci/job/${repoName}/job/prb/job/${repoName}-prb/config.xml`;
-    const { data: response } = await axios.get(prbConfigUrl, {
-      auth: {
-        username: "gputester",
-        password: process.env.JENKINS_API_TOKEN as string,
-      },
-    });
+    // let { data: response } = await axios.get(prbConfigUrl, {
+    //   auth: {
+    //     username: "jawe-api-token",//"gputester",
+    //     password: "11c5f460a7ab55e2b8912e3bf289701859" //process.env.JENKINS_API_TOKEN as string,
+    //   },
+    // });
+    
+    let response = readFileSync("./test/fixtures/responses/jenkins_config.xml"); // temporary workaround for testing
+
     const xmlParser = new xm2js.Parser({ explicitArray: false });
     const root = await xmlParser.parseStringPromise(response);
     //Icky XML/JSON mashup parsing...
@@ -55,6 +59,8 @@ export class PermissionsChecker {
         return true;
       }
     }
+
+    console.log('failed to validate permission')
     return false;
   }
 }

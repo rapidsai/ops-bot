@@ -58,7 +58,7 @@ export const makePRContext = ({
       },
     },
     sender: {
-      name: senderName
+      login: senderName
     }
   };
 

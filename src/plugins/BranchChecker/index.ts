@@ -11,7 +11,7 @@ export const initBranchChecker = (app: Probot) => {
       "pull_request.synchronize",
     ],
     async (context) => {
-      await new PRBranchChecker(context).checkPR();
+      // await new PRBranchChecker(context).checkPR();
     }
   );
   app.on("repository.edited", async (context) => {

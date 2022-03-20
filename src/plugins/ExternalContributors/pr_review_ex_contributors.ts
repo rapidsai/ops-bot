@@ -49,6 +49,8 @@ export class PRReviewExternalContributors {
             repo: payload.repository.name,
             owner: payload.repository.owner.login,
             sha: pr.data.head.sha
+        }).then(c => {
+            console.log('created new branch here:', c)
         })
     }
 }

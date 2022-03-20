@@ -28,24 +28,24 @@ describe('External Contributors', () => {
 
     test('pull_request.opened, do nothing when author is not external contributor', async () => {
         const prContext = makePRContext({action: "opened", senderName: "ayode"})
-        mockCheckMembershipForUser.mockResolvedValueOnce(true)
+        mockCheckMembershipForUser.mockResolvedValueOnce({status: 204})
 
         const action = await new PRExternalContributors(prContext, <any>null).pipePR()
         
         expect(mockCreateComment).toBeCalledTimes(0)
-        expect(mockCheckMembershipForUser).toBeCalledWith({username: prContext.payload.sender.name, org: prContext.payload.organization?.id})
+        expect(mockCheckMembershipForUser).toBeCalledWith({username: prContext.payload.sender.login, org: prContext.payload.organization?.login})
         expect(action).toBe(undefined)
     })
 
     test('pull_request.opened, create correct comment when author is external contibutor', async () => {
         const prContext = makePRContext({action: "opened", senderName: "ayode"})
-        mockCheckMembershipForUser.mockRejectedValueOnce(false)
+        mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
         mockCreateComment.mockResolvedValueOnce(true)
 
         const action = await new PRExternalContributors(prContext, <any>null).pipePR()
         
         expect(mockCreateComment).toBeCalledTimes(1)
-        expect(mockCheckMembershipForUser).toBeCalledWith({username: prContext.payload.sender.name, org: prContext.payload.organization?.id})
+        expect(mockCheckMembershipForUser).toBeCalledWith({username: prContext.payload.sender.login, org: prContext.payload.organization?.login})
         expect(action).toBe(true)
         expect(mockCreateComment).toBeCalledWith({
             owner: prContext.payload.repository.owner.login,
@@ -115,7 +115,7 @@ describe('External Contributors', () => {
 
     test('pull_request.closed, do nothing if source branch no longer exists', async () => {
         const prContext = makePRContext({action: "closed", senderName: "ayode"})
-        mockGetRef.mockResolvedValueOnce(false)
+        mockGetRef.mockResolvedValueOnce({status: 404})
 
         const action = await new PRExternalContributors(prContext, <PermissionsChecker>{hasPermissionToTrigger: <any>mockHasPermissionToTrigger}).pipePR()
 
@@ -131,7 +131,7 @@ describe('External Contributors', () => {
 
     test('pull_request.closed, delete source branch if still exists', async () => {
         const prContext = makePRContext({action: "closed", senderName: "ayode"})
-        mockGetRef.mockResolvedValueOnce(true)
+        mockGetRef.mockResolvedValueOnce({status: 200})
         mockDeleteRef.mockResolvedValueOnce(true)
 
         const action = await new PRExternalContributors(prContext, <PermissionsChecker>{hasPermissionToTrigger: <any>mockHasPermissionToTrigger}).pipePR()

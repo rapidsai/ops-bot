@@ -11,7 +11,7 @@ export const initLabelChecker = (app: Probot) => {
       "pull_request.synchronize",
     ],
     async (context) => {
-      await new LabelChecker(context).checkLabels();
+      // await new LabelChecker(context).checkLabels();
     }
   );
 };

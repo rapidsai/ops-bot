@@ -11,15 +11,15 @@ export class PRExternalContributors {
     async pipePR(): Promise<any> {
         const { payload } = this.context
         await exitIfFeatureIsDisabled(this.context, "external_contributors");
-
+        console.log(this.context.payload)
         // pull_request.opened event
         if(payload.action == "opened") {
             // make sure author is external contributor
-            if(await this.authorIsNotExternalContributor(payload.sender.name, payload.organization?.id)) return
-            return await this.context.octokit.issues.createComment({ //might be the pulls object instead; test
+            if(await this.authorIsNotExternalContributor(payload.sender.login, payload.organization?.login)) return
+            return await this.context.octokit.issues.createComment({
                 owner: payload.repository.owner.login,
                 repo: payload.repository.name,
-                issue_number: payload.pull_request.id,
+                issue_number: payload.pull_request.number,
                 body: "Pull requests from external contributors require approval from a RAPIDS organization member before CI can begin."
             })
         }
@@ -38,7 +38,7 @@ export class PRExternalContributors {
 
             // Update commit on the source repository branch to match forked branch
             return await this.context.octokit.rest.git.updateRef({
-                ref: `refs/heads/external-pr-${payload.pull_request.number}`,
+                ref: `heads/external-pr-${payload.pull_request.number}`,
                 repo: payload.repository.name,
                 owner: payload.repository.owner.login,
                 sha: payload.pull_request.head.sha
@@ -50,14 +50,14 @@ export class PRExternalContributors {
         if(payload.action == "closed") {
             // Delete the source repository branch if exists
             const branchName = `external-pr-${payload.pull_request.number}`
-            const branch = await this.context.octokit.rest.git.getRef({
-                ref: `refs/heads/${branchName}`,
+            const branch = await this.context.octokit.git.getRef({
+                ref: `heads/${branchName}`,
                 repo: payload.repository.name,
                 owner: payload.repository.owner.login,
             })
-            if(!!branch) { // TODO: correct to use status here
-                return this.context.octokit.rest.git.deleteRef({
-                    ref: `refs/heads/${branchName}`,
+            if(branch.status == 200) {
+                return this.context.octokit.git.deleteRef({
+                    ref: `heads/${branchName}`,
                     repo: payload.repository.name,
                     owner: payload.repository.owner.login,
                 })
@@ -68,7 +68,7 @@ export class PRExternalContributors {
 
     private async authorIsNotExternalContributor(author: any, org: any) {
         return this.context.octokit.orgs.checkMembershipForUser({username: author, org})
-        .then(_ => true)
+        .then(data => data.status == (204 as any))
         .catch(_ => false)
     }
 
