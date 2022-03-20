@@ -50,13 +50,13 @@ export class PRExternalContributors {
         if(payload.action == "closed") {
             // Delete the source repository branch if exists
             const branchName = `external-pr-${payload.pull_request.number}`
-            const branch = await this.context.octokit.git.getRef({
+            const branch = await this.context.octokit.rest.git.getRef({
                 ref: `heads/${branchName}`,
                 repo: payload.repository.name,
                 owner: payload.repository.owner.login,
             })
             if(branch.status == 200) {
-                return this.context.octokit.git.deleteRef({
+                return this.context.octokit.rest.git.deleteRef({
                     ref: `heads/${branchName}`,
                     repo: payload.repository.name,
                     owner: payload.repository.owner.login,
