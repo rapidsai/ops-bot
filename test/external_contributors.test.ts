@@ -105,7 +105,7 @@ describe('External Contributors', () => {
             expect(mockHasPermissionToTrigger).toBeCalledTimes(1)
             expect(mockUpdateRef).toBeCalledTimes(1)
             expect(mockUpdateRef).toBeCalledWith({
-                ref: `refs/heads/external-pr-${prContext.payload.pull_request.number}`,
+                ref: `heads/external-pr-${prContext.payload.pull_request.number}`,
                 repo: prContext.payload.repository.name,
                 owner: prContext.payload.repository.owner.login,
                 sha: prContext.payload.pull_request.head.sha
@@ -123,7 +123,7 @@ describe('External Contributors', () => {
         expect(mockDeleteRef).toHaveBeenCalledTimes(0)
         expect(mockGetRef).toHaveBeenCalled()
         expect(mockGetRef).toBeCalledWith({
-            ref: `refs/heads/external-pr-${prContext.payload.pull_request.number}`,
+            ref: `heads/external-pr-${prContext.payload.pull_request.number}`,
             repo: prContext.payload.repository.name,
             owner: prContext.payload.repository.owner.login,
         })
@@ -140,12 +140,12 @@ describe('External Contributors', () => {
         expect(mockDeleteRef).toHaveBeenCalledTimes(1)
         expect(mockGetRef).toHaveBeenCalled()
         expect(mockGetRef).toBeCalledWith({
-            ref: `refs/heads/external-pr-${prContext.payload.pull_request.number}`,
+            ref: `heads/external-pr-${prContext.payload.pull_request.number}`,
             repo: prContext.payload.repository.name,
             owner: prContext.payload.repository.owner.login,
         })
         expect(mockDeleteRef).toHaveBeenCalledWith({
-            ref: `refs/heads/external-pr-${prContext.payload.pull_request.number}`,
+            ref: `heads/external-pr-${prContext.payload.pull_request.number}`,
             repo: prContext.payload.repository.name,
             owner: prContext.payload.repository.owner.login,
         })
