@@ -14,7 +14,7 @@ export class PRReviewExternalContributors {
         const prNumber = payload.issue.number
         const username = payload.comment.user.login
 
-        if(payload.comment.body != "okay to test") return
+        if(!["ok to test", "okay to test"].includes(payload.comment.body)) return
 
         //Only run on PRs
         if (!issueIsPR(this.context)) {
@@ -48,13 +48,8 @@ export class PRReviewExternalContributors {
             ref: `refs/heads/external-pr-${payload.issue.number}`,
             repo: payload.repository.name,
             owner: payload.repository.owner.login,
-            sha: pr.data.base.sha
+            sha: pr.data.head.sha
         })
-    }
-
-
-    isPR(context: IssueCommentContext): boolean {
-        return "pull_request" in context.payload.issue;
     }
 }
 

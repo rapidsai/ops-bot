@@ -1,9 +1,14 @@
 import {
   mockConfigGet,
   mockContextRepo,
+  mockCreateComment,
   mockCreateCommitStatus,
+  mockCreateRef,
   mockCreateRelease,
+  mockDeleteRef,
   mockGetByUsername,
+  mockCheckMembershipForUser,
+  mockGetRef,
   mockGetReleaseByTag,
   mockGetUserPermissionLevel,
   mockListComments,
@@ -14,6 +19,7 @@ import {
   mockMerge,
   mockPaginate,
   mockPullsGet,
+  mockUpdateRef,
   mockUpdateRelease,
 } from "../../mocks";
 import type { EmitterWebhookEventName } from "@octokit/webhooks/dist-types/types";
@@ -26,6 +32,7 @@ export const makeContext = (payload, name: EmitterWebhookEventName) => {
     octokit: {
       issues: {
         listComments: mockListComments,
+        createComment: mockCreateComment
       },
       pulls: {
         get: mockPullsGet,
@@ -49,6 +56,17 @@ export const makeContext = (payload, name: EmitterWebhookEventName) => {
       config: {
         get: mockConfigGet,
       },
+      orgs: {
+        checkMembershipForUser: mockCheckMembershipForUser
+      },
+      rest: {
+        git: {
+          updateRef: mockUpdateRef,
+          getRef: mockGetRef,
+          deleteRef: mockDeleteRef,
+          createRef: mockCreateRef
+        }
+      }
     },
   };
 };

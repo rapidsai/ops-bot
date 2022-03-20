@@ -16,7 +16,7 @@ export class PRExternalContributors {
         if(payload.action == "opened") {
             // make sure author is external contributor
             if(await this.authorIsNotExternalContributor(payload.sender.name, payload.organization?.id)) return
-            await this.context.octokit.issues.createComment({ //might be the pulls object instead; test
+            return await this.context.octokit.issues.createComment({ //might be the pulls object instead; test
                 owner: payload.repository.owner.login,
                 repo: payload.repository.name,
                 issue_number: payload.pull_request.id,
@@ -41,7 +41,7 @@ export class PRExternalContributors {
                 ref: `refs/heads/external-pr-${payload.pull_request.number}`,
                 repo: payload.repository.name,
                 owner: payload.repository.owner.login,
-                sha: payload.pull_request.base.sha
+                sha: payload.pull_request.head.sha
             })
 
         }
@@ -55,26 +55,24 @@ export class PRExternalContributors {
                 repo: payload.repository.name,
                 owner: payload.repository.owner.login,
             })
-            if(!!branch) {
-                this.context.octokit.rest.git.deleteRef({
+            if(!!branch) { // TODO: correct to use status here
+                return this.context.octokit.rest.git.deleteRef({
                     ref: `refs/heads/${branchName}`,
                     repo: payload.repository.name,
                     owner: payload.repository.owner.login,
                 })
             }
         }
-
-        return Promise.resolve(true)
     }
 
 
-    async authorIsNotExternalContributor(author: any, org: any) {
-        return this.context.octokit.orgs.getMembershipForUser({username: author, org})
+    private async authorIsNotExternalContributor(author: any, org: any) {
+        return this.context.octokit.orgs.checkMembershipForUser({username: author, org})
         .then(_ => true)
         .catch(_ => false)
     }
 
-    async getExistingOkayToTestComment() {
+    private async getExistingOkayToTestComment() {
         const payload = this.context.payload
         const comments = await this.context.octokit.paginate(this.context.octokit.issues.listComments, {
             owner: payload.repository.owner.login,
@@ -83,7 +81,7 @@ export class PRExternalContributors {
             per_page: 100,
         });
         for (const comment of comments) {
-            if (comment.body === "ok to test") return comment;
+            if (["ok to test", "okay to test"].includes(comment.body as string)) return comment;
         }
         return null
     }

@@ -1,9 +1,9 @@
 import { Probot } from "probot";
 import { PermissionsChecker } from "./permissions_checker";
-import { PRExternalContributors } from "./pull_request";
-import { PRReviewExternalContributors } from "./pull_request_comment";
+import { PRExternalContributors } from "./pr_ex_contibutors";
+import { PRReviewExternalContributors } from "./pr_review_ex_contributors";
 
-export const initJobComponentTrigger = (app: Probot) => {
+export const initExternalContributors = (app: Probot) => {
     app.on(
       [
         "pull_request.opened",
