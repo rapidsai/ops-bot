@@ -1,5 +1,5 @@
 import { EmitterWebhookEvent } from "@octokit/webhooks";
-import { exitIfFeatureIsDisabled } from "../../shared";
+import { featureIsDisabled } from "../../shared";
 import { AutoMergerContext, PRContext, PRReviewContext } from "../../types";
 
 export class PRExternalContributors {
@@ -9,7 +9,7 @@ export class PRExternalContributors {
 
     async pipePR(): Promise<any> {
         const { payload } = this.context
-        await exitIfFeatureIsDisabled(this.context, "external_contributors");
+        if (await featureIsDisabled(this.context, "external_contributors")) return;
         console.log(this.context.payload)
         // pull_request.opened event
         if(payload.action == "opened") {

@@ -1,5 +1,5 @@
 import { EmitterWebhookEvent } from "@octokit/webhooks";
-import { exitIfFeatureIsDisabled, issueIsPR } from "../../shared";
+import { featureIsDisabled, issueIsPR } from "../../shared";
 import { AutoMergerContext, IssueCommentContext, PRContext, PRReviewContext } from "../../types";
 
 export class PRReviewExternalContributors {
@@ -8,7 +8,7 @@ export class PRReviewExternalContributors {
     }
 
     async pipePR(): Promise<any> {
-        await exitIfFeatureIsDisabled(this.context, "external_contributors");
+        if (await featureIsDisabled(this.context, "external_contributors")) return;
         const { payload } = this.context
         const prNumber = payload.issue.number
         const username = payload.comment.user.login
