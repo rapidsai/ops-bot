@@ -1,7 +1,7 @@
 import { PRExternalContributors } from "../src/plugins/ExternalContributors/pr_ex_contibutors";
 import { makePRContext } from "./fixtures/contexts/pull_request";
 import { makeConfigReponse } from "./fixtures/responses/get_config";
-import { mockConfigGet, mockContextRepo, mockCreateComment, mockCreateCommitStatus, mockCreateRef, mockDeleteRef, mockExit, mockCheckMembershipForUser, mockGetRef, mockPaginate, mockPullsGet, mockUpdateRef, mockGetUserPermissionLevel } from "./mocks";
+import { mockConfigGet, mockContextRepo, mockCreateComment, mockCreateCommitStatus, mockCreateRef, mockDeleteRef, mockCheckMembershipForUser, mockGetRef, mockPaginate, mockPullsGet, mockUpdateRef, mockGetUserPermissionLevel } from "./mocks";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
 import { makeIssueCommentContext } from "./fixtures/contexts/issue_comment";
 import { PRReviewExternalContributors } from "../src/plugins/ExternalContributors/pr_review_ex_contributors";
@@ -18,12 +18,11 @@ describe('External Contributors', () => {
 
     beforeAll(() => {
         mockContextRepo.mockReturnValue(repoResp);
-        mockExit.mockReset();
         mockConfigGet.mockResolvedValue(makeConfigReponse({ external_contributors: true }));
     })
 
     afterAll(() => {
-        expect(mockExit).toBeCalledTimes(0);
+        
     })
 
     test('pull_request.opened, do nothing when author is not external contributor', async () => {
