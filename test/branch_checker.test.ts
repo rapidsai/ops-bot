@@ -6,7 +6,6 @@ import {
   mockConfigGet,
   mockContextRepo,
   mockCreateCommitStatus,
-  mockExit,
   mockListPulls,
   mockPaginate,
 } from "./mocks";
@@ -29,14 +28,9 @@ describe("Label Checker", () => {
       mockContextRepo.mockReturnValue(repoResp);
       const resp = { data: releasesJson };
       mockedAxios.get.mockResolvedValue(resp);
-      mockExit.mockReset();
       mockConfigGet.mockResolvedValue(
         makeConfigReponse({ branch_checker: true })
       );
-    });
-
-    afterAll(() => {
-      expect(mockExit).toBeCalledTimes(0);
     });
 
     test("release PR", async () => {

@@ -1,6 +1,6 @@
 import {
   createSetCommitStatus,
-  exitIfFeatureIsDisabled,
+  featureIsDisabled,
   isReleasePR,
 } from "../../shared";
 import { PRContext } from "../../types";
@@ -15,7 +15,7 @@ export class LabelChecker {
   async checkLabels(): Promise<any> {
     const context = this.context;
 
-    await exitIfFeatureIsDisabled(context, "label_checker");
+    if (await featureIsDisabled(context, "label_checker")) return;
 
     const setCommitStatus = createSetCommitStatus(context.octokit, {
       context: "Label Checker",

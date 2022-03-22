@@ -12,7 +12,6 @@ import { user, userNoName } from "./fixtures/responses/get_by_username";
 import {
   mockConfigGet,
   mockContextRepo,
-  mockExit,
   mockGetByUsername,
   mockGetUserPermissionLevel,
   mockListComments,
@@ -39,12 +38,7 @@ describe("Auto Merger", () => {
 
   beforeAll(() => {
     mockContextRepo.mockReturnValue(repoResp);
-    mockExit.mockReset();
     mockConfigGet.mockResolvedValue(makeConfigReponse({ auto_merger: true }));
-  });
-
-  afterAll(() => {
-    expect(mockExit).toBeCalledTimes(0);
   });
 
   test("status context", async () => {
