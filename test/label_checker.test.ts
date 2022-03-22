@@ -5,7 +5,6 @@ import {
   mockConfigGet,
   mockContextRepo,
   mockCreateCommitStatus,
-  mockExit,
 } from "./mocks";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
 
@@ -16,12 +15,7 @@ describe("Label Checker", () => {
 
   beforeAll(() => {
     mockContextRepo.mockReturnValue(repoResp);
-    mockExit.mockReset();
     mockConfigGet.mockResolvedValue(makeConfigReponse({ label_checker: true }));
-  });
-
-  afterAll(() => {
-    expect(mockExit).toBeCalledTimes(0);
   });
 
   test("no labels", async () => {

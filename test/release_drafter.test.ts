@@ -10,7 +10,6 @@ import {
   mockListPulls,
   mockContextRepo,
   mockConfigGet,
-  mockExit,
 } from "./mocks";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
 import { makeConfigReponse } from "./fixtures/responses/get_config";
@@ -26,14 +25,9 @@ describe("Release Drafter", () => {
 
   beforeAll(() => {
     mockContextRepo.mockReturnValue(repoResp);
-    mockExit.mockReset();
     mockConfigGet.mockResolvedValue(
       makeConfigReponse({ release_drafter: true })
     );
-  });
-
-  afterAll(() => {
-    expect(mockExit).toBeCalledTimes(0);
   });
 
   test("doesn't run on non-versioned branches", async () => {

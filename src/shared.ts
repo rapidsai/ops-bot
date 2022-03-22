@@ -64,13 +64,13 @@ export const isReleasePR = (
 
 /**
  *
- * Exits the NodeJS process if a specified feature is not enabled.
+ * Returns true if the specified feature is disabled.
  * The configuration file is fetched from the repository's default branch.
  */
-export const exitIfFeatureIsDisabled = async (
+export const featureIsDisabled = async (
   context: Context,
   feature: keyof OpsBotConfig
-): Promise<any> => {
+): Promise<boolean> => {
   const repoParams = context.repo();
   const { config } = await context.octokit.config.get({
     ...repoParams,
@@ -79,10 +79,7 @@ export const exitIfFeatureIsDisabled = async (
   });
 
   console.log(`${repoParams.repo} config: `, JSON.stringify(config, null, 2));
-  if (config[feature]) return;
-
-  console.warn(`${feature} is not enabled on ${repoParams.repo}. Exiting...`);
-  process.exit(0);
+  return !config[feature];
 };
 
 

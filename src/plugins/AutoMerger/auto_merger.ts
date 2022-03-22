@@ -7,7 +7,7 @@ import {
   UsersGetByUsernameResponseData,
 } from "../../types";
 import strip from "strip-comments";
-import { exitIfFeatureIsDisabled } from "../../shared";
+import { featureIsDisabled } from "../../shared";
 
 const MERGE_COMMENT = "@gpucibot merge";
 
@@ -19,7 +19,7 @@ export class AutoMerger {
 
   async maybeMergePR(): Promise<any> {
     const context = this.context;
-    await exitIfFeatureIsDisabled(context, "auto_merger");
+    if (await featureIsDisabled(context, "auto_merger")) return;
     const { repository: repo } = context.payload;
     let prNumbers: number[] = []; // will usually only contain 1 number, except in rare instances w/ status contexts
 
