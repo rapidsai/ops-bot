@@ -1,8 +1,7 @@
-import { PermissionsChecker } from "../src/plugins/ExternalContributors/permissions_checker";
 import { PRExternalContributors } from "../src/plugins/ExternalContributors/pr_ex_contibutors";
 import { makePRContext } from "./fixtures/contexts/pull_request";
 import { makeConfigReponse } from "./fixtures/responses/get_config";
-import { mockConfigGet, mockContextRepo, mockCreateComment, mockCreateCommitStatus, mockCreateRef, mockDeleteRef, mockExit, mockCheckMembershipForUser, mockGetRef, mockHasPermissionToTrigger, mockPaginate, mockPullsGet, mockUpdateRef } from "./mocks";
+import { mockConfigGet, mockContextRepo, mockCreateComment, mockCreateCommitStatus, mockCreateRef, mockDeleteRef, mockExit, mockCheckMembershipForUser, mockGetRef, mockPaginate, mockPullsGet, mockUpdateRef, mockGetUserPermissionLevel } from "./mocks";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
 import { makeIssueCommentContext } from "./fixtures/contexts/issue_comment";
 import { PRReviewExternalContributors } from "../src/plugins/ExternalContributors/pr_review_ex_contributors";
@@ -10,10 +9,11 @@ import { PRReviewExternalContributors } from "../src/plugins/ExternalContributor
 describe('External Contributors', () => {
     beforeEach(() => {
         mockCheckMembershipForUser.mockReset()
-        mockHasPermissionToTrigger.mockReset()
+        mockGetUserPermissionLevel.mockReset()
         mockUpdateRef.mockReset()
         mockCreateRef.mockReset()
         mockPullsGet.mockReset()
+        mockPaginate.mockReset()
     })
 
     beforeAll(() => {
@@ -30,7 +30,7 @@ describe('External Contributors', () => {
         const prContext = makePRContext({action: "opened", senderName: "ayode"})
         mockCheckMembershipForUser.mockResolvedValueOnce({status: 204})
 
-        const action = await new PRExternalContributors(prContext, <any>null).pipePR()
+        const action = await new PRExternalContributors(prContext).pipePR()
         
         expect(mockCreateComment).toBeCalledTimes(0)
         expect(mockCheckMembershipForUser).toBeCalledWith({username: prContext.payload.sender.login, org: prContext.payload.organization?.login})
@@ -42,7 +42,7 @@ describe('External Contributors', () => {
         mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
         mockCreateComment.mockResolvedValueOnce(true)
 
-        const action = await new PRExternalContributors(prContext, <any>null).pipePR()
+        const action = await new PRExternalContributors(prContext).pipePR()
         
         expect(mockCreateComment).toBeCalledTimes(1)
         expect(mockCheckMembershipForUser).toBeCalledWith({username: prContext.payload.sender.login, org: prContext.payload.organization?.login})
@@ -55,11 +55,22 @@ describe('External Contributors', () => {
         })
     })
 
+    test('pull_request.synchronize, do nothing when no comments at all', async () => {
+        const prContext = makePRContext({action: "synchronize", senderName: "ayode"})
+        mockPaginate.mockResolvedValueOnce([])
+
+        const action = await new PRExternalContributors(prContext).pipePR()
+
+        expect(action).toBe(undefined)
+        expect(mockUpdateRef).toBeCalledTimes(0)
+        expect(mockPaginate).toBeCalledTimes(1)
+    })
+
     test('pull_request.synchronize, do nothing when no existing okay-to-test comments', async () => {
         const prContext = makePRContext({action: "synchronize", senderName: "ayode"})
         mockPaginate.mockResolvedValueOnce([{body: "other comment"}])
 
-        const action = await new PRExternalContributors(prContext, null as any).pipePR()
+        const action = await new PRExternalContributors(prContext).pipePR()
 
         expect(action).toBe(undefined)
         expect(mockUpdateRef).toBeCalledTimes(0)
@@ -73,36 +84,36 @@ describe('External Contributors', () => {
         async (commentBody) => {
             const prContext = makePRContext({action: "synchronize", senderName: "ayode"})
             mockPaginate.mockResolvedValueOnce([{body: commentBody, user: {login: "ayode"}}])
-            mockHasPermissionToTrigger.mockResolvedValueOnce(false)
+            mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission: "non-admin"}})
             
-            const action = await new PRExternalContributors(prContext, <PermissionsChecker>{hasPermissionToTrigger: <any>mockHasPermissionToTrigger}).pipePR()
+            const action = await new PRExternalContributors(prContext).pipePR()
 
             expect(action).toBe(undefined)
             expect(mockUpdateRef).toBeCalledTimes(0)
-            expect(mockHasPermissionToTrigger).toBeCalledTimes(1)
-            expect(mockHasPermissionToTrigger).toHaveBeenCalledWith(
-                "ayode", 
-                prContext.payload.repository.name, 
-                prContext.payload.repository.owner.login
-            )
+            expect(mockGetUserPermissionLevel).toBeCalledTimes(1)
+            expect(mockGetUserPermissionLevel).toHaveBeenCalledWith({
+                username: "ayode", 
+                repo: prContext.payload.repository.name, 
+                owner: prContext.payload.repository.owner.login
+            })
         }
     )
 
     test.each([
-        ["ok to test"],
-        ["okay to test"],
+        ["ok to test", "admin"],
+        ["okay to test", "write"],
       ])('pull_request.synchronize, when valid existing okay-to-test comment, update commit in source repo', 
-        async (commentBody) => {
+        async (commentBody, permission) => {
             const prContext = makePRContext({action: "synchronize", senderName: "ayode"})
-            mockPaginate.mockResolvedValueOnce([{body: commentBody}])
-            mockHasPermissionToTrigger.mockResolvedValueOnce(true)
+            mockPaginate.mockResolvedValueOnce([{body: commentBody, user:{}}])
+            mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission}})
             mockUpdateRef.mockResolvedValueOnce(true)
 
-            const action = await new PRExternalContributors(prContext, <PermissionsChecker>{hasPermissionToTrigger: <any>mockHasPermissionToTrigger}).pipePR()
+            const action = await new PRExternalContributors(prContext).pipePR()
 
             expect(action).toBe(true)
             expect(mockUpdateRef).toBeCalledTimes(1)
-            expect(mockHasPermissionToTrigger).toBeCalledTimes(1)
+            expect(mockGetUserPermissionLevel).toBeCalledTimes(1)
             expect(mockUpdateRef).toBeCalledTimes(1)
             expect(mockUpdateRef).toBeCalledWith({
                 ref: `heads/external-pr-${prContext.payload.pull_request.number}`,
@@ -117,7 +128,7 @@ describe('External Contributors', () => {
         const prContext = makePRContext({action: "closed", senderName: "ayode"})
         mockGetRef.mockResolvedValueOnce({status: 404})
 
-        const action = await new PRExternalContributors(prContext, <PermissionsChecker>{hasPermissionToTrigger: <any>mockHasPermissionToTrigger}).pipePR()
+        const action = await new PRExternalContributors(prContext).pipePR()
 
         expect(action).toBe(undefined)
         expect(mockDeleteRef).toHaveBeenCalledTimes(0)
@@ -134,7 +145,7 @@ describe('External Contributors', () => {
         mockGetRef.mockResolvedValueOnce({status: 200})
         mockDeleteRef.mockResolvedValueOnce(true)
 
-        const action = await new PRExternalContributors(prContext, <PermissionsChecker>{hasPermissionToTrigger: <any>mockHasPermissionToTrigger}).pipePR()
+        const action = await new PRExternalContributors(prContext).pipePR()
 
         expect(action).toBe(true)
         expect(mockDeleteRef).toHaveBeenCalledTimes(1)
@@ -154,10 +165,10 @@ describe('External Contributors', () => {
     test('issue_comment.created, do nothing if comment is not ok to test', async () => {
         const issueContext = makeIssueCommentContext({is_pr: true, body: "something other than okay to test"})
 
-        const action = await new PRReviewExternalContributors(issueContext, <PermissionsChecker>{hasPermissionToTrigger: <any>mockHasPermissionToTrigger}).pipePR()
+        const action = await new PRReviewExternalContributors(issueContext).pipePR()
 
         expect(action).toBe(undefined)
-        expect(mockHasPermissionToTrigger).toHaveBeenCalledTimes(0)
+        expect(mockCheckMembershipForUser).toHaveBeenCalledTimes(0)
     })
 
     test.each([
@@ -166,10 +177,10 @@ describe('External Contributors', () => {
       ])('issue_comment.created, do nothing if issue is not PR', async (body) => {
         const issueContext = makeIssueCommentContext({is_pr: false, body})
 
-        const action = await new PRReviewExternalContributors(issueContext, <PermissionsChecker>{hasPermissionToTrigger: <any>mockHasPermissionToTrigger}).pipePR()
+        const action = await new PRReviewExternalContributors(issueContext).pipePR()
 
         expect(action).toBe(false)
-        expect(mockHasPermissionToTrigger).toHaveBeenCalledTimes(0)
+        expect(mockCheckMembershipForUser).toHaveBeenCalledTimes(0)
     })
 
     test.each([
@@ -177,28 +188,28 @@ describe('External Contributors', () => {
         ["okay to test"],
       ])('issue_comment.created, if commenter has insufficient permissions', async (body) => {
         const issueContext = makeIssueCommentContext({is_pr: true, body})
-        mockHasPermissionToTrigger.mockResolvedValueOnce(false)
+        mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission: "non-admin"}})
 
-        const action = await new PRReviewExternalContributors(issueContext, <PermissionsChecker>{hasPermissionToTrigger: <any>mockHasPermissionToTrigger}).pipePR()
+        const action = await new PRReviewExternalContributors(issueContext).pipePR()
 
         expect(action).toBe(false)
-        expect(mockHasPermissionToTrigger).toHaveBeenCalledWith(
-            issueContext.payload.comment.user.login, 
-            issueContext.payload.repository.name, 
-            issueContext.payload.repository.owner.login
-        )
+        expect(mockGetUserPermissionLevel).toHaveBeenCalledWith({
+            owner: issueContext.payload.repository.owner.login,
+            username: issueContext.payload.comment.user.login, 
+            repo: issueContext.payload.repository.name, 
+        })
     })
 
     test.each([
-        ["ok to test"],
-        ["okay to test"],
-      ])('issue_comment.created, copy code from forked repository to source repository if valid comment', async (body) => {
+        ["ok to test", "admin"],
+        ["okay to test", "write"],
+      ])('issue_comment.created, copy code from forked repository to source repository if valid comment', async (body, permission) => {
         const issueContext = makeIssueCommentContext({is_pr: true, body})
-        mockHasPermissionToTrigger.mockResolvedValueOnce(true)
+        mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission}})
         mockPullsGet.mockResolvedValueOnce({data:{head:{sha: "sha1234"}}})
         mockCreateRef.mockResolvedValueOnce(true)
 
-        const action = await new PRReviewExternalContributors(issueContext, <PermissionsChecker>{hasPermissionToTrigger: <any>mockHasPermissionToTrigger}).pipePR()
+        const action = await new PRReviewExternalContributors(issueContext).pipePR()
 
         expect(action).toBeTruthy()    
         expect(mockCreateRef).toHaveBeenCalledWith({

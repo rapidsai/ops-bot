@@ -1,10 +1,9 @@
 import { EmitterWebhookEvent } from "@octokit/webhooks";
 import { exitIfFeatureIsDisabled, issueIsPR } from "../../shared";
 import { AutoMergerContext, IssueCommentContext, PRContext, PRReviewContext } from "../../types";
-import { PermissionsChecker } from "./permissions_checker";
 
 export class PRReviewExternalContributors {
-    constructor(private context: IssueCommentContext, private permissions: PermissionsChecker) {
+    constructor(private context: IssueCommentContext) {
         
     }
 
@@ -25,10 +24,8 @@ export class PRReviewExternalContributors {
         }
 
         //check if comment-er has CI run permission
-        if (!await this.permissions.hasPermissionToTrigger(
-            username, 
-            payload.repository.name, 
-            payload.repository.owner.login
+        if (!await this.authorHasPermission(
+            username
         )) {
             console.warn(
                 `Comment on ${payload.repository.full_name} #${prNumber} by ${username} does not have trigger permissions. Skipping...`
@@ -50,6 +47,16 @@ export class PRReviewExternalContributors {
             owner: payload.repository.owner.login,
             sha: pr.data.head.sha
         })
+    }
+
+    private async authorHasPermission(actor) {
+        return ["admin", "write"].includes((
+            await this.context.octokit.repos.getCollaboratorPermissionLevel({
+              owner: this.context.payload.repository.owner.login,
+              repo: this.context.payload.repository.name,
+              username: actor,
+            })
+          ).data.permission);
     }
 }
 

@@ -20,7 +20,6 @@ export const mockUpdateRelease = jest.fn();
 export const mockCheckMembershipForUser = jest.fn();
 export const mockCreateComment = jest.fn();
 export const mockUpdateRef = jest.fn();
-export const mockHasPermissionToTrigger = jest.fn();
 export const mockGetRef = jest.fn();
 export const mockDeleteRef = jest.fn();
 export const mockCreateRef = jest.fn();

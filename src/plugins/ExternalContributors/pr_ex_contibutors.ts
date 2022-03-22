@@ -1,10 +1,9 @@
 import { EmitterWebhookEvent } from "@octokit/webhooks";
 import { exitIfFeatureIsDisabled } from "../../shared";
 import { AutoMergerContext, PRContext, PRReviewContext } from "../../types";
-import { PermissionsChecker } from "./permissions_checker";
 
 export class PRExternalContributors {
-    constructor(private context: PRContext, private permissionsChecker: PermissionsChecker) {
+    constructor(private context: PRContext) {
         
     }
 
@@ -26,15 +25,8 @@ export class PRExternalContributors {
 
         // pull_request.synchronize
         if(payload.action == "synchronize") {
-            // get the existing okay to test comment; then
-            // ensure that the comment is valid in that: comment-er has CI run permission
-            const comment = await this.getExistingOkayToTestComment()       
-            if(!comment || !await this.permissionsChecker.hasPermissionToTrigger(
-                    comment.user?.login, 
-                    payload.repository.name, 
-                    payload.repository.owner.login
-                )
-            ) return
+            // check for valid comments
+            if(!await this.validCommentsExist()) return
 
             // Update commit on the source repository branch to match forked branch
             return await this.context.octokit.rest.git.updateRef({
@@ -72,7 +64,7 @@ export class PRExternalContributors {
         .catch(_ => false)
     }
 
-    private async getExistingOkayToTestComment() {
+    private async validCommentsExist(): Promise<boolean> {
         const payload = this.context.payload
         const comments = await this.context.octokit.paginate(this.context.octokit.issues.listComments, {
             owner: payload.repository.owner.login,
@@ -80,10 +72,23 @@ export class PRExternalContributors {
             issue_number: payload.pull_request.number,
             per_page: 100,
         });
-        for (const comment of comments) {
-            if (["ok to test", "okay to test"].includes(comment.body as string)) return comment;
-        }
-        return null
+        const okCommentsAuthors = comments.filter(comment => {
+            return !!comment.user && ["ok to test", "okay to test"].includes(comment.body as string)
+        }).map(comment => comment.user?.login) as string[]
+
+        const permissions = await Promise.all(
+            okCommentsAuthors.map(async (actor) => {
+              return (
+                await this.context.octokit.repos.getCollaboratorPermissionLevel({
+                  owner: payload.repository.owner.login,
+                  repo: payload.repository.name,
+                  username: actor,
+                })
+              ).data.permission;
+            })
+          );
+      
+        return permissions.includes("admin") || permissions.includes("write");
     }
 }
 
