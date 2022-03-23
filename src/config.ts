@@ -18,7 +18,7 @@ export const DefaultOpsBotConfig: OpsBotConfig = {
   branch_checker: false,
   label_checker: false,
   release_drafter: false,
-  external_contributors: true,
+  external_contributors: false,
 };
 
 /**
