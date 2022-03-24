@@ -213,7 +213,7 @@ describe('External Contributors', () => {
             mockPaginate.mockResolvedValueOnce([{body: commentBody, user:{login: "jake"}}])
             mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission}})
             mockCreateRef.mockResolvedValueOnce(true)
-            mockUpdateRef.mockRejectedValueOnce({status: 302})
+            mockUpdateRef.mockRejectedValueOnce({status: 422})
 
             const action = await new PRExternalContributors(prContext).pipePR()
 
