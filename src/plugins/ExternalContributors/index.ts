@@ -7,7 +7,8 @@ export const initExternalContributors = (app: Probot) => {
       [
         "pull_request.opened",
         "pull_request.synchronize",
-        "pull_request.closed"
+        "pull_request.closed",
+        "pull_request.reopened"
       ],
       async (context) => {
       await new PRExternalContributors(

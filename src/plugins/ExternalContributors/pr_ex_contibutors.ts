@@ -35,8 +35,24 @@ export class PRExternalContributors {
             ) return
             
             // Update commit on the source repository branch to match forked branch
-            if(payload.action == "synchronize") return this.updateRef(payload)
-            else return this.createOrUpdateRef(payload)
+            // if(payload.action == "synchronize") return this.updateRef(payload)
+            // else return this.createOrUpdateRef(payload)
+            try {
+                return await this.context.octokit.rest.git.updateRef({
+                    ref: `heads/${getExternalPRBranchName(payload.pull_request.number)}`,
+                    repo: payload.repository.name,
+                    owner: payload.repository.owner.login,
+                    sha: payload.pull_request.head.sha,
+                    force: true
+                })
+            } catch {
+                return await this.context.octokit.rest.git.createRef({
+                    ref: `refs/heads/${getExternalPRBranchName(payload.pull_request.number)}`,
+                    repo: payload.repository.name,
+                    owner: payload.repository.owner.login,
+                    sha: payload.pull_request.head.sha,
+                })
+            }
         }
 
         // pull_request.closed
@@ -67,37 +83,6 @@ export class PRExternalContributors {
         return this.context.octokit.orgs.checkMembershipForUser({username: author, org})
         .then(data => data.status == (204 as any))
         .catch(_ => false)
-    }
-
-    private async updateRef(payload: PullRequestSynchronizeEvent | PullRequestReopenedEvent) {
-        return await this.context.octokit.rest.git.updateRef({
-            ref: `heads/${getExternalPRBranchName(payload.pull_request.number)}`,
-            repo: payload.repository.name,
-            owner: payload.repository.owner.login,
-            sha: payload.pull_request.head.sha,
-            force: true
-        })
-    }
-
-    private async createOrUpdateRef(payload: PullRequestReopenedEvent) {
-        // get branch
-        const branchName = getExternalPRBranchName(payload.pull_request.number)
-        const branch = await this.context.octokit.rest.git.getRef({
-            ref: `heads/${branchName}`,
-            repo: payload.repository.name,
-            owner: payload.repository.owner.login,
-        })
-
-        if(branch.status != 200) {
-            return await this.context.octokit.rest.git.createRef({
-                ref: `refs/heads/${getExternalPRBranchName(payload.pull_request.number)}`,
-                repo: payload.repository.name,
-                owner: payload.repository.owner.login,
-                sha: payload.pull_request.head.sha,
-            })
-        } else {
-            return this.updateRef(payload)
-        }
     }
 }
 

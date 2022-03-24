@@ -213,7 +213,7 @@ describe('External Contributors', () => {
             mockPaginate.mockResolvedValueOnce([{body: commentBody, user:{login: "jake"}}])
             mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission}})
             mockCreateRef.mockResolvedValueOnce(true)
-            mockGetRef.mockResolvedValueOnce({status: 302})
+            mockUpdateRef.mockRejectedValueOnce({status: 302})
 
             const action = await new PRExternalContributors(prContext).pipePR()
 
@@ -221,17 +221,19 @@ describe('External Contributors', () => {
             expect(mockCreateRef).toBeCalledTimes(1)
             expect(mockGetUserPermissionLevel).toBeCalledTimes(1)
             expect(mockCreateRef).toBeCalledTimes(1)
-            expect(mockGetRef).toHaveBeenCalled()
+            expect(mockUpdateRef).toHaveBeenCalled()
             expect(mockCreateRef).toBeCalledWith({
                 ref: `refs/heads/external-pr-${prContext.payload.pull_request.number}`,
                 repo: prContext.payload.repository.name,
                 owner: prContext.payload.repository.owner.login,
                 sha: prContext.payload.pull_request.head.sha,
             })
-            expect(mockGetRef).toBeCalledWith({
+            expect(mockUpdateRef).toBeCalledWith({
                 ref: `heads/external-pr-${prContext.payload.pull_request.number}`,
                 repo: prContext.payload.repository.name,
                 owner: prContext.payload.repository.owner.login,
+                sha: prContext.payload.pull_request.head.sha,
+                force: true
             })
         }
     )

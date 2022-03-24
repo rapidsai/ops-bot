@@ -6,7 +6,7 @@ import {
   EmitterWebhookEventName,
 } from "@octokit/webhooks";
 
-export type ContextFactory<E extends EmitterWebhookEventName> =
+type ContextFactory<E extends EmitterWebhookEventName> =
   EmitterWebhookEvent<E> & Omit<Context, keyof EmitterWebhookEvent>;
 
 export type PRContext = ContextFactory<"pull_request">;
