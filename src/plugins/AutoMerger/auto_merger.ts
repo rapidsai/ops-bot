@@ -7,7 +7,7 @@ import {
   UsersGetByUsernameResponseData,
 } from "../../types";
 import strip from "strip-comments";
-import { ADMIN_PERMISSION, featureIsDisabled, issueIsPR, validCommentExistByPredicate, WRITE_PERMISSION } from "../../shared";
+import { ADMIN_PERMISSION, featureIsDisabled, issueIsPR, validCommentsExistByPredicate, WRITE_PERMISSION } from "../../shared";
 
 const MERGE_COMMENT = "@gpucibot merge";
 
@@ -103,7 +103,7 @@ export class AutoMerger {
       }
 
       // Check if PR has valid merge comment
-      if(!(await validCommentExistByPredicate(
+      if(!(await validCommentsExistByPredicate(
         this.context, 
         pr.number, 
         [ADMIN_PERMISSION, WRITE_PERMISSION],
@@ -113,12 +113,6 @@ export class AutoMerger {
         );
         return;
       }
-      // if (!(await this.checkForValidMergeComment(pr.number))) {
-      //   console.warn(
-      //     `${prDescription} doesn't have merge comment. Skipping...`
-      //   );
-      //   return;
-      // }
 
       // Generate commit message
       const commitMsg = await this.createCommitMessage(pr);

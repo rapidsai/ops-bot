@@ -99,16 +99,32 @@ export const issueIsPR = (context: IssueCommentContext): boolean => {
   return "pull_request" in context.payload.issue;
 }
 
-
+/**
+ * Returns the name of the branch for which code from external PRs would be
+ * copied onto.
+ * @param pr 
+ */
 export const getExternalPRBranchName = (pr: number) => {
   return `external-pr-${pr}`
 }
 
+/**
+ * Check if the string provided is represents a valid PR CI approval 
+ * string
+ * @param comment 
+ */
 export const isOkayToTestComment = (comment: string) => {
   return [OKAY_TO_TEST_COMMENT, OK_TO_TEST_COMMENT].includes(comment)
 }
 
-export async function validCommentExistByPredicate(
+/**
+ * Retrieves the issue/PR comments that fit provided criteria
+ * @param context 
+ * @param prNumber 
+ * @param requiredPermissions 
+ * @param predicate
+ */
+export async function validCommentsExistByPredicate(
   context: AutoMergerContext | PRContext, 
   prNumber: number, 
   requiredPermissions: string[],

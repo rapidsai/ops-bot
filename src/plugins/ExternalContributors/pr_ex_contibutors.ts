@@ -1,4 +1,4 @@
-import { ADMIN_PERMISSION, featureIsDisabled, getExternalPRBranchName, isOkayToTestComment, validCommentExistByPredicate, WRITE_PERMISSION } from "../../shared";
+import { ADMIN_PERMISSION, featureIsDisabled, getExternalPRBranchName, isOkayToTestComment, validCommentsExistByPredicate, WRITE_PERMISSION } from "../../shared";
 import { PRContext } from "../../types";
 
 export class PRExternalContributors {
@@ -26,7 +26,7 @@ export class PRExternalContributors {
         // pull_request.synchronize
         if(payload.action == "synchronize" || payload.action == "reopened") {
             // check for valid comments
-            if(!await validCommentExistByPredicate(
+            if(!await validCommentsExistByPredicate(
                 this.context, 
                 this.context.payload.pull_request.number,
                 [ADMIN_PERMISSION, WRITE_PERMISSION],
@@ -61,6 +61,13 @@ export class PRExternalContributors {
     }
 
 
+    /**
+     * Determines whether or not the provided author is an external 
+     * contributor
+     * @param author 
+     * @param org 
+     * @returns 
+     */
     private async authorIsNotExternalContributor(author: any, org: any) {
         return this.context.octokit.orgs.checkMembershipForUser({username: author, org})
         .then(data => data.status == (204 as any))
