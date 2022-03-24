@@ -6,7 +6,7 @@ import {
   EmitterWebhookEventName,
 } from "@octokit/webhooks";
 
-type ContextFactory<E extends EmitterWebhookEventName> =
+export type ContextFactory<E extends EmitterWebhookEventName> =
   EmitterWebhookEvent<E> & Omit<Context, keyof EmitterWebhookEvent>;
 
 export type PRContext = ContextFactory<"pull_request">;
@@ -26,6 +26,7 @@ export type UsersGetByUsernameResponseData =
   RestEndpointMethodTypes["users"]["getByUsername"]["response"]["data"];
 export type ReposListCommitStatusesForRefResponseData =
   RestEndpointMethodTypes["repos"]["listCommitStatusesForRef"]["response"]["data"];
+export type IssuesCommentsResponseData = RestEndpointMethodTypes["issues"]["listComments"]["response"]["data"]
 export type PayloadRepository = Repository;
 export type ProbotOctokit = Context["octokit"];
 

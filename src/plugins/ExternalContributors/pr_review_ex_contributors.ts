@@ -1,6 +1,5 @@
-import { EmitterWebhookEvent } from "@octokit/webhooks";
-import { featureIsDisabled, issueIsPR } from "../../shared";
-import { AutoMergerContext, IssueCommentContext, PRContext, PRReviewContext } from "../../types";
+import { ADMIN_PERMISSION, featureIsDisabled, getExternalPRBranchName, isOkayToTestComment, issueIsPR, WRITE_PERMISSION } from "../../shared";
+import { IssueCommentContext } from "../../types";
 
 export class PRReviewExternalContributors {
     constructor(private context: IssueCommentContext) {
@@ -13,7 +12,7 @@ export class PRReviewExternalContributors {
         const prNumber = payload.issue.number
         const username = payload.comment.user.login
 
-        if(!["ok to test", "okay to test"].includes(payload.comment.body)) return
+        if(!isOkayToTestComment(payload.comment.body)) return
 
         //Only run on PRs
         if (!issueIsPR(this.context)) {
@@ -42,7 +41,7 @@ export class PRReviewExternalContributors {
         })
 
         return await this.context.octokit.rest.git.createRef({
-            ref: `refs/heads/external-pr-${payload.issue.number}`,
+            ref: `refs/heads/${getExternalPRBranchName(payload.issue.number)}`,
             repo: payload.repository.name,
             owner: payload.repository.owner.login,
             sha: pr.data.head.sha
@@ -50,7 +49,7 @@ export class PRReviewExternalContributors {
     }
 
     private async authorHasPermission(actor) {
-        return ["admin", "write"].includes((
+        return [ADMIN_PERMISSION, WRITE_PERMISSION].includes((
             await this.context.octokit.repos.getCollaboratorPermissionLevel({
               owner: this.context.payload.repository.owner.login,
               repo: this.context.payload.repository.name,

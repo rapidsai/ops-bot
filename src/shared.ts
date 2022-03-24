@@ -1,6 +1,12 @@
+import { EmitterWebhookEventName } from "@octokit/webhooks";
 import { Context } from "probot";
 import { DefaultOpsBotConfig, OpsBotConfig, OpsBotConfigPath } from "./config";
-import { CommitStatus, IssueCommentContext, ProbotOctokit, PullsGetResponseData } from "./types";
+import { AutoMergerContext, CommitStatus, ContextFactory, IssueCommentContext, IssuesCommentsResponseData, PRContext, ProbotOctokit, PullsGetResponseData } from "./types";
+
+const OK_TO_TEST_COMMENT = "ok to test"
+const OKAY_TO_TEST_COMMENT = "okay to test"
+export const ADMIN_PERMISSION = "admin"
+export const WRITE_PERMISSION = "write"
 
 /**
  * RegEx representing RAPIDS branch name patterns
@@ -91,4 +97,55 @@ export const featureIsDisabled = async (
  */
 export const issueIsPR = (context: IssueCommentContext): boolean => {
   return "pull_request" in context.payload.issue;
+}
+
+
+export const getExternalPRBranchName = (pr: number) => {
+  return `external-pr-${pr}`
+}
+
+export const isOkayToTestComment = (comment: string) => {
+  return [OKAY_TO_TEST_COMMENT, OK_TO_TEST_COMMENT].includes(comment)
+}
+
+export async function validCommentExistByPredicate(
+  context: AutoMergerContext | PRContext, 
+  prNumber: number, 
+  requiredPermissions: string[],
+  predicate: (comment: IssuesCommentsResponseData[0]) => Boolean) {
+  const repo = context.payload.repository;
+
+    const allComments = await context.octokit.paginate(
+      context.octokit.issues.listComments,
+      {
+        owner: repo.owner.login,
+        repo: repo.name,
+        issue_number: prNumber,
+      }
+    );
+
+    var filteredComments: IssuesCommentsResponseData = []
+    for (let i = 0; i <allComments.length; i++) {
+      if (predicate(allComments[i])) {
+        filteredComments.push(allComments[i]);
+      }
+    }
+
+    const commentAuthors = filteredComments
+      .map((comment) => comment.user?.login)
+      .filter(Boolean);
+
+    const authorPermissions = await Promise.all(
+      commentAuthors.map(async (actor) => {
+        return (
+          await context.octokit.repos.getCollaboratorPermissionLevel({
+            owner: repo.owner.login,
+            repo: repo.name,
+            username: actor as string,
+          })
+        ).data.permission;
+      })
+    );
+    
+    return authorPermissions.some(permission => requiredPermissions.includes(permission))
 }
