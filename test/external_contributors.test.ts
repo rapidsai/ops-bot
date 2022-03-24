@@ -1,7 +1,7 @@
 import { PRExternalContributors } from "../src/plugins/ExternalContributors/pr_ex_contibutors";
 import { makePRContext } from "./fixtures/contexts/pull_request";
 import { makeConfigReponse } from "./fixtures/responses/get_config";
-import { mockConfigGet, mockContextRepo, mockCreateComment, mockCreateRef, mockDeleteRef, mockCheckMembershipForUser, mockPaginate, mockPullsGet, mockUpdateRef, mockGetUserPermissionLevel } from "./mocks";
+import { mockConfigGet, mockContextRepo, mockCreateComment, mockCreateRef, mockDeleteRef, mockCheckMembershipForUser, mockPaginate, mockPullsGet, mockUpdateRef, mockGetUserPermissionLevel, mockGetRef } from "./mocks";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
 import { makeIssueCommentContext } from "./fixtures/contexts/issue_comment";
 import { PRReviewExternalContributors } from "../src/plugins/ExternalContributors/pr_review_ex_contributors";
@@ -184,6 +184,7 @@ describe('External Contributors', () => {
             mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
             mockPaginate.mockResolvedValueOnce([{body: commentBody, user:{login: "jake"}}])
             mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission}})
+            mockGetRef.mockResolvedValueOnce({status: 200})
             mockUpdateRef.mockResolvedValueOnce(true)
 
             const action = await new PRExternalContributors(prContext).pipePR()
@@ -198,6 +199,39 @@ describe('External Contributors', () => {
                 owner: prContext.payload.repository.owner.login,
                 sha: prContext.payload.pull_request.head.sha,
                 force: true
+            })
+        }
+    )
+
+    test.each([
+        ["ok to test", "admin"],
+        ["okay to test", "write"],
+      ])('pull_request.reopened, when valid existing okay-to-test comment and branch is deleted, re-create branch in source repo', 
+        async (commentBody, permission) => {
+            const prContext = makePRContext({action: "reopened", senderName: "ayode"})
+            mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
+            mockPaginate.mockResolvedValueOnce([{body: commentBody, user:{login: "jake"}}])
+            mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission}})
+            mockCreateRef.mockResolvedValueOnce(true)
+            mockGetRef.mockResolvedValueOnce({status: 302})
+
+            const action = await new PRExternalContributors(prContext).pipePR()
+
+            expect(action).toBe(true)
+            expect(mockCreateRef).toBeCalledTimes(1)
+            expect(mockGetUserPermissionLevel).toBeCalledTimes(1)
+            expect(mockCreateRef).toBeCalledTimes(1)
+            expect(mockGetRef).toHaveBeenCalled()
+            expect(mockCreateRef).toBeCalledWith({
+                ref: `refs/heads/external-pr-${prContext.payload.pull_request.number}`,
+                repo: prContext.payload.repository.name,
+                owner: prContext.payload.repository.owner.login,
+                sha: prContext.payload.pull_request.head.sha,
+            })
+            expect(mockGetRef).toBeCalledWith({
+                ref: `heads/external-pr-${prContext.payload.pull_request.number}`,
+                repo: prContext.payload.repository.name,
+                owner: prContext.payload.repository.owner.login,
             })
         }
     )
