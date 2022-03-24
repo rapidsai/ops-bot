@@ -229,47 +229,6 @@ export class AutoMerger {
   }
 
   /**
-   * Returns true if the given PR number has the "@gpucibot merge"
-   * comment and it was posted by a user with "admin" or "write" permissions.
-   * @param prNumber
-   */
-  // async checkForValidMergeComment(prNumber: number): Promise<boolean> {
-  //   const context = this.context;
-  //   const repo = context.payload.repository;
-
-  //   const allComments = await context.octokit.paginate(
-  //     context.octokit.issues.listComments,
-  //     {
-  //       owner: repo.owner.login,
-  //       repo: repo.name,
-  //       issue_number: prNumber,
-  //     }
-  //   );
-
-  //   const mergeComments = allComments.filter((comment) =>
-  //     this.isMergeComment(comment.body || "")
-  //   );
-
-  //   const mergeCommentAuthors = mergeComments
-  //     .map((comment) => comment.user?.login)
-  //     .filter(Boolean);
-
-  //   const permissions = await Promise.all(
-  //     mergeCommentAuthors.map(async (actor) => {
-  //       return (
-  //         await context.octokit.repos.getCollaboratorPermissionLevel({
-  //           owner: repo.owner.login,
-  //           repo: repo.name,
-  //           username: actor as string,
-  //         })
-  //       ).data.permission;
-  //     })
-  //   );
-
-  //   return permissions.includes("admin") || permissions.includes("write");
-  // }
-
-  /**
    * Returns a string used for the squash commit that contains the PR body,
    * PR authors, and PR approvers.
    * @param pr
