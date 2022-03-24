@@ -1,4 +1,3 @@
-import { PullRequestSynchronizeEvent, PullRequestReopenedEvent } from "@octokit/webhooks-types";
 import { ADMIN_PERMISSION, featureIsDisabled, getExternalPRBranchName, isOkayToTestComment, validCommentsExistByPredicate, WRITE_PERMISSION } from "../../shared";
 import { PRContext } from "../../types";
 
