@@ -1,7 +1,7 @@
 import { EmitterWebhookEventName } from "@octokit/webhooks";
 import { Context } from "probot";
 import { DefaultOpsBotConfig, OpsBotConfig, OpsBotConfigPath } from "./config";
-import { AutoMergerContext, CommitStatus, ContextFactory, IssueCommentContext, IssuesCommentsResponseData, PRContext, ProbotOctokit, PullsGetResponseData } from "./types";
+import { AutoMergerContext, CommitStatus, IssueCommentContext, IssuesCommentsResponseData, PRContext, ProbotOctokit, PullsGetResponseData } from "./types";
 
 const OK_TO_TEST_COMMENT = "ok to test"
 const OKAY_TO_TEST_COMMENT = "okay to test"
