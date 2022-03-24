@@ -35,8 +35,6 @@ export class PRExternalContributors {
             ) return
             
             // Update commit on the source repository branch to match forked branch
-            // if(payload.action == "synchronize") return this.updateRef(payload)
-            // else return this.createOrUpdateRef(payload)
             try {
                 return await this.context.octokit.rest.git.updateRef({
                     ref: `heads/${getExternalPRBranchName(payload.pull_request.number)}`,
