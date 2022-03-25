@@ -37,3 +37,4 @@ Any new functionality should be introduced as a new plugin in the [src/plugins](
 
 Testing ext contr.
 pull_request.sync - do nothing
+pull_request.synchronize - insuff.perm
