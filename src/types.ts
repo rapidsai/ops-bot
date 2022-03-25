@@ -26,6 +26,7 @@ export type UsersGetByUsernameResponseData =
   RestEndpointMethodTypes["users"]["getByUsername"]["response"]["data"];
 export type ReposListCommitStatusesForRefResponseData =
   RestEndpointMethodTypes["repos"]["listCommitStatusesForRef"]["response"]["data"];
+export type IssuesCommentsResponseData = RestEndpointMethodTypes["issues"]["listComments"]["response"]["data"]
 export type PayloadRepository = Repository;
 export type ProbotOctokit = Context["octokit"];
 

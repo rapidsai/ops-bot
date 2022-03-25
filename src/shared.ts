@@ -1,6 +1,12 @@
+import { EmitterWebhookEventName } from "@octokit/webhooks";
 import { Context } from "probot";
 import { DefaultOpsBotConfig, OpsBotConfig, OpsBotConfigPath } from "./config";
-import { CommitStatus, ProbotOctokit, PullsGetResponseData } from "./types";
+import { AutoMergerContext, CommitStatus, IssueCommentContext, IssuesCommentsResponseData, PRContext, ProbotOctokit, PullsGetResponseData } from "./types";
+
+const OK_TO_TEST_COMMENT = "ok to test"
+const OKAY_TO_TEST_COMMENT = "okay to test"
+export const ADMIN_PERMISSION = "admin"
+export const WRITE_PERMISSION = "write"
 
 /**
  * RegEx representing RAPIDS branch name patterns
@@ -81,3 +87,81 @@ export const featureIsDisabled = async (
   console.log(`${repoParams.repo} config: `, JSON.stringify(config, null, 2));
   return !config[feature];
 };
+
+
+
+/**
+ * Returns true if the payload associated with the provided context
+ * is from a GitHub Pull Request (as opposed to a GitHub Issue).
+ * @param context
+ */
+export const issueIsPR = (context: IssueCommentContext): boolean => {
+  return "pull_request" in context.payload.issue;
+}
+
+/**
+ * Returns the name of the branch for which code from external PRs would be
+ * copied onto.
+ * @param pr 
+ */
+export const getExternalPRBranchName = (pr: number) => {
+  return `external-pr-${pr}`
+}
+
+/**
+ * Check if the string provided is represents a valid PR CI approval 
+ * string
+ * @param comment 
+ */
+export const isOkayToTestComment = (comment: string) => {
+  return [OKAY_TO_TEST_COMMENT, OK_TO_TEST_COMMENT].includes(comment)
+}
+
+/**
+ * Retrieves the issue/PR comments that fit provided criteria
+ * @param context 
+ * @param prNumber 
+ * @param requiredPermissions 
+ * @param predicate
+ */
+export async function validCommentsExistByPredicate(
+  context: AutoMergerContext | PRContext, 
+  prNumber: number, 
+  requiredPermissions: string[],
+  predicate: (comment: IssuesCommentsResponseData[0]) => Boolean) {
+  const repo = context.payload.repository;
+
+    const allComments = await context.octokit.paginate(
+      context.octokit.issues.listComments,
+      {
+        owner: repo.owner.login,
+        repo: repo.name,
+        issue_number: prNumber,
+      }
+    );
+
+    var filteredComments: IssuesCommentsResponseData = []
+    for (let i = 0; i <allComments.length; i++) {
+      if (predicate(allComments[i])) {
+        filteredComments.push(allComments[i]);
+      }
+    }
+
+    const commentAuthors = filteredComments
+      .map((comment) => comment.user?.login)
+      .filter(Boolean);
+
+    const authorPermissions = await Promise.all(
+      commentAuthors.map(async (actor) => {
+        return (
+          await context.octokit.repos.getCollaboratorPermissionLevel({
+            owner: repo.owner.login,
+            repo: repo.name,
+            username: actor as string,
+          })
+        ).data.permission;
+      })
+    );
+    
+    return authorPermissions.some(permission => requiredPermissions.includes(permission))
+}

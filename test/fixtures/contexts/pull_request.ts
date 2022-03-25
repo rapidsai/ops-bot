@@ -7,6 +7,8 @@ type RespParams = {
   title?: string;
   baseDefaultBranch?: string;
   baseRef?: string;
+  action?: string;
+  senderName?: string;
 };
 
 export const makePRContext = ({
@@ -15,9 +17,11 @@ export const makePRContext = ({
   title = "",
   baseDefaultBranch = "",
   baseRef = "",
+  action = "opened",
+  senderName = ""
 }: RespParams = {}): PRContext => {
   const payload = {
-    action: "opened",
+    action,
     issue: {
       number: 1,
       user: {
@@ -53,6 +57,9 @@ export const makePRContext = ({
         login: user,
       },
     },
+    sender: {
+      login: senderName
+    }
   };
 
   return (makeContext(payload, "pull_request") as unknown) as PRContext;

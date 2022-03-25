@@ -7,7 +7,7 @@ import {
   UsersGetByUsernameResponseData,
 } from "../../types";
 import strip from "strip-comments";
-import { featureIsDisabled } from "../../shared";
+import { ADMIN_PERMISSION, featureIsDisabled, issueIsPR, validCommentsExistByPredicate, WRITE_PERMISSION } from "../../shared";
 
 const MERGE_COMMENT = "@gpucibot merge";
 
@@ -45,7 +45,7 @@ export class AutoMerger {
     if (this.isIssueCommentContext(context)) {
       const comment = context.payload.comment.body;
       prNumbers.push(context.payload.issue.number);
-      if (!this.isPR(context)) {
+      if (!issueIsPR(context)) {
         console.warn(
           `The following comment from ${repo.full_name} #${prNumbers[0]} was from an issue, not a PR: ${comment}.\n`,
           `Skipping...`
@@ -103,7 +103,11 @@ export class AutoMerger {
       }
 
       // Check if PR has valid merge comment
-      if (!(await this.checkForValidMergeComment(pr.number))) {
+      if(!(await validCommentsExistByPredicate(
+        this.context, 
+        pr.number, 
+        [ADMIN_PERMISSION, WRITE_PERMISSION],
+        comment => this.isMergeComment(comment.body || "")))) {
         console.warn(
           `${prDescription} doesn't have merge comment. Skipping...`
         );
@@ -198,15 +202,6 @@ export class AutoMerger {
   }
 
   /**
-   * Returns true if the payload associated with the provided context
-   * is from a GitHub Pull Request (as opposed to a GitHub Issue).
-   * @param context
-   */
-  isPR(context: IssueCommentContext): boolean {
-    return "pull_request" in context.payload.issue;
-  }
-
-  /**
    * Returns true if PR's checks are all passing and it is being
    * merged into the default branch.
    *
@@ -231,47 +226,6 @@ export class AutoMerger {
       mergeable === true &&
       baseRef !== "main"
     );
-  }
-
-  /**
-   * Returns true if the given PR number has the "@gpucibot merge"
-   * comment and it was posted by a user with "admin" or "write" permissions.
-   * @param prNumber
-   */
-  async checkForValidMergeComment(prNumber: number): Promise<boolean> {
-    const context = this.context;
-    const repo = context.payload.repository;
-
-    const allComments = await context.octokit.paginate(
-      context.octokit.issues.listComments,
-      {
-        owner: repo.owner.login,
-        repo: repo.name,
-        issue_number: prNumber,
-      }
-    );
-
-    const mergeComments = allComments.filter((comment) =>
-      this.isMergeComment(comment.body || "")
-    );
-
-    const mergeCommentAuthors = mergeComments
-      .map((comment) => comment.user?.login)
-      .filter(Boolean);
-
-    const permissions = await Promise.all(
-      mergeCommentAuthors.map(async (actor) => {
-        return (
-          await context.octokit.repos.getCollaboratorPermissionLevel({
-            owner: repo.owner.login,
-            repo: repo.name,
-            username: actor as string,
-          })
-        ).data.permission;
-      })
-    );
-
-    return permissions.includes("admin") || permissions.includes("write");
   }
 
   /**
