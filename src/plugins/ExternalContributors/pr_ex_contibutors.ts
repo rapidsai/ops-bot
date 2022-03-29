@@ -10,11 +10,11 @@ export class PRExternalContributors {
         const { payload } = this.context
         if (await featureIsDisabled(this.context, "external_contributors")) return;
 
-        // make sure author is external contributor
-        if(await this.authorIsNotExternalContributor(payload.sender.login, payload.organization?.login)) return
-
         // pull_request.opened event
         if(payload.action == "opened") {
+            // make sure author is external contributor
+            if(await this.authorIsNotExternalContributor(payload.sender.login, payload.organization?.login)) return
+            
             return await this.context.octokit.issues.createComment({
                 owner: payload.repository.owner.login,
                 repo: payload.repository.name,

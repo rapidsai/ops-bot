@@ -68,7 +68,6 @@ describe('External Contributors', () => {
 
     test('pull_request.synchronize, do nothing when no existing okay-to-test comments', async () => {
         const prContext = makePRContext({action: "synchronize", senderName: "ayode"})
-        mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
         mockPaginate.mockResolvedValueOnce([{body: "other comment"}])
 
         const action = await new PRExternalContributors(prContext).pipePR()
@@ -130,7 +129,6 @@ describe('External Contributors', () => {
 
     test('pull_request.reopened, do nothing when no comments at all', async () => {
         const prContext = makePRContext({action: "reopened", senderName: "ayode"})
-        mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
         mockPaginate.mockResolvedValueOnce([])
 
         const action = await new PRExternalContributors(prContext).pipePR()
@@ -142,7 +140,6 @@ describe('External Contributors', () => {
 
     test('pull_request.reopened, do nothing when no existing okay-to-test comments', async () => {
         const prContext = makePRContext({action: "reopened", senderName: "ayode"})
-        mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
         mockPaginate.mockResolvedValueOnce([{body: "other comment"}])
 
         const action = await new PRExternalContributors(prContext).pipePR()
@@ -240,7 +237,6 @@ describe('External Contributors', () => {
 
     test('pull_request.closed, delete source branch', async () => {
         const prContext = makePRContext({action: "closed", senderName: "ayode"})
-        mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
         mockDeleteRef.mockResolvedValueOnce(true)
 
         const action = await new PRExternalContributors(prContext).pipePR()
