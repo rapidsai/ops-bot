@@ -35,3 +35,6 @@ jobs:
           APP_ID: ${{ secrets.APP_ID }}
           WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          NVIDIA_ORG_APP_ID: ${{ secrets.NVIDIA_ORG_APP_ID }}
+          NVIDIA_ORG_WEBHOOK_SECRET: ${{ secrets.NVIDIA_ORG_WEBHOOK_SECRET }}
+          NVIDIA_ORG_PRIVATE_KEY: ${{ secrets.NVIDIA_ORG_PRIVATE_KEY }}

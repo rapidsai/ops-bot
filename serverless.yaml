@@ -29,3 +29,15 @@ functions:
       APP_ID: ${env:APP_ID}
       WEBHOOK_SECRET: ${env:WEBHOOK_SECRET}
       PRIVATE_KEY: ${env:PRIVATE_KEY}
+  nvidiaOrgProbot:
+    handler: dist/serverless.probot
+    events:
+      - http:
+          path: /nvidia-org
+          method: POST
+          async: true
+    environment:
+      LOG_LEVEL: debug
+      APP_ID: ${env:NVIDIA_ORG_APP_ID}
+      WEBHOOK_SECRET: ${env:NVIDIA_ORG_WEBHOOK_SECRET}
+      PRIVATE_KEY: ${env:NVIDIA_ORG_PRIVATE_KEY}
