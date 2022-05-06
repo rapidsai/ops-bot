@@ -243,6 +243,26 @@ export class AutoMerger {
       baseRef !== "main"
     );
   }
+  
+  /**
+   * Returns description text between "## description" or beginning 
+   * and "## checklist" or end of the string. (case insensitive)
+   *
+   * @param prBody PR's body text
+   */
+  extractDescription(prBody: string): string {
+    let descrStart = prBody.toLowerCase().indexOf("## description");
+    if (descrStart == -1) {
+      descrStart = 0;
+    } else {
+      descrStart += "## description".length;
+    }
+    let descrEnd = prBody.toLowerCase().indexOf("## checklist", descrStart);
+    if (descrEnd == -1) {
+      descrEnd = prBody.length;
+    }
+    return prBody.slice(descrStart, descrEnd);
+  }
 
   /**
    * Returns a string used for the squash commit that contains the PR body,
@@ -252,7 +272,7 @@ export class AutoMerger {
   async createCommitMessage(pr: PullsGetResponseData): Promise<string> {
     let commitMsg = "";
 
-    const prBody = strip(pr.body || "", {
+    const prBody = strip(extractDescription(pr.body || ""), {
       language: "html",
       preserveNewlines: false,
     }).trim();
