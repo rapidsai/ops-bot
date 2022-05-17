@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-import { Probot } from "probot";
-import { initAutoMerger } from "./plugins/AutoMerger";
-import { initBranchChecker } from "./plugins/BranchChecker";
-import { initExternalContributors } from "./plugins/ExternalContributors";
-import { initLabelChecker } from "./plugins/LabelChecker";
-import { initRecentlyUpdated } from "./plugins/RecentlyUpdated";
-import { initReleaseDrafter } from "./plugins/ReleaseDrafter";
+import { featureIsDisabled } from "../../shared";
+import { PRContext } from "../../types";
+import { checkPR } from "./check_pr";
 
-export = (app: Probot) => {
-  initBranchChecker(app);
-  initLabelChecker(app);
-  initReleaseDrafter(app);
-  initAutoMerger(app);
-  initExternalContributors(app);
-  initRecentlyUpdated(app);
-};
+export class PRRecentlyUpdated {
+  context: PRContext;
+
+  constructor(context: PRContext) {
+    this.context = context;
+  }
+
+  async checkPR() {
+    const { context } = this;
+    if (await featureIsDisabled(context, "recently_updated")) return;
+    await checkPR(context.octokit, context.payload.pull_request);
+  }
+}

@@ -15,18 +15,22 @@
  */
 
 import { Probot } from "probot";
-import { initAutoMerger } from "./plugins/AutoMerger";
-import { initBranchChecker } from "./plugins/BranchChecker";
-import { initExternalContributors } from "./plugins/ExternalContributors";
-import { initLabelChecker } from "./plugins/LabelChecker";
-import { initRecentlyUpdated } from "./plugins/RecentlyUpdated";
-import { initReleaseDrafter } from "./plugins/ReleaseDrafter";
+import { PRRecentlyUpdated } from "./pull_request";
+import { PushRecentlyUpdated } from "./push";
 
-export = (app: Probot) => {
-  initBranchChecker(app);
-  initLabelChecker(app);
-  initReleaseDrafter(app);
-  initAutoMerger(app);
-  initExternalContributors(app);
-  initRecentlyUpdated(app);
+export const initRecentlyUpdated = (app: Probot) => {
+  app.on(
+    [
+      "pull_request.opened",
+      "pull_request.reopened",
+      "pull_request.edited",
+      "pull_request.synchronize",
+    ],
+    async (context) => {
+      await new PRRecentlyUpdated(context).checkPR();
+    }
+  );
+  app.on("push", async (context) => {
+    await new PushRecentlyUpdated(context).checkAllPRs();
+  });
 };
