@@ -42,26 +42,25 @@ describe('External Contributors', () => {
     })
 
     test('pull_request.opened, do nothing when author is not external contributor', async () => {
-        const prContext = makePRContext({action: "opened", senderName: "ayode"})
+        const prContext = makePRContext({action: "opened", user: "ayode"})
         mockCheckMembershipForUser.mockResolvedValueOnce({status: 204})
 
         const action = await new PRCopyPRs(prContext).maybeCopyPR()
         
         expect(mockCreateComment).toBeCalledTimes(0)
-        expect(mockCheckMembershipForUser).toBeCalledWith({username: prContext.payload.sender.login, org: prContext.payload.organization?.login})
+        expect(mockCheckMembershipForUser).toBeCalledWith({username: "ayode", org: "rapidsai"})
         expect(action).toBe(undefined)
     })
 
     test('pull_request.opened, create correct comment when author is external contibutor', async () => {
-        const prContext = makePRContext({action: "opened", senderName: "ayode"})
+        const prContext = makePRContext({action: "opened", user: "ayodes"})
         mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
         mockCreateComment.mockResolvedValueOnce(true)
 
-        const action = await new PRCopyPRs(prContext).maybeCopyPR()
+        await new PRCopyPRs(prContext).maybeCopyPR()
         
         expect(mockCreateComment).toBeCalledTimes(1)
-        expect(mockCheckMembershipForUser).toBeCalledWith({username: prContext.payload.sender.login, org: prContext.payload.organization?.login})
-        expect(action).toBe(true)
+        expect(mockCheckMembershipForUser).toBeCalledWith({username: "ayodes", org: "rapidsai"})
         expect(mockCreateComment).toBeCalledWith({
             owner: prContext.payload.repository.owner.login,
             repo: prContext.payload.repository.name,
@@ -71,7 +70,7 @@ describe('External Contributors', () => {
     })
 
     test('pull_request.synchronize, do nothing when no comments at all', async () => {
-        const prContext = makePRContext({action: "synchronize", senderName: "ayode"})
+        const prContext = makePRContext({action: "synchronize", user: "ayode"})
         mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
         mockPaginate.mockResolvedValueOnce([])
 
@@ -83,7 +82,7 @@ describe('External Contributors', () => {
     })
 
     test('pull_request.synchronize, do nothing when no existing okay-to-test comments', async () => {
-        const prContext = makePRContext({action: "synchronize", senderName: "ayode"})
+        const prContext = makePRContext({action: "synchronize", user: "ayode"})
         mockPaginate.mockResolvedValueOnce([{body: "other comment"}])
 
         const action = await new PRCopyPRs(prContext).maybeCopyPR()
@@ -98,7 +97,7 @@ describe('External Contributors', () => {
         ["okay to test"],
       ])('pull_request.synchronize, do nothing when existing okay-to-test comment has insufficient permission', 
         async (commentBody) => {
-            const prContext = makePRContext({action: "synchronize", senderName: "ayode"})
+            const prContext = makePRContext({action: "synchronize", user: "ayode"})
             mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
             mockPaginate.mockResolvedValueOnce([{body: commentBody, user: {login: "ayode"}}])
             mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission: "non-admin"}})
@@ -121,7 +120,7 @@ describe('External Contributors', () => {
         ["okay to test", "write"],
       ])('pull_request.synchronize, when valid existing okay-to-test comment, update commit in source repo', 
         async (commentBody, permission) => {
-            const prContext = makePRContext({action: "synchronize", senderName: "ayode"})
+            const prContext = makePRContext({action: "synchronize", user: "ayode"})
             mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
             mockPaginate.mockResolvedValueOnce([{body: commentBody, user:{login: "jake"}}])
             mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission}})
@@ -144,7 +143,7 @@ describe('External Contributors', () => {
     )
 
     test('pull_request.reopened, do nothing when no comments at all', async () => {
-        const prContext = makePRContext({action: "reopened", senderName: "ayode"})
+        const prContext = makePRContext({action: "reopened", user: "ayode"})
         mockPaginate.mockResolvedValueOnce([])
 
         const action = await new PRCopyPRs(prContext).maybeCopyPR()
@@ -155,7 +154,7 @@ describe('External Contributors', () => {
     })
 
     test('pull_request.reopened, do nothing when no existing okay-to-test comments', async () => {
-        const prContext = makePRContext({action: "reopened", senderName: "ayode"})
+        const prContext = makePRContext({action: "reopened", user: "ayode"})
         mockPaginate.mockResolvedValueOnce([{body: "other comment"}])
 
         const action = await new PRCopyPRs(prContext).maybeCopyPR()
@@ -170,7 +169,7 @@ describe('External Contributors', () => {
         ["okay to test"],
       ])('pull_request.reopened, do nothing when existing okay-to-test comment has insufficient permission', 
         async (commentBody) => {
-            const prContext = makePRContext({action: "reopened", senderName: "ayode"})
+            const prContext = makePRContext({action: "reopened", user: "ayode"})
             mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
             mockPaginate.mockResolvedValueOnce([{body: commentBody, user: {login: "ayode"}}])
             mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission: "non-admin"}})
@@ -193,7 +192,7 @@ describe('External Contributors', () => {
         ["okay to test", "write"],
       ])('pull_request.reopened, when valid existing okay-to-test comment, update commit in source repo', 
         async (commentBody, permission) => {
-            const prContext = makePRContext({action: "reopened", senderName: "ayode"})
+            const prContext = makePRContext({action: "reopened", user: "ayode"})
             mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
             mockPaginate.mockResolvedValueOnce([{body: commentBody, user:{login: "jake"}}])
             mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission}})
@@ -221,7 +220,7 @@ describe('External Contributors', () => {
         ["okay to test", "write"],
       ])('pull_request.reopened, when valid existing okay-to-test comment and branch is deleted, re-create branch in source repo', 
         async (commentBody, permission) => {
-            const prContext = makePRContext({action: "reopened", senderName: "ayode"})
+            const prContext = makePRContext({action: "reopened", user: "ayode"})
             mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
             mockPaginate.mockResolvedValueOnce([{body: commentBody, user:{login: "jake"}}])
             mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission}})
@@ -252,7 +251,7 @@ describe('External Contributors', () => {
     )
 
     test('pull_request.closed, delete source branch', async () => {
-        const prContext = makePRContext({action: "closed", senderName: "ayode"})
+        const prContext = makePRContext({action: "closed", user: "ayode"})
         mockDeleteRef.mockResolvedValueOnce(true)
 
         const action = await new PRCopyPRs(prContext).maybeCopyPR()
