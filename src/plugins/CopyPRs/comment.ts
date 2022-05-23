@@ -17,13 +17,13 @@
 import { ADMIN_PERMISSION, featureIsDisabled, getExternalPRBranchName, isOkayToTestComment, issueIsPR, WRITE_PERMISSION } from "../../shared";
 import { IssueCommentContext } from "../../types";
 
-export class PRReviewExternalContributors {
+export class CommentCopyPRs {
     constructor(private context: IssueCommentContext) {
         
     }
 
-    async pipePR(): Promise<any> {
-        if (await featureIsDisabled(this.context, "external_contributors")) return;
+    async maybeCopyPR(): Promise<any> {
+        if (await featureIsDisabled(this.context, "copy_prs")) return;
         const { payload } = this.context
         const prNumber = payload.issue.number
         const username = payload.comment.user.login

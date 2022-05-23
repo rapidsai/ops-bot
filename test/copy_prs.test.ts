@@ -14,13 +14,13 @@
 * limitations under the License.
 */
 
-import { PRExternalContributors } from "../src/plugins/ExternalContributors/pr_ex_contibutors";
+import { PRCopyPRs } from "../src/plugins/CopyPRs/pr";
 import { makePRContext } from "./fixtures/contexts/pull_request";
 import { makeConfigReponse } from "./fixtures/responses/get_config";
 import { mockConfigGet, mockContextRepo, mockCreateComment, mockCreateRef, mockDeleteRef, mockCheckMembershipForUser, mockPaginate, mockPullsGet, mockUpdateRef, mockGetUserPermissionLevel, mockGetRef } from "./mocks";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
 import { makeIssueCommentContext } from "./fixtures/contexts/issue_comment";
-import { PRReviewExternalContributors } from "../src/plugins/ExternalContributors/pr_review_ex_contributors";
+import { CommentCopyPRs } from "../src/plugins/CopyPRs/comment";
 
 describe('External Contributors', () => {
     beforeEach(() => {
@@ -34,7 +34,7 @@ describe('External Contributors', () => {
 
     beforeAll(() => {
         mockContextRepo.mockReturnValue(repoResp);
-        mockConfigGet.mockResolvedValue(makeConfigReponse({ external_contributors: true }));
+        mockConfigGet.mockResolvedValue(makeConfigReponse({ copy_prs: true }));
     })
 
     afterAll(() => {
@@ -45,7 +45,7 @@ describe('External Contributors', () => {
         const prContext = makePRContext({action: "opened", senderName: "ayode"})
         mockCheckMembershipForUser.mockResolvedValueOnce({status: 204})
 
-        const action = await new PRExternalContributors(prContext).pipePR()
+        const action = await new PRCopyPRs(prContext).maybeCopyPR()
         
         expect(mockCreateComment).toBeCalledTimes(0)
         expect(mockCheckMembershipForUser).toBeCalledWith({username: prContext.payload.sender.login, org: prContext.payload.organization?.login})
@@ -57,7 +57,7 @@ describe('External Contributors', () => {
         mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
         mockCreateComment.mockResolvedValueOnce(true)
 
-        const action = await new PRExternalContributors(prContext).pipePR()
+        const action = await new PRCopyPRs(prContext).maybeCopyPR()
         
         expect(mockCreateComment).toBeCalledTimes(1)
         expect(mockCheckMembershipForUser).toBeCalledWith({username: prContext.payload.sender.login, org: prContext.payload.organization?.login})
@@ -75,7 +75,7 @@ describe('External Contributors', () => {
         mockCheckMembershipForUser.mockResolvedValueOnce({status: 302})
         mockPaginate.mockResolvedValueOnce([])
 
-        const action = await new PRExternalContributors(prContext).pipePR()
+        const action = await new PRCopyPRs(prContext).maybeCopyPR()
 
         expect(action).toBe(undefined)
         expect(mockUpdateRef).toBeCalledTimes(0)
@@ -86,7 +86,7 @@ describe('External Contributors', () => {
         const prContext = makePRContext({action: "synchronize", senderName: "ayode"})
         mockPaginate.mockResolvedValueOnce([{body: "other comment"}])
 
-        const action = await new PRExternalContributors(prContext).pipePR()
+        const action = await new PRCopyPRs(prContext).maybeCopyPR()
 
         expect(action).toBe(undefined)
         expect(mockUpdateRef).toBeCalledTimes(0)
@@ -103,7 +103,7 @@ describe('External Contributors', () => {
             mockPaginate.mockResolvedValueOnce([{body: commentBody, user: {login: "ayode"}}])
             mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission: "non-admin"}})
             
-            const action = await new PRExternalContributors(prContext).pipePR()
+            const action = await new PRCopyPRs(prContext).maybeCopyPR()
 
             expect(action).toBe(undefined)
             expect(mockUpdateRef).toBeCalledTimes(0)
@@ -127,7 +127,7 @@ describe('External Contributors', () => {
             mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission}})
             mockUpdateRef.mockResolvedValueOnce(true)
 
-            const action = await new PRExternalContributors(prContext).pipePR()
+            const action = await new PRCopyPRs(prContext).maybeCopyPR()
 
             expect(action).toBe(true)
             expect(mockUpdateRef).toBeCalledTimes(1)
@@ -147,7 +147,7 @@ describe('External Contributors', () => {
         const prContext = makePRContext({action: "reopened", senderName: "ayode"})
         mockPaginate.mockResolvedValueOnce([])
 
-        const action = await new PRExternalContributors(prContext).pipePR()
+        const action = await new PRCopyPRs(prContext).maybeCopyPR()
 
         expect(action).toBe(undefined)
         expect(mockUpdateRef).toBeCalledTimes(0)
@@ -158,7 +158,7 @@ describe('External Contributors', () => {
         const prContext = makePRContext({action: "reopened", senderName: "ayode"})
         mockPaginate.mockResolvedValueOnce([{body: "other comment"}])
 
-        const action = await new PRExternalContributors(prContext).pipePR()
+        const action = await new PRCopyPRs(prContext).maybeCopyPR()
 
         expect(action).toBe(undefined)
         expect(mockUpdateRef).toBeCalledTimes(0)
@@ -175,7 +175,7 @@ describe('External Contributors', () => {
             mockPaginate.mockResolvedValueOnce([{body: commentBody, user: {login: "ayode"}}])
             mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission: "non-admin"}})
             
-            const action = await new PRExternalContributors(prContext).pipePR()
+            const action = await new PRCopyPRs(prContext).maybeCopyPR()
 
             expect(action).toBe(undefined)
             expect(mockUpdateRef).toBeCalledTimes(0)
@@ -200,7 +200,7 @@ describe('External Contributors', () => {
             mockGetRef.mockResolvedValueOnce({status: 200})
             mockUpdateRef.mockResolvedValueOnce(true)
 
-            const action = await new PRExternalContributors(prContext).pipePR()
+            const action = await new PRCopyPRs(prContext).maybeCopyPR()
 
             expect(action).toBe(true)
             expect(mockUpdateRef).toBeCalledTimes(1)
@@ -228,7 +228,7 @@ describe('External Contributors', () => {
             mockCreateRef.mockResolvedValueOnce(true)
             mockUpdateRef.mockRejectedValueOnce({status: 422})
 
-            const action = await new PRExternalContributors(prContext).pipePR()
+            const action = await new PRCopyPRs(prContext).maybeCopyPR()
 
             expect(action).toBe(true)
             expect(mockCreateRef).toBeCalledTimes(1)
@@ -255,7 +255,7 @@ describe('External Contributors', () => {
         const prContext = makePRContext({action: "closed", senderName: "ayode"})
         mockDeleteRef.mockResolvedValueOnce(true)
 
-        const action = await new PRExternalContributors(prContext).pipePR()
+        const action = await new PRCopyPRs(prContext).maybeCopyPR()
 
         expect(action).toBe(true)
         expect(mockDeleteRef).toHaveBeenCalledTimes(1)
@@ -269,7 +269,7 @@ describe('External Contributors', () => {
     test('issue_comment.created, do nothing if comment is not ok to test', async () => {
         const issueContext = makeIssueCommentContext({is_pr: true, body: "something other than okay to test"})
 
-        const action = await new PRReviewExternalContributors(issueContext).pipePR()
+        const action = await new CommentCopyPRs(issueContext).maybeCopyPR()
 
         expect(action).toBe(undefined)
         expect(mockCheckMembershipForUser).toHaveBeenCalledTimes(0)
@@ -281,7 +281,7 @@ describe('External Contributors', () => {
       ])('issue_comment.created, do nothing if issue is not PR', async (body) => {
         const issueContext = makeIssueCommentContext({is_pr: false, body})
 
-        const action = await new PRReviewExternalContributors(issueContext).pipePR()
+        const action = await new CommentCopyPRs(issueContext).maybeCopyPR()
 
         expect(action).toBe(false)
         expect(mockCheckMembershipForUser).toHaveBeenCalledTimes(0)
@@ -294,7 +294,7 @@ describe('External Contributors', () => {
         const issueContext = makeIssueCommentContext({is_pr: true, body})
         mockGetUserPermissionLevel.mockResolvedValueOnce({data: {permission: "non-admin"}})
 
-        const action = await new PRReviewExternalContributors(issueContext).pipePR()
+        const action = await new CommentCopyPRs(issueContext).maybeCopyPR()
 
         expect(action).toBe(false)
         expect(mockGetUserPermissionLevel).toHaveBeenCalledWith({
@@ -313,7 +313,7 @@ describe('External Contributors', () => {
         mockPullsGet.mockResolvedValueOnce({data:{head:{sha: "sha1234"}}})
         mockCreateRef.mockResolvedValueOnce(true)
 
-        const action = await new PRReviewExternalContributors(issueContext).pipePR()
+        const action = await new CommentCopyPRs(issueContext).maybeCopyPR()
 
         expect(action).toBeTruthy()    
         expect(mockCreateRef).toHaveBeenCalledWith({

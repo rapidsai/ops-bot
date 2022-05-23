@@ -17,14 +17,14 @@
 import { ADMIN_PERMISSION, featureIsDisabled, getExternalPRBranchName, isOkayToTestComment, validCommentsExistByPredicate, WRITE_PERMISSION } from "../../shared";
 import { PRContext } from "../../types";
 
-export class PRExternalContributors {
+export class PRCopyPRs {
     constructor(private context: PRContext) {
         
     }
 
-    async pipePR(): Promise<any> {
+    async maybeCopyPR(): Promise<any> {
         const { payload } = this.context
-        if (await featureIsDisabled(this.context, "external_contributors")) return;
+        if (await featureIsDisabled(this.context, "copy_prs")) return;
 
         // pull_request.opened event
         if(payload.action == "opened") {

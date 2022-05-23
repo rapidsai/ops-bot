@@ -23,7 +23,7 @@ export type OpsBotConfig = {
   branch_checker: boolean;
   label_checker: boolean;
   release_drafter: boolean;
-  external_contributors: boolean;
+  copy_prs: boolean;
 };
 
 /**
@@ -34,7 +34,7 @@ export const DefaultOpsBotConfig: OpsBotConfig = {
   branch_checker: false,
   label_checker: false,
   release_drafter: false,
-  external_contributors: false,
+  copy_prs: false,
 };
 
 /**
