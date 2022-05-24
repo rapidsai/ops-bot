@@ -15,10 +15,10 @@
 */
 
 import { Probot } from "probot";
-import { PRExternalContributors } from "./pr_ex_contibutors";
-import { PRReviewExternalContributors } from "./pr_review_ex_contributors";
+import { PRCopyPRs } from "./pr";
+import { CommentCopyPRs } from "./comment";
 
-export const initExternalContributors = (app: Probot) => {
+export const initCopyPRs = (app: Probot) => {
     app.on(
       [
         "pull_request.opened",
@@ -27,16 +27,16 @@ export const initExternalContributors = (app: Probot) => {
         "pull_request.reopened"
       ],
       async (context) => {
-      await new PRExternalContributors(
+      await new PRCopyPRs(
         context
-      ).pipePR();
+      ).maybeCopyPR();
     });
 
     app.on(["issue_comment.created"],
       async (context) => {
-      await new PRReviewExternalContributors(
+      await new CommentCopyPRs(
         context
-      ).pipePR();
+      ).maybeCopyPR();
     });
   };
   
