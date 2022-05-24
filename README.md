@@ -34,3 +34,5 @@ npm run deploy
 ## Contributing
 
 Any new functionality should be introduced as a new plugin in the [src/plugins](./src/plugins) directory. New plugins should make use of the shared `featureIsDisabled` function so that repositories can disable the feature if they desire. New plugins should also have an entry added in [config.ts](./src/config.ts)
+
+testing
