@@ -3,7 +3,7 @@ service: gpuci-serverless-ops-bot-probot
 provider:
   name: aws
   region: us-east-2
-  timeout: 300
+  timeout: 30
   memorySize: 1024
   stage: dev
   runtime: nodejs14.x
@@ -12,6 +12,9 @@ provider:
     shouldStartNameWithService: true
   deploymentBucket:
     name: rapids-serverless-deployments
+  environment:
+    JENKINS_USERNAME: ${env:JENKINS_USERNAME}
+    JENKINS_TOKEN: ${env:JENKINS_TOKEN}
 
 functions:
   handleProbot:

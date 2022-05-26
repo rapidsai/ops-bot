@@ -41,3 +41,5 @@ jobs:
           MORPHEUS_ORG_APP_ID: ${{ secrets.MORPHEUS_ORG_APP_ID }}
           MORPHEUS_ORG_WEBHOOK_SECRET: ${{ secrets.MORPHEUS_ORG_WEBHOOK_SECRET }}
           MORPHEUS_ORG_PRIVATE_KEY: ${{ secrets.MORPHEUS_ORG_PRIVATE_KEY }}
+          JENKINS_USERNAME: ${{ secrets.JENKINS_USERNAME }}
+          JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}

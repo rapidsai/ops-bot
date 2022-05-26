@@ -13,6 +13,7 @@ The plugins are listed in the [src/plugins](./src/plugins) folder.
 - **Auto Merger** - Automatically merges PRs that include the `@gpucibot merge` comment and meet the merge criteria outlined in [https://docs.rapids.ai/resources/auto-merger/](https://docs.rapids.ai/resources/auto-merger/).
 - **Branch Checker** - Set a status on PRs that checks whether they are targeting either the repo's _default branch_ or _default branch + 1_
 - **Copy PRs** - Copies pull request branches from their forked repository to the source repository for testing. If a pull request is from a GitHub author that is not a member of the RAPIDS GitHub organization, it will require an `okay to test` comment be submitted to the PR by a member of the RAPIDS organization before the forked code is copied to the source repository.
+- **Rerun Tests** - Listens for comments on PRs and runs a new Jenkins build if the comment matches a particular regular expression.
 
 ## Deployment
 
