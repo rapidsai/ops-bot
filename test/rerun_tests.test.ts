@@ -71,11 +71,11 @@ describe("Rerun Tests", () => {
   test.each([
     [
       true,
-      "https://gpuci.gpuopenanalytics.com/job/private-repos-ci/job/orgs/job/cudf/job/pull-request%252F468/build",
+      "https://gpuci.gpuopenanalytics.com/job/private-repos-ci/job/orgs/job/cudf/job/pull-request%2F468/build",
     ],
     [
       false,
-      "https://gpuci.gpuopenanalytics.com/job/orgs/job/cudf/job/pull-request%252F468/build",
+      "https://gpuci.gpuopenanalytics.com/job/orgs/job/cudf/job/pull-request%2F468/build",
     ],
   ])("PR comment is rerun tests", async (isPrivateRepo, expectedPostUrl) => {
     const context = makeIssueCommentContext({

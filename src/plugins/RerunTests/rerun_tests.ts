@@ -15,7 +15,7 @@
  */
 
 import axios from "axios";
-import { featureIsDisabled, issueIsPR } from "../../shared";
+import { featureIsDisabled, getPRBranchName, issueIsPR } from "../../shared";
 import { IssueCommentContext } from "../../types";
 
 export class RerunTests {
@@ -39,7 +39,9 @@ export class RerunTests {
     const jenkinsServer = "https://gpuci.gpuopenanalytics.com";
     const postUrl = `${jenkinsServer}/job/${
       isPrivate ? "private-repos-ci/job/" : ""
-    }orgs/job/${repo}/job/pull-request%252F${prNumber}/build`;
+    }orgs/job/${repo}/job/${encodeURIComponent(
+      getPRBranchName(prNumber)
+    )}/build`;
 
     // Response looks like `Jenkins-Crumb:<crumb>`
     const { data: resp } = await axios.get<string>(
