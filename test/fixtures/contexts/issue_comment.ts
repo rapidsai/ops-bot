@@ -18,6 +18,7 @@ import { makeContext } from "./base";
 import { IssueCommentContext } from "../../../src/types";
 type RespParams = {
   is_pr?: boolean;
+  is_private?: boolean;
   body?: string;
   commentUsername?: string;
   issueUsername?: string;
@@ -25,6 +26,7 @@ type RespParams = {
 
 export const makeIssueCommentContext = ({
   is_pr = false,
+  is_private = false,
   body = "some random text",
   commentUsername = "someone",
   issueUsername = "issue_user",
@@ -45,6 +47,7 @@ export const makeIssueCommentContext = ({
     repository: {
       name: "cudf",
       full_name: "rapidsai/cudf",
+      private: is_private,
       owner: {
         login: "rapidsai",
       },
