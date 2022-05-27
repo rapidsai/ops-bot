@@ -17,7 +17,7 @@
 import { Probot } from "probot";
 import { RerunTests } from "./rerun_tests";
 
-export const initLabelChecker = (app: Probot) => {
+export const initRerunTests = (app: Probot) => {
   app.on(["issue_comment.created"], async (context) => {
     await new RerunTests(context).maybeRerunTests();
   });
