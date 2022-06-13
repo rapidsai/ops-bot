@@ -30,6 +30,7 @@ export class PRCopyPRs {
 
   async maybeCopyPR(): Promise<any> {
     const { payload } = this.context;
+    const orgName = payload.repository.owner.login;
     if (await featureIsDisabled(this.context, "copy_prs")) return;
 
     // pull_request.opened event
@@ -38,23 +39,23 @@ export class PRCopyPRs {
         await isOrgMember(
           this.context.octokit,
           payload.pull_request.user.login,
-          payload.repository.owner.login
+          orgName
         )
       ) {
         await this.context.octokit.rest.git.createRef({
           ref: `refs/heads/${getPRBranchName(payload.pull_request.number)}`,
           repo: payload.repository.name,
-          owner: payload.repository.owner.login,
+          owner: orgName,
           sha: payload.pull_request.head.sha,
         });
         return;
       }
 
       await this.context.octokit.issues.createComment({
-        owner: payload.repository.owner.login,
+        owner: orgName,
         repo: payload.repository.name,
         issue_number: payload.pull_request.number,
-        body: "Pull requests from external contributors require approval from a RAPIDS organization member before CI can begin.",
+        body: `Pull requests from external contributors require approval from a \`${orgName}\` organization member before CI can begin.`,
       });
       return;
     }
@@ -65,7 +66,7 @@ export class PRCopyPRs {
         (await isOrgMember(
           this.context.octokit,
           payload.pull_request.user.login,
-          payload.repository.owner.login
+          orgName
         )) ||
         (await validCommentsExistByPredicate(
           this.context,
@@ -78,7 +79,7 @@ export class PRCopyPRs {
           await this.context.octokit.rest.git.updateRef({
             ref: `heads/${getPRBranchName(payload.pull_request.number)}`,
             repo: payload.repository.name,
-            owner: payload.repository.owner.login,
+            owner: orgName,
             sha: payload.pull_request.head.sha,
             force: true,
           });
@@ -86,7 +87,7 @@ export class PRCopyPRs {
           await this.context.octokit.rest.git.createRef({
             ref: `refs/heads/${getPRBranchName(payload.pull_request.number)}`,
             repo: payload.repository.name,
-            owner: payload.repository.owner.login,
+            owner: orgName,
             sha: payload.pull_request.head.sha,
           });
         }
@@ -101,7 +102,7 @@ export class PRCopyPRs {
         await this.context.octokit.rest.git.deleteRef({
           ref: `heads/${branchName}`,
           repo: payload.repository.name,
-          owner: payload.repository.owner.login,
+          owner: orgName,
         });
       } catch {
         // do nothing
