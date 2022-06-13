@@ -79,7 +79,7 @@ describe("External Contributors", () => {
       owner: prContext.payload.repository.owner.login,
       repo: prContext.payload.repository.name,
       issue_number: prContext.payload.pull_request.id,
-      body: "Pull requests from external contributors require approval from a RAPIDS organization member before CI can begin.",
+      body: "Pull requests from external contributors require approval from a `rapidsai` organization member before CI can begin.",
     });
     expect(mockCreateRef).toBeCalledTimes(0);
   });
