@@ -55,7 +55,7 @@ export class PRCopyPRs {
         owner: orgName,
         repo: payload.repository.name,
         issue_number: payload.pull_request.number,
-        body: `Pull requests from external contributors require approval from a \`${orgName}\` organization member before CI can begin.`,
+        body: `Pull requests from external contributors require approval from a \`${orgName}\` organization member with \`write\` or \`admin\` permissions before CI can begin.`,
       });
       return;
     }
