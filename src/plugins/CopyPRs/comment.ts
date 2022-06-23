@@ -21,6 +21,7 @@ import {
   isOkayToTestComment,
   isOrgMember,
   issueIsPR,
+  updateOrCreateBranch,
   WRITE_PERMISSION,
 } from "../../shared";
 import { IssueCommentContext } from "../../types";
@@ -33,8 +34,16 @@ export class CommentCopyPRs {
     const { payload } = this.context;
     const prNumber = payload.issue.number;
     const username = payload.comment.user.login;
+    const testCommitComment = "test last commit";
 
-    if (!isOkayToTestComment(payload.comment.body)) return;
+    if (
+      !(
+        isOkayToTestComment(payload.comment.body) ||
+        payload.comment.body === testCommitComment
+      )
+    ) {
+      return;
+    }
 
     //Only run on PRs
     if (!issueIsPR(this.context)) {
@@ -70,12 +79,13 @@ export class CommentCopyPRs {
       pull_number: payload.issue.number,
     });
 
-    await this.context.octokit.rest.git.createRef({
-      ref: `refs/heads/${getPRBranchName(payload.issue.number)}`,
-      repo: payload.repository.name,
-      owner: payload.repository.owner.login,
-      sha: pr.data.head.sha,
-    });
+    await updateOrCreateBranch(
+      this.context.octokit,
+      getPRBranchName(payload.issue.number),
+      payload.repository.name,
+      payload.repository.owner.login,
+      pr.data.head.sha
+    );
   }
 
   private async authorHasPermission(actor) {

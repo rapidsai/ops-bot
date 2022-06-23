@@ -20,6 +20,7 @@ import {
   getPRBranchName,
   isOkayToTestComment,
   isOrgMember,
+  updateOrCreateBranch,
   validCommentsExistByPredicate,
   WRITE_PERMISSION,
 } from "../../shared";
@@ -75,22 +76,13 @@ export class PRCopyPRs {
           (comment) => isOkayToTestComment(comment.body || "") && !!comment.user
         ))
       ) {
-        try {
-          await this.context.octokit.rest.git.updateRef({
-            ref: `heads/${getPRBranchName(payload.pull_request.number)}`,
-            repo: payload.repository.name,
-            owner: orgName,
-            sha: payload.pull_request.head.sha,
-            force: true,
-          });
-        } catch {
-          await this.context.octokit.rest.git.createRef({
-            ref: `refs/heads/${getPRBranchName(payload.pull_request.number)}`,
-            repo: payload.repository.name,
-            owner: orgName,
-            sha: payload.pull_request.head.sha,
-          });
-        }
+        await updateOrCreateBranch(
+          this.context.octokit,
+          getPRBranchName(payload.pull_request.number),
+          payload.repository.name,
+          orgName,
+          payload.pull_request.head.sha
+        );
       }
       return;
     }

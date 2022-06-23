@@ -343,8 +343,43 @@ describe("External Contributors", () => {
   test.each([
     ["ok to test", "admin"],
     ["okay to test", "write"],
+    ["test last commit", "admin"],
+    ["test last commit", "write"],
   ])(
-    "issue_comment.created, copy code from forked repository to source repository if valid comment",
+    "issue_comment.created, copy code from forked repository to source repository if valid comment & branch doesn't exist",
+    async (body, permission) => {
+      const issueContext = makeIssueCommentContext({ is_pr: true, body });
+      mockGetUserPermissionLevel.mockResolvedValueOnce({
+        data: { permission },
+      });
+      mockPullsGet.mockResolvedValueOnce({
+        data: { head: { sha: "sha1234" } },
+      });
+      mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
+      mockUpdateRef.mockRejectedValueOnce("");
+
+      await new CommentCopyPRs(issueContext).maybeCopyPR();
+
+      expect(mockCheckMembershipForUser).toHaveBeenCalledTimes(1);
+      expect(mockCreateRef).toHaveBeenCalledWith({
+        ref: `refs/heads/pull-request/${issueContext.payload.issue.number}`,
+        repo: issueContext.payload.repository.name,
+        owner: issueContext.payload.repository.owner.login,
+        sha: "sha1234",
+      });
+      expect(mockPullsGet).toHaveBeenCalledTimes(1);
+      expect(mockUpdateRef).toHaveBeenCalledTimes(1);
+      expect(mockCreateRef).toHaveBeenCalledTimes(1);
+    }
+  );
+
+  test.each([
+    ["ok to test", "admin"],
+    ["okay to test", "write"],
+    ["test last commit", "admin"],
+    ["test last commit", "write"],
+  ])(
+    "issue_comment.created, copy code from forked repository to source repository if valid comment & branch does exist",
     async (body, permission) => {
       const issueContext = makeIssueCommentContext({ is_pr: true, body });
       mockGetUserPermissionLevel.mockResolvedValueOnce({
@@ -358,14 +393,16 @@ describe("External Contributors", () => {
       await new CommentCopyPRs(issueContext).maybeCopyPR();
 
       expect(mockCheckMembershipForUser).toHaveBeenCalledTimes(1);
-      expect(mockCreateRef).toHaveBeenCalledWith({
-        ref: `refs/heads/pull-request/${issueContext.payload.issue.number}`,
+      expect(mockUpdateRef).toHaveBeenCalledWith({
+        ref: `heads/pull-request/${issueContext.payload.issue.number}`,
         repo: issueContext.payload.repository.name,
         owner: issueContext.payload.repository.owner.login,
         sha: "sha1234",
+        force: true,
       });
       expect(mockPullsGet).toHaveBeenCalledTimes(1);
-      expect(mockCreateRef).toHaveBeenCalledTimes(1);
+      expect(mockUpdateRef).toHaveBeenCalledTimes(1);
+      expect(mockCreateRef).toHaveBeenCalledTimes(0);
     }
   );
 });
