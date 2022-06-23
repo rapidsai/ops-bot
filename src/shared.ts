@@ -213,3 +213,37 @@ export const isOrgMember = async (
   } catch (_) {}
   return isOrgMember;
 };
+
+/**
+ * Tries to update a branch to a given sha. If the branch doesn't exist, it will be created.
+ *
+ * @param octokit
+ * @param branchName
+ * @param repo
+ * @param owner
+ * @param sha
+ */
+export const updateOrCreateBranch = async (
+  octokit: ProbotOctokit,
+  branchName: string,
+  repo: string,
+  owner: string,
+  sha: string
+) => {
+  try {
+    await octokit.rest.git.updateRef({
+      ref: `heads/${branchName}`,
+      repo,
+      owner,
+      sha,
+      force: true,
+    });
+  } catch {
+    await octokit.rest.git.createRef({
+      ref: `refs/heads/${branchName}`,
+      repo,
+      owner,
+      sha,
+    });
+  }
+};
