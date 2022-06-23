@@ -26,7 +26,7 @@ The _Serverless_ framework is used to deploy the Probot application to an AWS La
 npm run build
 
 # Test
-npm run test
+npm run testasdfa
 
 # Deploy
 npm run deploy
