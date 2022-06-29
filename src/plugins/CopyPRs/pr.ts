@@ -52,6 +52,12 @@ export class PRCopyPRs {
         return;
       }
 
+      // Temporarily disable comments for the `rapidsai` organization until we're fully migrated
+      // to a new CI setup. This is to avoid confusion with the existing `Can one of the admins verify this patch?`
+      // comment that gets posted as part of our current CI setup.
+      // The skipped test in `test/copy_prs.test.ts` should be un-skipped once this conditional is removed
+      if (orgName === "rapidsai") return;
+
       await this.context.octokit.issues.createComment({
         owner: orgName,
         repo: payload.repository.name,
