@@ -120,8 +120,8 @@ export class AutoMerger {
 
       // Check if PR has valid merge comment
       if(!(await validCommentsExistByPredicate(
-        this.context, 
-        pr.number, 
+        this.context,
+        pr.number,
         [ADMIN_PERMISSION, WRITE_PERMISSION],
         comment => this.isMergeComment(comment.body || "")))) {
         console.warn(
@@ -243,9 +243,9 @@ export class AutoMerger {
       baseRef !== "main"
     );
   }
-  
+
   /**
-   * Returns description text between "## description" or beginning 
+   * Returns description text between "## description" or beginning
    * and "## checklist" or end of the string. (case insensitive)
    *
    * @param prBody PR's body text
@@ -272,7 +272,7 @@ export class AutoMerger {
   async createCommitMessage(pr: PullsGetResponseData): Promise<string> {
     let commitMsg = "";
 
-    const prBody = strip(extractDescription(pr.body || ""), {
+    const prBody = strip(this.extractDescription(pr.body || ""), {
       language: "html",
       preserveNewlines: false,
     }).trim();
