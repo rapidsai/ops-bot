@@ -21,7 +21,7 @@ import * as prReviewContext from "./fixtures/contexts/pull_request_review";
 import { default as list_comments } from "./fixtures/responses/list_comments.json";
 import { data as list_commits } from "./fixtures/responses/list_commits.json";
 import { default as list_reviews } from "./fixtures/responses/list_reviews.json";
-import { default as pulls_get } from "./fixtures/responses/pulls_get.json";
+import { makeResponse as makePullResponse } from "./fixtures/responses/pulls_get";
 import { default as user_permission } from "./fixtures/responses/get_collaborator_permission_level.json";
 import { default as commitPRs } from "./fixtures/responses/list_pull_requests_associated_with_commit.json";
 import { user, userNoName } from "./fixtures/responses/get_by_username";
@@ -59,7 +59,7 @@ describe("Auto Merger", () => {
 
   test("status context", async () => {
     mockListPullRequestsFromCommit.mockResolvedValueOnce(commitPRs);
-    mockPullsGet.mockResolvedValueOnce(pulls_get);
+    mockPullsGet.mockResolvedValueOnce(makePullResponse());
     mockPaginate.mockResolvedValueOnce(list_comments); // listComments in checkForValidMergeComment
     mockGetUserPermissionLevel.mockResolvedValueOnce(user_permission);
     mockPaginate.mockResolvedValueOnce(list_commits); // listCommits in getAuthors
@@ -92,7 +92,6 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
     });
   });
 
-// PR body test
 test.each([
     ["description only", "This text is skipped\n ## Description\nSample body text\n", "Sample body text"],
     ["description and checklist", "This text is skipped\n ## description\nSample body text\n ## checklist\n- [ ] Checklist item skipped 1\n- [ ] Checklist item skipped 2\n",
@@ -100,12 +99,7 @@ test.each([
     ["checklist only", "This text is included\n \nSample body text\n ## Checklist\n- [ ] Checklist item skipped 1\n- [ ] Checklist item skipped 2\n", "This text is included\n \nSample body text"],
 ])("PR body text test - %s", async (_, PR_body, expected_body) => {
     mockListPullRequestsFromCommit.mockResolvedValueOnce(commitPRs);
-    mockPullsGet.mockResolvedValueOnce((function () {
-      var pulls_get_copy = JSON.parse(JSON.stringify(pulls_get));
-      console.log(pulls_get_copy);
-      pulls_get_copy.data.body = PR_body;
-      return pulls_get_copy;
-    })());
+    mockPullsGet.mockResolvedValueOnce(makePullResponse({body: PR_body}));
     mockPaginate.mockResolvedValueOnce(list_comments); // listComments in checkForValidMergeComment
     mockGetUserPermissionLevel.mockResolvedValueOnce(user_permission);
     mockPaginate.mockResolvedValueOnce(list_commits); // listCommits in getAuthors
