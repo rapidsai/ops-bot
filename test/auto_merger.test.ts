@@ -92,6 +92,50 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
     });
   });
 
+// PR body test
+test.each([
+    ["description only", "This text is skipped\n ## Description\nSample body text\n", "Sample body text"],
+    ["description and checklist", "This text is skipped\n ## description\nSample body text\n ## checklist\n- [ ] Checklist item skipped 1\n- [ ] Checklist item skipped 2\n",
+      "Sample body text"],
+    ["checklist only", "This text is included\n \nSample body text\n ## Checklist\n- [ ] Checklist item skipped 1\n- [ ] Checklist item skipped 2\n", "This text is included\n \nSample body text"],
+])("PR body text test - %s", async (_, PR_body, expected_body) => {
+    mockListPullRequestsFromCommit.mockResolvedValueOnce(commitPRs);
+    mockPullsGet.mockResolvedValueOnce((function () {
+      var pulls_get_copy = JSON.parse(JSON.stringify(pulls_get));
+      console.log(pulls_get_copy);
+      pulls_get_copy.data.body = PR_body;
+      return pulls_get_copy;
+    })());
+    mockPaginate.mockResolvedValueOnce(list_comments); // listComments in checkForValidMergeComment
+    mockGetUserPermissionLevel.mockResolvedValueOnce(user_permission);
+    mockPaginate.mockResolvedValueOnce(list_commits); // listCommits in getAuthors
+    mockGetByUsername.mockResolvedValueOnce(userNoName);
+    mockPaginate.mockResolvedValueOnce(list_reviews); // listReviews in getApprovers
+    mockGetByUsername.mockResolvedValueOnce(user);
+
+    await new AutoMerger(statusContext.successStatus).maybeMergePR();
+
+    expect(mockPullsGet).toBeCalledTimes(1);
+    expect(mockPullsGet.mock.calls[0][0].pull_number).toBe(1234);
+
+    expect(mockMerge.mock.calls[0][0]).toMatchObject({
+      owner: "rapidsai",
+      repo: "cudf",
+      pull_number: 1234,
+      merge_method: "squash",
+      commit_title: "Implement cudf.DateOffset for months (#1234)",
+      commit_message: expected_body + `
+
+Authors:
+  - https://github.com/VibhuJawa
+
+Approvers:
+  - Keith Kraus (https://github.com/kkraus14)
+
+URL: https://github.com/rapidsai/cudf/pull/6775`,
+    });
+  });
+
   test.each([
     ["not from PR", issueContext.nonPrComment],
     ["non-merge comment", issueContext.prCommentNoMerge],
