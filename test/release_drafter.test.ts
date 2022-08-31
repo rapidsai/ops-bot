@@ -32,6 +32,7 @@ import { makeConfigReponse } from "./fixtures/responses/get_config";
 import axios from "axios";
 import { PushContext } from "../src/types";
 import { getVersionFromBranch } from "../src/shared";
+import { makePushContext } from "./fixtures/contexts/push";
 jest.mock("axios");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
@@ -54,7 +55,7 @@ describe("Release Drafter", () => {
   });
 
   test("doesn't run on non-versioned branches", async () => {
-    await new ReleaseDrafter(context.nonVersionedBranch).draftRelease();
+    await new ReleaseDrafter(makePushContext({ ref: "main" })).draftRelease();
     expect(mockPaginate).not.toHaveBeenCalled();
     expect(mockGetReleaseByTag).not.toHaveBeenCalled();
     expect(mockUpdateRelease).not.toHaveBeenCalled();
@@ -63,7 +64,10 @@ describe("Release Drafter", () => {
 
   test("doesn't run on invalid version branches", async () => {
     mockedAxios.get.mockResolvedValue({ data: {stable: {version: "21.04"}, nightly:{version: "21.06"}, legacy:{version: "21.02"}} });
-    await new ReleaseDrafter(context.invalidVersionedBranch).draftRelease();
+    await new ReleaseDrafter(makePushContext({
+      ref: 'branch-0.13',
+      default_branch: 'branch-0.13'
+    })).draftRelease();
     expect(mockPaginate).not.toHaveBeenCalled();
     expect(mockGetReleaseByTag).not.toHaveBeenCalled();
     expect(mockUpdateRelease).not.toHaveBeenCalled();
@@ -71,8 +75,8 @@ describe("Release Drafter", () => {
   });
 
   test("doesn't run on created/deleted pushes", async () => {
-    await new ReleaseDrafter(context.createdPush).draftRelease();
-    await new ReleaseDrafter(context.deletedPush).draftRelease();
+    await new ReleaseDrafter(makePushContext({ created: true })).draftRelease();
+    await new ReleaseDrafter(makePushContext({ deleted: true })).draftRelease();
     expect(mockPaginate).not.toHaveBeenCalled();
     expect(mockGetReleaseByTag).not.toHaveBeenCalled();
     expect(mockUpdateRelease).not.toHaveBeenCalled();
@@ -80,7 +84,13 @@ describe("Release Drafter", () => {
   });
 
   test.each([
-    context.validDefaultBranch, context.validOlderBranch, context.validOlderBranch2
+    makePushContext(), 
+    makePushContext({
+      ref: 'branch-21.04'
+    }), 
+    makePushContext({
+      ref: 'branch-21.02'
+    })
   ])("update existing release", async (branch) => {
     mockPaginate.mockResolvedValueOnce(listPullsResp);
     mockGetReleaseByTag.mockResolvedValueOnce(getReleaseByTagResp);
@@ -88,7 +98,7 @@ describe("Release Drafter", () => {
 
     await new ReleaseDrafter(branch).draftRelease();
 
-    if(branch != context.validDefaultBranch) {
+    if(branch.payload.ref != "branch-21.06") {
       expect(mockedAxios.get).toHaveBeenCalledWith("https://raw.githubusercontent.com/rapidsai/docs/gh-pages/_data/releases.json");
     }
     expect(mockPaginate).toHaveBeenCalledTimes(1);
@@ -120,7 +130,13 @@ describe("Release Drafter", () => {
   });
 
   test.each([
-    context.validDefaultBranch, context.validOlderBranch, context.validOlderBranch2
+    makePushContext(), 
+    makePushContext({
+      ref: 'branch-21.04'
+    }), 
+    makePushContext({
+      ref: 'branch-21.02'
+    })
   ])("create new release", async (branch) => {
     mockPaginate.mockResolvedValueOnce(listPullsResp);
     mockGetReleaseByTag.mockRejectedValueOnce("");
@@ -128,7 +144,7 @@ describe("Release Drafter", () => {
 
     await new ReleaseDrafter(branch).draftRelease();
 
-    if(branch != context.validDefaultBranch) {
+    if(branch.payload.ref != "branch-21.06") {
       expect(mockedAxios.get).toHaveBeenCalledWith("https://raw.githubusercontent.com/rapidsai/docs/gh-pages/_data/releases.json");
     }
     expect(mockPaginate).toHaveBeenCalledTimes(1);

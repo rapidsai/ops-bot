@@ -24,7 +24,7 @@ type PushPayload = {
   default_branch?: string;
 };
 
-const makePushContext = ({
+export const makePushContext = ({
   ref = "branch-21.06",
   created = false,
   deleted = false,
@@ -135,18 +135,3 @@ const makePushContext = ({
 
   return (makeContext(payload, "push") as unknown) as PushContext;
 };
-
-export const validDefaultBranch = makePushContext();
-export const validOlderBranch = makePushContext({
-  ref: 'branch-21.04'
-});
-export const validOlderBranch2 = makePushContext({
-  ref: 'branch-21.02'
-});
-export const invalidVersionedBranch = makePushContext({
-  ref: 'branch-0.13',
-  default_branch: 'branch-0.13'
-});
-export const nonVersionedBranch = makePushContext({ ref: "main" });
-export const createdPush = makePushContext({ created: true });
-export const deletedPush = makePushContext({ deleted: true });
