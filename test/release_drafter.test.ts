@@ -62,7 +62,7 @@ describe("Release Drafter", () => {
   });
 
   test("doesn't run on invalid version branches", async () => {
-    mockedAxios.get.mockResolvedValue({ data: {stable: {version: "21.04"}, nightly:{version: "21.06"}, next_nightly:{version: "21.08"}} });
+    mockedAxios.get.mockResolvedValue({ data: {stable: {version: "21.04"}, nightly:{version: "21.06"}, legacy:{version: "21.02"}} });
     await new ReleaseDrafter(context.invalidVersionedBranch).draftRelease();
     expect(mockPaginate).not.toHaveBeenCalled();
     expect(mockGetReleaseByTag).not.toHaveBeenCalled();
@@ -80,11 +80,11 @@ describe("Release Drafter", () => {
   });
 
   test.each([
-    context.validDefaultBranch, context.validNewerBranch, context.validOlderBranch
+    context.validDefaultBranch, context.validOlderBranch, context.validOlderBranch2
   ])("update existing release", async (branch) => {
     mockPaginate.mockResolvedValueOnce(listPullsResp);
     mockGetReleaseByTag.mockResolvedValueOnce(getReleaseByTagResp);
-    mockedAxios.get.mockResolvedValueOnce({ data: {stable: {version: "21.04"}, nightly:{version: "21.06"}, next_nightly:{version: "21.08"}} });
+    mockedAxios.get.mockResolvedValueOnce({ data: {stable: {version: "21.04"}, nightly:{version: "21.06"}, legacy:{version: "21.02"}} });
 
     await new ReleaseDrafter(branch).draftRelease();
 
@@ -120,11 +120,11 @@ describe("Release Drafter", () => {
   });
 
   test.each([
-    context.validDefaultBranch, context.validNewerBranch, context.validOlderBranch
+    context.validDefaultBranch, context.validOlderBranch, context.validOlderBranch2
   ])("create new release", async (branch) => {
     mockPaginate.mockResolvedValueOnce(listPullsResp);
     mockGetReleaseByTag.mockRejectedValueOnce("");
-    mockedAxios.get.mockResolvedValueOnce({ data: {stable: {version: "21.04"}, nightly:{version: "21.06"}, next_nightly:{version: "21.08"}} });
+    mockedAxios.get.mockResolvedValueOnce({ data: {stable: {version: "21.04"}, nightly:{version: "21.06"}, legacy:{version: "21.02"}} });
 
     await new ReleaseDrafter(branch).draftRelease();
 

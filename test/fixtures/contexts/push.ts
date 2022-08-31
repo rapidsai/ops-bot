@@ -137,11 +137,11 @@ const makePushContext = ({
 };
 
 export const validDefaultBranch = makePushContext();
-export const validNewerBranch = makePushContext({
-  ref: 'branch-21.08'
-});
 export const validOlderBranch = makePushContext({
   ref: 'branch-21.04'
+});
+export const validOlderBranch2 = makePushContext({
+  ref: 'branch-21.02'
 });
 export const invalidVersionedBranch = makePushContext({
   ref: 'branch-0.13',

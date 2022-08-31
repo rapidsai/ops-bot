@@ -86,7 +86,8 @@ export class ReleaseDrafter {
   /**
    * Returns true if the branch name is valid. Valid branches should match
    * the branch-yy.mm pattern and have a version that's the same as the repo's
-   * default branch
+   * default branch or branches one or two versions before to account 
+   * for burndown & code-freeze.
    */
   async isValidBranch(): Promise<boolean> {
     if (!isVersionedBranch(this.branchName)) return false;
@@ -94,11 +95,11 @@ export class ReleaseDrafter {
     const defaultBranchVersionNumber = getVersionFromBranch(this.defaultBranch);
 
     if (defaultBranchVersionNumber === branchVersionNumber) return true
-    const { data: json } = await axios.get<{stable: {version}, nightly:{version}, next_nightly:{version}}>(
+    const { data: json } = await axios.get<{legacy: {version}, stable:{version}, nightly:{version}}>(
       `https://raw.githubusercontent.com/rapidsai/docs/gh-pages/_data/releases.json`,
     );
     
-    return [json.stable.version, json.nightly.version, json.next_nightly.version].includes(branchVersionNumber)
+    return [json.stable.version, json.nightly.version, json.legacy.version].includes(branchVersionNumber)
   }
 
   /**
