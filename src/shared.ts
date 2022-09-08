@@ -113,6 +113,25 @@ export const featureIsDisabled = async (
 };
 
 /**
+ *
+ * Returns the specified feature's state.
+ */
+ export const getFeatureState = async (
+  context: Context,
+  feature: keyof OpsBotConfig
+): Promise<number | boolean> => {
+  const repoParams = context.repo();
+  const { config } = await context.octokit.config.get({
+    ...repoParams,
+    path: OpsBotConfigPath,
+    defaults: DefaultOpsBotConfig,
+  });
+
+  console.log(`${repoParams.repo} config: `, JSON.stringify(config, null, 2));
+  return config[feature];
+};
+
+/**
  * Returns true if the payload associated with the provided context
  * is from a GitHub Pull Request (as opposed to a GitHub Issue).
  * @param context

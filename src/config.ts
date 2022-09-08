@@ -24,9 +24,10 @@ export type OpsBotConfig = {
   label_checker: boolean;
   release_drafter: boolean;
   external_contributors: boolean;
-  recently_updated: boolean;
+  pr_recently_updated: boolean;
   copy_prs: boolean;
   rerun_tests: boolean;
+  pr_recently_updated_threshold: number;
 };
 
 /**
@@ -38,9 +39,10 @@ export const DefaultOpsBotConfig: OpsBotConfig = {
   label_checker: false,
   release_drafter: false,
   external_contributors: false,
-  recently_updated: false,
+  pr_recently_updated: false,
   copy_prs: false,
   rerun_tests: false,
+  pr_recently_updated_threshold: 5,
 };
 
 /**

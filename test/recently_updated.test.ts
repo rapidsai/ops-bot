@@ -41,7 +41,9 @@ describe("Recently Updated", () => {
     beforeAll(() => {
       mockContextRepo.mockReturnValue(repoResp);
       mockConfigGet.mockResolvedValue(
-        makeConfigReponse({ recently_updated: true })
+        makeConfigReponse({ 
+          pr_recently_updated: true, 
+          pr_recently_updated_threshold: 5 })
       );
     });
 
