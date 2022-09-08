@@ -15,21 +15,10 @@
  */
 
 import { Probot } from "probot";
-import { initAutoMerger } from "./plugins/AutoMerger";
-import { initBranchChecker } from "./plugins/BranchChecker";
-import { initCopyPRs } from "./plugins/CopyPRs";
-import { initLabelChecker } from "./plugins/LabelChecker";
-import { initRecentlyUpdated } from "./plugins/RecentlyUpdated";
-import { initReleaseDrafter } from "./plugins/ReleaseDrafter";
-import { initRerunTests } from "./plugins/RerunTests";
+import { RerunTests } from "./rerun_tests";
 
-export = (app: Probot) => {
-  initBranchChecker(app);
-  initLabelChecker(app);
-  initReleaseDrafter(app);
-  initAutoMerger(app);
-  initExternalContributors(app);
-  initRecentlyUpdated(app);
-  initCopyPRs(app);
-  initRerunTests(app);
+export const initRerunTests = (app: Probot) => {
+  app.on(["issue_comment.created"], async (context) => {
+    await new RerunTests(context).maybeRerunTests();
+  });
 };

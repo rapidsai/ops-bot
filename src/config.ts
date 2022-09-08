@@ -25,6 +25,8 @@ export type OpsBotConfig = {
   release_drafter: boolean;
   external_contributors: boolean;
   recently_updated: boolean;
+  copy_prs: boolean;
+  rerun_tests: boolean;
 };
 
 /**
@@ -37,6 +39,8 @@ export const DefaultOpsBotConfig: OpsBotConfig = {
   release_drafter: false,
   external_contributors: false,
   recently_updated: false,
+  copy_prs: false,
+  rerun_tests: false,
 };
 
 /**

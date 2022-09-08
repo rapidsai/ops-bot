@@ -135,11 +135,3 @@ export const makePushContext = ({
 
   return makeContext(payload, "push") as unknown as PushContext;
 };
-
-export const validBranch = makePushContext();
-export const invalidVersionedBranch = makePushContext({
-  default_branch: "branch-0.13",
-});
-export const nonVersionedBranch = makePushContext({ ref: "main" });
-export const createdPush = makePushContext({ created: true });
-export const deletedPush = makePushContext({ deleted: true });

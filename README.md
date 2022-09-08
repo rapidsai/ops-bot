@@ -12,7 +12,8 @@ The plugins are listed in the [src/plugins](./src/plugins) folder.
 - **Release Drafter** - Opens up a draft release on GitHub anytime a PR is merged to a versioned branch (i.e. `branch-0.17`, `branch-0.18`, etc.). The draft body includes a categorized changelog consisting of the PRs that have been merged on that branch.
 - **Auto Merger** - Automatically merges PRs that include the `@gpucibot merge` comment and meet the merge criteria outlined in [https://docs.rapids.ai/resources/auto-merger/](https://docs.rapids.ai/resources/auto-merger/).
 - **Branch Checker** - Set a status on PRs that checks whether they are targeting either the repo's _default branch_ or _default branch + 1_
-- **External Contributors** - For PRs from non-organization members, this plugin copies source code from their forked branch to the source repository after an `okay to test` comment has been posted on the PR. This allows contributions from external contributors to be vetted before CI is run. Subsequent pushes to the PR will also be copied to the source repository branch. The source repository branch will be deleted when the PR is closed. This plugin mostly exists as a workaround for the feature gap in Jenkins' multi-branch pipelines described [here](https://issues.jenkins.io/browse/JENKINS-44611).
+- **Copy PRs** - Copies pull request branches from their forked repository to the source repository for testing. If a pull request is from a GitHub author that is not a member of the RAPIDS GitHub organization, it will require an `okay to test` comment be submitted to the PR by a member of the RAPIDS organization before the forked code is copied to the source repository. `okay to test` will also allow subsequent commits to be tested. To test a single commit, you can comment `test last commit` instead.
+- **Rerun Tests** - Listens for comments on PRs and runs a new Jenkins build if the comment matches a particular regular expression.
 
 ## Deployment
 

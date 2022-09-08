@@ -14,26 +14,36 @@
  * limitations under the License.
  */
 
-export const mockCheckMembershipForUser = jest.fn();
-export const mockCompareCommitsWithBasehead = jest.fn();
-export const mockConfigGet = jest.fn();
-export const mockContextRepo = jest.fn();
-export const mockCreateComment = jest.fn();
-export const mockCreateCommitStatus = jest.fn();
-export const mockCreateRef = jest.fn();
-export const mockCreateRelease = jest.fn();
-export const mockDeleteRef = jest.fn();
-export const mockGetByUsername = jest.fn();
-export const mockGetRef = jest.fn();
-export const mockGetReleaseByTag = jest.fn();
-export const mockGetUserPermissionLevel = jest.fn();
-export const mockListComments = jest.fn();
-export const mockListCommits = jest.fn();
-export const mockListPullRequestsFromCommit = jest.fn();
-export const mockListPulls = jest.fn();
-export const mockListReviews = jest.fn();
-export const mockMerge = jest.fn();
-export const mockPaginate = jest.fn();
-export const mockPullsGet = jest.fn();
-export const mockUpdateRef = jest.fn();
-export const mockUpdateRelease = jest.fn();
+export const mockCheckMembershipForUser = jest
+  .fn()
+  .mockName("mockCheckMembershipForUser");
+export const mockCompareCommitsWithBasehead = jest
+    .fn()
+    .mockName("mockCompareCommitsWithBasehead");
+export const mockConfigGet = jest.fn().mockName("mockConfigGet");
+export const mockContextRepo = jest.fn().mockName("mockContextRepo");
+export const mockCreateComment = jest.fn().mockName("mockCreateComment");
+export const mockCreateCommitStatus = jest
+  .fn()
+  .mockName("mockCreateCommitStatus");
+export const mockCreateRef = jest.fn().mockName("mockCreateRef");
+export const mockCreateRelease = jest.fn().mockName("mockCreateRelease");
+export const mockDeleteRef = jest.fn().mockName("mockDeleteRef");
+export const mockGetByUsername = jest.fn().mockName("mockGetByUsername");
+export const mockGetRef = jest.fn().mockName("mockGetRef");
+export const mockGetReleaseByTag = jest.fn().mockName("mockGetReleaseByTag");
+export const mockGetUserPermissionLevel = jest
+  .fn()
+  .mockName("mockGetUserPermissionLevel");
+export const mockListComments = jest.fn().mockName("mockListComments");
+export const mockListCommits = jest.fn().mockName("mockListCommits");
+export const mockListPullRequestsFromCommit = jest
+  .fn()
+  .mockName("mockListPullRequestsFromCommit");
+export const mockListPulls = jest.fn().mockName("mockListPulls");
+export const mockListReviews = jest.fn().mockName("mockListReviews");
+export const mockMerge = jest.fn().mockName("mockMerge");
+export const mockPaginate = jest.fn().mockName("mockPaginate");
+export const mockPullsGet = jest.fn().mockName("mockPullsGet");
+export const mockUpdateRef = jest.fn().mockName("mockUpdateRef");
+export const mockUpdateRelease = jest.fn().mockName("mockUpdateRelease");

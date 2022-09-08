@@ -120,8 +120,8 @@ export class AutoMerger {
 
       // Check if PR has valid merge comment
       if(!(await validCommentsExistByPredicate(
-        this.context, 
-        pr.number, 
+        this.context,
+        pr.number,
         [ADMIN_PERMISSION, WRITE_PERMISSION],
         comment => this.isMergeComment(comment.body || "")))) {
         console.warn(
@@ -245,6 +245,26 @@ export class AutoMerger {
   }
 
   /**
+   * Returns description text between "## description" or beginning
+   * and "## checklist" or end of the string. (case insensitive)
+   *
+   * @param prBody PR's body text
+   */
+  extractDescription(prBody: string): string {
+    let descrStart = prBody.toLowerCase().indexOf("## description");
+    if (descrStart == -1) {
+      descrStart = 0;
+    } else {
+      descrStart += "## description".length;
+    }
+    let descrEnd = prBody.toLowerCase().indexOf("## checklist", descrStart);
+    if (descrEnd == -1) {
+      descrEnd = prBody.length;
+    }
+    return prBody.slice(descrStart, descrEnd);
+  }
+
+  /**
    * Returns a string used for the squash commit that contains the PR body,
    * PR authors, and PR approvers.
    * @param pr
@@ -252,7 +272,7 @@ export class AutoMerger {
   async createCommitMessage(pr: PullsGetResponseData): Promise<string> {
     let commitMsg = "";
 
-    const prBody = strip(pr.body || "", {
+    const prBody = strip(this.extractDescription(pr.body || ""), {
       language: "html",
       preserveNewlines: false,
     }).trim();

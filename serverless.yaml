@@ -3,7 +3,7 @@ service: gpuci-serverless-ops-bot-probot
 provider:
   name: aws
   region: us-east-2
-  timeout: 300
+  timeout: 30
   memorySize: 1024
   stage: dev
   runtime: nodejs14.x
@@ -12,6 +12,9 @@ provider:
     shouldStartNameWithService: true
   deploymentBucket:
     name: rapids-serverless-deployments
+  environment:
+    JENKINS_USERNAME: ${env:JENKINS_USERNAME}
+    JENKINS_TOKEN: ${env:JENKINS_TOKEN}
 
 functions:
   handleProbot:
@@ -41,3 +44,15 @@ functions:
       APP_ID: ${env:NVIDIA_ORG_APP_ID}
       WEBHOOK_SECRET: ${env:NVIDIA_ORG_WEBHOOK_SECRET}
       PRIVATE_KEY: ${env:NVIDIA_ORG_PRIVATE_KEY}
+  morpheusOrgProbot:
+    handler: dist/serverless.probot
+    events:
+      - http:
+          path: /nv-morpheus-org
+          method: POST
+          async: true
+    environment:
+      LOG_LEVEL: debug
+      APP_ID: ${env:MORPHEUS_ORG_APP_ID}
+      WEBHOOK_SECRET: ${env:MORPHEUS_ORG_WEBHOOK_SECRET}
+      PRIVATE_KEY: ${env:MORPHEUS_ORG_PRIVATE_KEY}
