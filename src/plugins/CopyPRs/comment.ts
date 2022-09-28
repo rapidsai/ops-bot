@@ -38,7 +38,6 @@ export class CommentCopyPRs {
       return;
     }
 
-    //Only run on PRs
     if (!issueIsPR(this.context)) {
       console.warn(
         `Comment on ${payload.repository.full_name} #${prNumber} was not on a PR. Skipping...`
@@ -46,6 +45,8 @@ export class CommentCopyPRs {
       return;
     }
 
+    // branches for org members are created automaticallyin ./pr.ts,
+    // so return here
     if (
       await isOrgMember(
         this.context.octokit,
@@ -56,7 +57,6 @@ export class CommentCopyPRs {
       return;
     }
 
-    //check if comment-er has CI run permission
     if (!(await this.authorHasPermission(username))) {
       console.warn(
         `Comment on ${payload.repository.full_name} #${prNumber} by ${username} does not have trigger permissions. Skipping...`
@@ -64,8 +64,6 @@ export class CommentCopyPRs {
       return;
     }
 
-    // copy code from forked repository to source repository.
-    // first get the PR
     const pr = await this.context.octokit.pulls.get({
       repo: payload.repository.name,
       owner: payload.repository.owner.login,
