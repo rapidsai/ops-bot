@@ -1,20 +1,22 @@
 /*
-* Copyright (c) 2022, NVIDIA CORPORATION.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2022, NVIDIA CORPORATION.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import {
+  mockCheckMembershipForUser,
+  mockCompareCommitsWithBasehead,
   mockConfigGet,
   mockContextRepo,
   mockCreateComment,
@@ -23,7 +25,6 @@ import {
   mockCreateRelease,
   mockDeleteRef,
   mockGetByUsername,
-  mockCheckMembershipForUser,
   mockGetRef,
   mockGetReleaseByTag,
   mockGetUserPermissionLevel,
@@ -48,7 +49,7 @@ export const makeContext = (payload, name: EmitterWebhookEventName) => {
     octokit: {
       issues: {
         listComments: mockListComments,
-        createComment: mockCreateComment
+        createComment: mockCreateComment,
       },
       pulls: {
         get: mockPullsGet,
@@ -64,6 +65,7 @@ export const makeContext = (payload, name: EmitterWebhookEventName) => {
         listPullRequestsAssociatedWithCommit: mockListPullRequestsFromCommit,
         getReleaseByTag: mockGetReleaseByTag,
         updateRelease: mockUpdateRelease,
+        compareCommitsWithBasehead: mockCompareCommitsWithBasehead,
       },
       users: {
         getByUsername: mockGetByUsername,
@@ -73,16 +75,16 @@ export const makeContext = (payload, name: EmitterWebhookEventName) => {
         get: mockConfigGet,
       },
       orgs: {
-        checkMembershipForUser: mockCheckMembershipForUser
+        checkMembershipForUser: mockCheckMembershipForUser,
       },
       rest: {
         git: {
           updateRef: mockUpdateRef,
           getRef: mockGetRef,
           deleteRef: mockDeleteRef,
-          createRef: mockCreateRef
-        }
-      }
+          createRef: mockCreateRef,
+        },
+      },
     },
   };
 };

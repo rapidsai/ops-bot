@@ -16,7 +16,12 @@
 
 import { EmitterWebhookEventName } from "@octokit/webhooks";
 import { Context } from "probot";
-import { DefaultOpsBotConfig, OpsBotConfig, OpsBotConfigPath } from "./config";
+import {
+  DefaultOpsBotConfig,
+  OpsBotConfigFeatureNames,
+  OpsBotConfigFeatureValues,
+  OpsBotConfigPath,
+} from "./config";
 import {
   AutoMergerContext,
   CommitStatus,
@@ -99,7 +104,7 @@ export const isReleasePR = (
  */
 export const featureIsDisabled = async (
   context: Context,
-  feature: keyof OpsBotConfig
+  feature: keyof OpsBotConfigFeatureNames
 ): Promise<boolean> => {
   const repoParams = context.repo();
   const { config } = await context.octokit.config.get({
@@ -110,6 +115,25 @@ export const featureIsDisabled = async (
 
   console.log(`${repoParams.repo} config: `, JSON.stringify(config, null, 2));
   return !config[feature];
+};
+
+/**
+ *
+ * Returns the specified configuration value.
+ */
+export const getConfigValue = async (
+  context: Context,
+  value: keyof OpsBotConfigFeatureValues
+): Promise<number> => {
+  const repoParams = context.repo();
+  const { config } = await context.octokit.config.get({
+    ...repoParams,
+    path: OpsBotConfigPath,
+    defaults: DefaultOpsBotConfig,
+  });
+
+  console.log(`${repoParams.repo} config: `, JSON.stringify(config, null, 2));
+  return config[value];
 };
 
 /**

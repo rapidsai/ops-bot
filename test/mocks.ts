@@ -17,6 +17,9 @@
 export const mockCheckMembershipForUser = jest
   .fn()
   .mockName("mockCheckMembershipForUser");
+export const mockCompareCommitsWithBasehead = jest
+    .fn()
+    .mockName("mockCompareCommitsWithBasehead");
 export const mockConfigGet = jest.fn().mockName("mockConfigGet");
 export const mockContextRepo = jest.fn().mockName("mockContextRepo");
 export const mockCreateComment = jest.fn().mockName("mockCreateComment");

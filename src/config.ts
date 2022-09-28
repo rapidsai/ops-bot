@@ -15,17 +15,31 @@
  */
 
 /**
- * Format of the .github/ops-bot.yaml file that can be
- * set in each repository
+ * Names of the ops-bot features. Used to determine whether a given
+ * feature is enabled
  */
-export type OpsBotConfig = {
+export type OpsBotConfigFeatureNames = {
   auto_merger: boolean;
   branch_checker: boolean;
   label_checker: boolean;
   release_drafter: boolean;
+  recently_updated: boolean;
   copy_prs: boolean;
   rerun_tests: boolean;
 };
+
+/**
+ * Configurable values for ops-bot features
+ */
+export type OpsBotConfigFeatureValues = {
+  recently_updated_threshold: number;
+};
+
+/**
+ * Format of the .github/ops-bot.yaml file that can be
+ * set in each repository
+ */
+export type OpsBotConfig = OpsBotConfigFeatureNames & OpsBotConfigFeatureValues;
 
 /**
  * Default configuration options if no config is present in repository
@@ -35,8 +49,10 @@ export const DefaultOpsBotConfig: OpsBotConfig = {
   branch_checker: false,
   label_checker: false,
   release_drafter: false,
+  recently_updated: false,
   copy_prs: false,
   rerun_tests: false,
+  recently_updated_threshold: 5,
 };
 
 /**
