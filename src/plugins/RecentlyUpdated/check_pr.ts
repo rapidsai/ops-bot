@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import { createSetCommitStatus, getFeatureState, isReleasePR } from "../../shared";
+import { createSetCommitStatus, isReleasePR } from "../../shared";
 import { PRContext, ProbotOctokit, PullsListResponseData } from "../../types";
 
 export const checkPR = async (
   octokit: ProbotOctokit,
   pr: PRContext["payload"]["pull_request"] | PullsListResponseData[0],
-  pr_recently_updated_threshold: number
+  recently_updated_threshold: number
 ) => {
   const prBaseBranch = pr.base.ref;
   const prHeadLabel = pr.head.label;
@@ -47,9 +47,11 @@ export const checkPR = async (
     basehead: `${prBaseBranch}...${prHeadLabel}`,
   });
 
-  if (resp.behind_by > pr_recently_updated_threshold) {
+  const behind_by = resp.behind_by;
+
+  if (behind_by > recently_updated_threshold) {
     await setCommitStatus(
-      "PR has not merged latest changes recently",
+      `PR is ${behind_by} commits behind base branch. Merge latest changes`,
       "failure"
     );
     return;

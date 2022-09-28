@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { featureIsDisabled, getFeatureState } from "../../shared";
+import { featureIsDisabled, getFeatureValue } from "../../shared";
 import { PushContext } from "../../types";
 import { checkPR } from "./check_pr";
 
@@ -42,7 +42,12 @@ export class PushRecentlyUpdated {
       repo: repo.name,
       per_page: 100,
     });
-    const recently_updated_threshold = <number>await getFeatureState(context, "recently_updated_threshold")
-    await Promise.all(prs.map((pr) => checkPR(context.octokit, pr, recently_updated_threshold)));
+    const recently_updated_threshold = await getFeatureValue(
+      context,
+      "recently_updated_threshold"
+    );
+    await Promise.all(
+      prs.map((pr) => checkPR(context.octokit, pr, recently_updated_threshold))
+    );
   }
 }

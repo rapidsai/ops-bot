@@ -16,7 +16,12 @@
 
 import { EmitterWebhookEventName } from "@octokit/webhooks";
 import { Context } from "probot";
-import { DefaultOpsBotConfig, OpsBotConfig, OpsBotConfigPath } from "./config";
+import {
+  DefaultOpsBotConfig,
+  OpsBotConfigFeatureNames,
+  OpsBotConfigFeatureValues,
+  OpsBotConfigPath,
+} from "./config";
 import {
   AutoMergerContext,
   CommitStatus,
@@ -99,7 +104,7 @@ export const isReleasePR = (
  */
 export const featureIsDisabled = async (
   context: Context,
-  feature: keyof OpsBotConfig
+  feature: keyof OpsBotConfigFeatureNames
 ): Promise<boolean> => {
   const repoParams = context.repo();
   const { config } = await context.octokit.config.get({
@@ -116,10 +121,10 @@ export const featureIsDisabled = async (
  *
  * Returns the specified feature's state.
  */
- export const getFeatureState = async (
+export const getFeatureValue = async (
   context: Context,
-  feature: keyof OpsBotConfig
-): Promise<number | boolean> => {
+  feature: keyof OpsBotConfigFeatureValues
+): Promise<number> => {
   const repoParams = context.repo();
   const { config } = await context.octokit.config.get({
     ...repoParams,
