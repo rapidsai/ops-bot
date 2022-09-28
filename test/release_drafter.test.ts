@@ -15,7 +15,6 @@
 */
 
 import { ReleaseDrafter } from "../src/plugins/ReleaseDrafter/release_drafter";
-import * as context from "./fixtures/contexts/push";
 import { release_drafter as listPullsResp } from "./fixtures/responses/list_pulls.json";
 import { default as getReleaseByTagResp } from "./fixtures/responses/get_release_by_tag.json";
 import {
@@ -30,7 +29,6 @@ import {
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
 import { makeConfigReponse } from "./fixtures/responses/get_config";
 import axios from "axios";
-import { PushContext } from "../src/types";
 import { getVersionFromBranch } from "../src/shared";
 import { makePushContext } from "./fixtures/contexts/push";
 jest.mock("axios");

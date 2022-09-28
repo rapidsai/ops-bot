@@ -23,9 +23,13 @@ import {
   UsersGetByUsernameResponseData,
 } from "../../types";
 import strip from "strip-comments";
-import { ADMIN_PERMISSION, featureIsDisabled, issueIsPR, validCommentsExistByPredicate, WRITE_PERMISSION } from "../../shared";
-
-const MERGE_COMMENT = "@gpucibot merge";
+import {
+  Command,
+  featureIsDisabled,
+  issueIsPR,
+  Permission,
+  validCommentsExistByPredicate,
+} from "../../shared";
 
 export class AutoMerger {
   public context: AutoMergerContext;
@@ -122,7 +126,7 @@ export class AutoMerger {
       if(!(await validCommentsExistByPredicate(
         this.context,
         pr.number,
-        [ADMIN_PERMISSION, WRITE_PERMISSION],
+        [Permission.admin, Permission.write],
         comment => this.isMergeComment(comment.body || "")))) {
         console.warn(
           `${prDescription} doesn't have merge comment. Skipping...`
@@ -210,11 +214,10 @@ export class AutoMerger {
 
   /**
    * Returns true if the given comment is the merge comment string.
-   * (Case-insensitive, trims leading & trailing whitespace)
    * @param comment
    */
   isMergeComment(comment: string): boolean {
-    return comment.toLowerCase().trim() === MERGE_COMMENT;
+    return Boolean(comment.match(Command.Merge));
   }
 
   /**
