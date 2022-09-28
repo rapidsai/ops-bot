@@ -32,10 +32,13 @@ import {
   PullsGetResponseData,
 } from "./types";
 
-const OK_TO_TEST_COMMENT = "ok to test";
-const OKAY_TO_TEST_COMMENT = "okay to test";
 export const ADMIN_PERMISSION = "admin";
 export const WRITE_PERMISSION = "write";
+
+export const Command = {
+  OkToTest: new RegExp("^ok(ay)? to test$"),
+  Merge: new RegExp("^@gpucibot merge$"),
+};
 
 /**
  * RegEx representing RAPIDS branch name patterns
@@ -159,8 +162,8 @@ export const getPRBranchName = (number: number) => {
  * string
  * @param comment
  */
-export const isOkayToTestComment = (comment: string) => {
-  return [OKAY_TO_TEST_COMMENT, OK_TO_TEST_COMMENT].includes(comment);
+export const isOkayToTestComment = (comment: string): Boolean => {
+  return Boolean(comment.match(Command.OkToTest));
 };
 
 /**

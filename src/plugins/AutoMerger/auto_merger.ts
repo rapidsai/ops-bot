@@ -23,9 +23,14 @@ import {
   UsersGetByUsernameResponseData,
 } from "../../types";
 import strip from "strip-comments";
-import { ADMIN_PERMISSION, featureIsDisabled, issueIsPR, validCommentsExistByPredicate, WRITE_PERMISSION } from "../../shared";
-
-const MERGE_COMMENT = "@gpucibot merge";
+import {
+  ADMIN_PERMISSION,
+  Command,
+  featureIsDisabled,
+  issueIsPR,
+  validCommentsExistByPredicate,
+  WRITE_PERMISSION,
+} from "../../shared";
 
 export class AutoMerger {
   public context: AutoMergerContext;
@@ -210,11 +215,10 @@ export class AutoMerger {
 
   /**
    * Returns true if the given comment is the merge comment string.
-   * (Case-insensitive, trims leading & trailing whitespace)
    * @param comment
    */
   isMergeComment(comment: string): boolean {
-    return comment.toLowerCase().trim() === MERGE_COMMENT;
+    return Boolean(comment.match(Command.Merge));
   }
 
   /**
