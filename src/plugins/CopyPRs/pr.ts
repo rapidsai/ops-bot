@@ -17,11 +17,8 @@
 import {
   featureIsDisabled,
   getPRBranchName,
-  isOkayToTestComment,
   isOrgMember,
-  Permission,
   updateOrCreateBranch,
-  validCommentsExistByPredicate,
 } from "../../shared";
 import { PRContext } from "../../types";
 
@@ -69,17 +66,11 @@ export class PRCopyPRs {
     // pull_request.synchronize
     if (payload.action === "synchronize" || payload.action === "reopened") {
       if (
-        (await isOrgMember(
+        await isOrgMember(
           this.context.octokit,
           payload.pull_request.user.login,
           orgName
-        )) ||
-        (await validCommentsExistByPredicate(
-          this.context,
-          this.context.payload.pull_request.number,
-          [Permission.admin, Permission.write],
-          (comment) => isOkayToTestComment(comment.body || "") && !!comment.user
-        ))
+        )
       ) {
         await updateOrCreateBranch(
           this.context.octokit,
