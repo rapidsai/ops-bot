@@ -15,7 +15,7 @@
  */
 
 import axios from "axios";
-import { featureIsDisabled, getPRBranchName, issueIsPR } from "../../shared";
+import { Command, featureIsDisabled, getPRBranchName, issueIsPR } from "../../shared";
 import { IssueCommentContext } from "../../types";
 
 export class RerunTests {
@@ -31,7 +31,7 @@ export class RerunTests {
     if (await featureIsDisabled(context, "rerun_tests")) return;
 
     if (!issueIsPR(context)) return;
-    if (!context.payload.comment.body.match(/.*(re)?run\W+tests.*/)) return;
+    if (!context.payload.comment.body.match(Command.RerunTests)) return;
 
     const repo = context.payload.repository.name;
     const prNumber = context.payload.issue.number;

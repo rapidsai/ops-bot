@@ -77,11 +77,11 @@ describe("Rerun Tests", () => {
       false,
       "https://gpuci.gpuopenanalytics.com/job/orgs/job/cudf/job/pull-request%2F468/build",
     ],
-  ])("PR comment is rerun tests", async (isPrivateRepo, expectedPostUrl) => {
+  ])("PR comment is /rerun tests", async (isPrivateRepo, expectedPostUrl) => {
     const context = makeIssueCommentContext({
       is_pr: true,
       is_private: isPrivateRepo,
-      body: "rerun tests",
+      body: "/rerun tests",
     });
     mockedAxios.get.mockResolvedValueOnce({ data: "Jenkins-Crumb:abc1234" });
     process.env.JENKINS_USERNAME = "jenkinsuser";
