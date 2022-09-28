@@ -33,14 +33,8 @@ export class CommentCopyPRs {
     const { payload } = this.context;
     const prNumber = payload.issue.number;
     const username = payload.comment.user.login;
-    const testCommitComment = "test last commit";
 
-    if (
-      !(
-        isOkayToTestComment(payload.comment.body) ||
-        payload.comment.body === testCommitComment
-      )
-    ) {
+    if (!isOkayToTestComment(payload.comment.body)) {
       return;
     }
 
