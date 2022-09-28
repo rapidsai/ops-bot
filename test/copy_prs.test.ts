@@ -86,30 +86,6 @@ describe("External Contributors", () => {
     expect(mockCreateRef).toBeCalledTimes(0);
   });
 
-  test.each([["/ok to test"], ["/okay to test"]])(
-    "pull_request.synchronize, do nothing when existing okay-to-test comment has insufficient permission",
-    async (commentBody) => {
-      const prContext = makePRContext({ action: "synchronize", user: "ayode" });
-      mockCheckMembershipForUser.mockRejectedValueOnce({ status: 404 });
-      mockPaginate.mockResolvedValueOnce([
-        { body: commentBody, user: { login: "ayode" } },
-      ]);
-      mockGetUserPermissionLevel.mockResolvedValueOnce({
-        data: { permission: "non-admin" },
-      });
-
-      await new PRCopyPRs(prContext).maybeCopyPR();
-
-      expect(mockUpdateRef).toBeCalledTimes(0);
-      expect(mockGetUserPermissionLevel).toBeCalledTimes(1);
-      expect(mockGetUserPermissionLevel).toHaveBeenCalledWith({
-        username: "ayode",
-        repo: prContext.payload.repository.name,
-        owner: prContext.payload.repository.owner.login,
-      });
-    }
-  );
-
   test("pull_request.synchronize, update ref for org member", async () => {
     const prContext = makePRContext({ action: "synchronize", user: "ayode" });
     mockCheckMembershipForUser.mockResolvedValueOnce({ status: 204 });
@@ -119,35 +95,6 @@ describe("External Contributors", () => {
     expect(mockUpdateRef).toBeCalledTimes(1);
     expect(mockGetUserPermissionLevel).toBeCalledTimes(0);
   });
-
-  test.each([
-    ["/ok to test", "admin"],
-    ["/okay to test", "write"],
-  ])(
-    "pull_request.synchronize, when valid existing okay-to-test comment, update commit in source repo for external contributor",
-    async (commentBody, permission) => {
-      const prContext = makePRContext({ action: "synchronize", user: "ayode" });
-      mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
-      mockPaginate.mockResolvedValueOnce([
-        { body: commentBody, user: { login: "jake" } },
-      ]);
-      mockGetUserPermissionLevel.mockResolvedValueOnce({
-        data: { permission },
-      });
-
-      await new PRCopyPRs(prContext).maybeCopyPR();
-
-      expect(mockUpdateRef).toBeCalledTimes(1);
-      expect(mockGetUserPermissionLevel).toBeCalledTimes(1);
-      expect(mockUpdateRef).toBeCalledWith({
-        ref: `heads/pull-request/${prContext.payload.pull_request.number}`,
-        repo: prContext.payload.repository.name,
-        owner: prContext.payload.repository.owner.login,
-        sha: prContext.payload.pull_request.head.sha,
-        force: true,
-      });
-    }
-  );
 
   test("pull_request.reopened, update ref for org members", async () => {
     const prContext = makePRContext({ action: "reopened", user: "ayodes" });
@@ -162,118 +109,6 @@ describe("External Contributors", () => {
     expect(mockPaginate).toBeCalledTimes(0);
     expect(mockUpdateRef).toBeCalledTimes(1);
   });
-
-  test("pull_request.reopened, do nothing when no existing okay-to-test comments for external contributor", async () => {
-    const prContext = makePRContext({ action: "reopened", user: "ayodes" });
-    mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
-    mockPaginate.mockResolvedValueOnce([
-      { body: "other comment", user: { login: "ayode" } },
-    ]);
-
-    await new PRCopyPRs(prContext).maybeCopyPR();
-
-    expect(mockCheckMembershipForUser).toBeCalledWith({
-      username: "ayodes",
-      org: "rapidsai",
-    });
-    expect(mockPaginate).toBeCalledTimes(1);
-    expect(mockUpdateRef).toBeCalledTimes(0);
-  });
-
-  test.each([["/ok to test"], ["/okay to test"]])(
-    "pull_request.reopened, do nothing when existing okay-to-test comment has insufficient permission for external contributor",
-    async (commentBody) => {
-      const prContext = makePRContext({ action: "reopened", user: "ayode" });
-      mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
-      mockPaginate.mockResolvedValueOnce([
-        { body: commentBody, user: { login: "ayode" } },
-      ]);
-      mockGetUserPermissionLevel.mockResolvedValueOnce({
-        data: { permission: "non-admin" },
-      });
-
-      await new PRCopyPRs(prContext).maybeCopyPR();
-
-      expect(mockCheckMembershipForUser).toBeCalledWith({
-        username: "ayode",
-        org: "rapidsai",
-      });
-      expect(mockUpdateRef).toBeCalledTimes(0);
-      expect(mockGetUserPermissionLevel).toBeCalledTimes(1);
-      expect(mockGetUserPermissionLevel).toHaveBeenCalledWith({
-        username: "ayode",
-        repo: prContext.payload.repository.name,
-        owner: prContext.payload.repository.owner.login,
-      });
-    }
-  );
-
-  test.each([
-    ["/ok to test", "admin"],
-    ["/okay to test", "write"],
-  ])(
-    "pull_request.reopened, when valid existing okay-to-test comment, update commit in source repo for external contributors",
-    async (commentBody, permission) => {
-      const prContext = makePRContext({ action: "reopened", user: "ayode" });
-      mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
-      mockPaginate.mockResolvedValueOnce([
-        { body: commentBody, user: { login: "jake" } },
-      ]);
-      mockGetUserPermissionLevel.mockResolvedValueOnce({
-        data: { permission },
-      });
-      mockUpdateRef.mockResolvedValueOnce(true);
-
-      await new PRCopyPRs(prContext).maybeCopyPR();
-
-      expect(mockUpdateRef).toBeCalledTimes(1);
-      expect(mockGetUserPermissionLevel).toBeCalledTimes(1);
-      expect(mockUpdateRef).toBeCalledWith({
-        ref: `heads/pull-request/${prContext.payload.pull_request.number}`,
-        repo: prContext.payload.repository.name,
-        owner: prContext.payload.repository.owner.login,
-        sha: prContext.payload.pull_request.head.sha,
-        force: true,
-      });
-    }
-  );
-
-  test.each([
-    ["/ok to test", "admin"],
-    ["/okay to test", "write"],
-  ])(
-    "pull_request.reopened, when valid existing okay-to-test comment and branch is deleted, re-create branch in source repo",
-    async (commentBody, permission) => {
-      const prContext = makePRContext({ action: "reopened", user: "ayode" });
-      mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
-      mockPaginate.mockResolvedValueOnce([
-        { body: commentBody, user: { login: "jake" } },
-      ]);
-      mockGetUserPermissionLevel.mockResolvedValueOnce({
-        data: { permission },
-      });
-      mockUpdateRef.mockRejectedValueOnce({ status: 422 });
-
-      await new PRCopyPRs(prContext).maybeCopyPR();
-
-      expect(mockCreateRef).toBeCalledTimes(1);
-      expect(mockGetUserPermissionLevel).toBeCalledTimes(1);
-      expect(mockUpdateRef).toBeCalledTimes(1);
-      expect(mockCreateRef).toBeCalledWith({
-        ref: `refs/heads/pull-request/${prContext.payload.pull_request.number}`,
-        repo: prContext.payload.repository.name,
-        owner: prContext.payload.repository.owner.login,
-        sha: prContext.payload.pull_request.head.sha,
-      });
-      expect(mockUpdateRef).toBeCalledWith({
-        ref: `heads/pull-request/${prContext.payload.pull_request.number}`,
-        repo: prContext.payload.repository.name,
-        owner: prContext.payload.repository.owner.login,
-        sha: prContext.payload.pull_request.head.sha,
-        force: true,
-      });
-    }
-  );
 
   test("pull_request.closed, delete source branch", async () => {
     const prContext = makePRContext({ action: "closed", user: "ayode" });
@@ -345,8 +180,6 @@ describe("External Contributors", () => {
   test.each([
     ["/ok to test", "admin"],
     ["/okay to test", "write"],
-    ["test last commit", "admin"],
-    ["test last commit", "write"],
   ])(
     "issue_comment.created, copy code from forked repository to source repository if valid comment & branch doesn't exist",
     async (body, permission) => {
@@ -378,8 +211,6 @@ describe("External Contributors", () => {
   test.each([
     ["/ok to test", "admin"],
     ["/okay to test", "write"],
-    ["test last commit", "admin"],
-    ["test last commit", "write"],
   ])(
     "issue_comment.created, copy code from forked repository to source repository if valid comment & branch does exist",
     async (body, permission) => {
