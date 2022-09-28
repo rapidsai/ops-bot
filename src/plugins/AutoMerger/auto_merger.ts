@@ -24,12 +24,11 @@ import {
 } from "../../types";
 import strip from "strip-comments";
 import {
-  ADMIN_PERMISSION,
   Command,
   featureIsDisabled,
   issueIsPR,
+  Permission,
   validCommentsExistByPredicate,
-  WRITE_PERMISSION,
 } from "../../shared";
 
 export class AutoMerger {
@@ -127,7 +126,7 @@ export class AutoMerger {
       if(!(await validCommentsExistByPredicate(
         this.context,
         pr.number,
-        [ADMIN_PERMISSION, WRITE_PERMISSION],
+        [Permission.admin, Permission.write],
         comment => this.isMergeComment(comment.body || "")))) {
         console.warn(
           `${prDescription} doesn't have merge comment. Skipping...`

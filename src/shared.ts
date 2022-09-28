@@ -32,8 +32,10 @@ import {
   PullsGetResponseData,
 } from "./types";
 
-export const ADMIN_PERMISSION = "admin";
-export const WRITE_PERMISSION = "write";
+export const Permission = {
+  admin: "admin",
+  write: "write",
+};
 
 export const Command = {
   OkToTest: new RegExp("^ok(ay)? to test$"),

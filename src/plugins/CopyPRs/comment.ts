@@ -15,14 +15,13 @@
  */
 
 import {
-  ADMIN_PERMISSION,
   featureIsDisabled,
   getPRBranchName,
   isOkayToTestComment,
   isOrgMember,
   issueIsPR,
+  Permission,
   updateOrCreateBranch,
-  WRITE_PERMISSION,
 } from "../../shared";
 import { IssueCommentContext } from "../../types";
 
@@ -89,7 +88,7 @@ export class CommentCopyPRs {
   }
 
   private async authorHasPermission(actor) {
-    return [ADMIN_PERMISSION, WRITE_PERMISSION].includes(
+    return [Permission.admin, Permission.write].includes(
       (
         await this.context.octokit.repos.getCollaboratorPermissionLevel({
           owner: this.context.payload.repository.owner.login,

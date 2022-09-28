@@ -15,14 +15,13 @@
  */
 
 import {
-  ADMIN_PERMISSION,
   featureIsDisabled,
   getPRBranchName,
   isOkayToTestComment,
   isOrgMember,
+  Permission,
   updateOrCreateBranch,
   validCommentsExistByPredicate,
-  WRITE_PERMISSION,
 } from "../../shared";
 import { PRContext } from "../../types";
 
@@ -78,7 +77,7 @@ export class PRCopyPRs {
         (await validCommentsExistByPredicate(
           this.context,
           this.context.payload.pull_request.number,
-          [ADMIN_PERMISSION, WRITE_PERMISSION],
+          [Permission.admin, Permission.write],
           (comment) => isOkayToTestComment(comment.body || "") && !!comment.user
         ))
       ) {
