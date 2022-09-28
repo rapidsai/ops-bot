@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { featureIsDisabled, getFeatureValue } from "../../shared";
+import { featureIsDisabled, getConfigValue } from "../../shared";
 import { PRContext } from "../../types";
 import { checkPR } from "./check_pr";
 
@@ -31,7 +31,7 @@ export class PRRecentlyUpdated {
     await checkPR(
       context.octokit,
       context.payload.pull_request,
-      await getFeatureValue(context, "recently_updated_threshold")
+      await getConfigValue(context, "recently_updated_threshold")
     );
   }
 }

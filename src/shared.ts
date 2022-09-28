@@ -119,11 +119,11 @@ export const featureIsDisabled = async (
 
 /**
  *
- * Returns the specified feature's state.
+ * Returns the specified configuration value.
  */
-export const getFeatureValue = async (
+export const getConfigValue = async (
   context: Context,
-  feature: keyof OpsBotConfigFeatureValues
+  value: keyof OpsBotConfigFeatureValues
 ): Promise<number> => {
   const repoParams = context.repo();
   const { config } = await context.octokit.config.get({
@@ -133,7 +133,7 @@ export const getFeatureValue = async (
   });
 
   console.log(`${repoParams.repo} config: `, JSON.stringify(config, null, 2));
-  return config[feature];
+  return config[value];
 };
 
 /**
