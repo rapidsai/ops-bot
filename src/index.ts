@@ -28,7 +28,6 @@ export = (app: Probot) => {
   initLabelChecker(app);
   initReleaseDrafter(app);
   initAutoMerger(app);
-  initExternalContributors(app);
   initRecentlyUpdated(app);
   initCopyPRs(app);
   initRerunTests(app);
