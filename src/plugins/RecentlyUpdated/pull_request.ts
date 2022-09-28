@@ -27,12 +27,12 @@ export class PRRecentlyUpdated {
 
   async checkPR() {
     const { context } = this;
-    if (await featureIsDisabled(context, "pr_recently_updated")) return;
+    if (await featureIsDisabled(context, "recently_updated")) return;
     await checkPR
     (
       context.octokit, 
       context.payload.pull_request, 
-      <number>await getFeatureState(context, "pr_recently_updated_threshold")
+      <number>await getFeatureState(context, "recently_updated_threshold")
     );
   }
 }
