@@ -41,9 +41,10 @@ describe("Recently Updated", () => {
     beforeAll(() => {
       mockContextRepo.mockReturnValue(repoResp);
       mockConfigGet.mockResolvedValue(
-        makeConfigReponse({ 
-          pr_recently_updated: true, 
-          pr_recently_updated_threshold: 5 })
+        makeConfigReponse({
+          recently_updated: true,
+          recently_updated_threshold: 5,
+        })
       );
     });
 
@@ -85,7 +86,7 @@ describe("Recently Updated", () => {
       expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
       expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
       expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
-        "PR has not merged latest changes recently"
+        "PR is 7 commits behind base branch. Merge latest changes"
       );
     });
   });
