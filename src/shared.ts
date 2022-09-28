@@ -37,7 +37,7 @@ export const Permission = {
 };
 
 export const Command = {
-  OkToTest: new RegExp("^ok(ay)? to test$"),
+  OkToTest: new RegExp("^/ok(ay)? to test$"),
   Merge: new RegExp("^@gpucibot merge$"),
 };
 

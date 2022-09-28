@@ -86,7 +86,7 @@ describe("External Contributors", () => {
     expect(mockCreateRef).toBeCalledTimes(0);
   });
 
-  test.each([["ok to test"], ["okay to test"]])(
+  test.each([["/ok to test"], ["/okay to test"]])(
     "pull_request.synchronize, do nothing when existing okay-to-test comment has insufficient permission",
     async (commentBody) => {
       const prContext = makePRContext({ action: "synchronize", user: "ayode" });
@@ -121,8 +121,8 @@ describe("External Contributors", () => {
   });
 
   test.each([
-    ["ok to test", "admin"],
-    ["okay to test", "write"],
+    ["/ok to test", "admin"],
+    ["/okay to test", "write"],
   ])(
     "pull_request.synchronize, when valid existing okay-to-test comment, update commit in source repo for external contributor",
     async (commentBody, permission) => {
@@ -180,7 +180,7 @@ describe("External Contributors", () => {
     expect(mockUpdateRef).toBeCalledTimes(0);
   });
 
-  test.each([["ok to test"], ["okay to test"]])(
+  test.each([["/ok to test"], ["/okay to test"]])(
     "pull_request.reopened, do nothing when existing okay-to-test comment has insufficient permission for external contributor",
     async (commentBody) => {
       const prContext = makePRContext({ action: "reopened", user: "ayode" });
@@ -209,8 +209,8 @@ describe("External Contributors", () => {
   );
 
   test.each([
-    ["ok to test", "admin"],
-    ["okay to test", "write"],
+    ["/ok to test", "admin"],
+    ["/okay to test", "write"],
   ])(
     "pull_request.reopened, when valid existing okay-to-test comment, update commit in source repo for external contributors",
     async (commentBody, permission) => {
@@ -239,8 +239,8 @@ describe("External Contributors", () => {
   );
 
   test.each([
-    ["ok to test", "admin"],
-    ["okay to test", "write"],
+    ["/ok to test", "admin"],
+    ["/okay to test", "write"],
   ])(
     "pull_request.reopened, when valid existing okay-to-test comment and branch is deleted, re-create branch in source repo",
     async (commentBody, permission) => {
@@ -300,7 +300,7 @@ describe("External Contributors", () => {
     expect(mockCheckMembershipForUser).toHaveBeenCalledTimes(0);
   });
 
-  test.each([["ok to test"], ["okay to test"]])(
+  test.each([["/ok to test"], ["/okay to test"]])(
     "issue_comment.created, do nothing if issue is not PR",
     async (body) => {
       const issueContext = makeIssueCommentContext({ is_pr: false, body });
@@ -311,7 +311,7 @@ describe("External Contributors", () => {
     }
   );
 
-  test.each([["ok to test"], ["okay to test"]])(
+  test.each([["/ok to test"], ["/okay to test"]])(
     "issue_comment.created, do nothing if issue author is org member",
     async (body) => {
       const issueContext = makeIssueCommentContext({ is_pr: true, body });
@@ -323,7 +323,7 @@ describe("External Contributors", () => {
     }
   );
 
-  test.each([["ok to test"], ["okay to test"]])(
+  test.each([["/ok to test"], ["/okay to test"]])(
     "issue_comment.created, if commenter has insufficient permissions",
     async (body) => {
       const issueContext = makeIssueCommentContext({ is_pr: true, body });
@@ -343,8 +343,8 @@ describe("External Contributors", () => {
   );
 
   test.each([
-    ["ok to test", "admin"],
-    ["okay to test", "write"],
+    ["/ok to test", "admin"],
+    ["/okay to test", "write"],
     ["test last commit", "admin"],
     ["test last commit", "write"],
   ])(
@@ -376,8 +376,8 @@ describe("External Contributors", () => {
   );
 
   test.each([
-    ["ok to test", "admin"],
-    ["okay to test", "write"],
+    ["/ok to test", "admin"],
+    ["/okay to test", "write"],
     ["test last commit", "admin"],
     ["test last commit", "write"],
   ])(
