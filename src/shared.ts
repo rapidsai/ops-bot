@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { EmitterWebhookEventName } from "@octokit/webhooks";
 import { Context } from "probot";
 import {
   DefaultOpsBotConfig,
