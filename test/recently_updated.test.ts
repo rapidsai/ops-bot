@@ -58,7 +58,7 @@ describe("Recently Updated", () => {
       expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
       expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
       expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
-        "Release PR detected"
+        "Automated GPUTester PR detected"
       );
     });
 
@@ -112,7 +112,7 @@ describe("Recently Updated", () => {
       expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
       expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
       expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
-        "Release PR detected"
+        "Automated GPUTester PR detected"
       );
     });
 

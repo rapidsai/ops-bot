@@ -1,18 +1,18 @@
 /*
-* Copyright (c) 2022, NVIDIA CORPORATION.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2022, NVIDIA CORPORATION.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import { PRBranchChecker } from "../src/plugins/BranchChecker/pull_request";
 import { RepositoryBranchChecker } from "../src/plugins/BranchChecker/repository";
@@ -59,7 +59,7 @@ describe("Label Checker", () => {
       expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
       expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
       expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
-        "Release PR detected"
+        "Automated GPUTester PR detected"
       );
     });
 
@@ -168,7 +168,7 @@ describe("Label Checker", () => {
       expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
       expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
       expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
-        "Release PR detected"
+        "Automated GPUTester PR detected"
       );
     });
   });
