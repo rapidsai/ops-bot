@@ -93,13 +93,10 @@ export const createSetCommitStatus = (
   };
 };
 
-export const isReleasePR = (
-  pullRequest: Pick<PullsGetResponseData, "title" | "user">
+export const isGPUTesterPR = (
+  pullRequest: Pick<PullsGetResponseData, "user">
 ): boolean => {
-  return (
-    pullRequest.user?.login === "GPUtester" &&
-    pullRequest.title.toLowerCase().includes("[release]")
-  );
+  return pullRequest.user?.login.toLowerCase() === "gputester";
 };
 
 /**

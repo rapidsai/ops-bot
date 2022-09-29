@@ -17,6 +17,7 @@
 import {
   featureIsDisabled,
   getPRBranchName,
+  isGPUTesterPR,
   isOrgMember,
   updateOrCreateBranch,
 } from "../../shared";
@@ -29,6 +30,10 @@ export class PRCopyPRs {
     const { payload } = this.context;
     const orgName = payload.repository.owner.login;
     if (await featureIsDisabled(this.context, "copy_prs")) return;
+
+    if (isGPUTesterPR(payload.pull_request)) {
+      return;
+    }
 
     // pull_request.opened event
     if (payload.action === "opened") {
