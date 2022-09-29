@@ -1,18 +1,18 @@
 /*
-* Copyright (c) 2022, NVIDIA CORPORATION.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2022, NVIDIA CORPORATION.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import { LabelChecker } from "../src/plugins/LabelChecker/label_checker";
 import { makePRContext } from "./fixtures/contexts/pull_request";
@@ -216,7 +216,7 @@ describe("Label Checker", () => {
     );
   });
 
-  test("correct labels - forward merge PR", async () => {
+  test("correct labels - GPUTester PR", async () => {
     const context = makePRContext({
       title: "[gpuCI] Forward-merge branch-0.18 to branch-0.19 [skip ci]",
       user: "GPUtester",
@@ -232,30 +232,7 @@ describe("Label Checker", () => {
     );
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
     expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
-      "No labels necessary for forward-merging PRs"
-    );
-    expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
-      "https://docs.rapids.ai/resources/label-checker/"
-    );
-  });
-
-  test("correct labels - release PR", async () => {
-    const context = makePRContext({
-      title: "[RELEASE] cuml v0.18",
-      user: "GPUtester",
-    });
-    await new LabelChecker(context).checkLabels();
-    expect(mockCreateCommitStatus).toBeCalledTimes(2);
-    expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
-    expect(mockCreateCommitStatus.mock.calls[0][0].target_url).toBe(
-      "https://docs.rapids.ai/resources/label-checker/"
-    );
-    expect(mockCreateCommitStatus.mock.calls[0][0].description).toBe(
-      "Checking labels..."
-    );
-    expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
-    expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
-      "No labels necessary for release PRs"
+      "No labels necessary for GPUTester PRs"
     );
     expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
       "https://docs.rapids.ai/resources/label-checker/"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { createSetCommitStatus, isReleasePR } from "../../shared";
+import { createSetCommitStatus, isGPUTesterPR } from "../../shared";
 import { PRContext, ProbotOctokit, PullsListResponseData } from "../../types";
 
 export const checkPR = async (
@@ -36,8 +36,8 @@ export const checkPR = async (
 
   await setCommitStatus("Checking if PR has recent updates...", "pending");
 
-  if (isReleasePR(pr)) {
-    await setCommitStatus("Release PR detected", "success");
+  if (isGPUTesterPR(pr)) {
+    await setCommitStatus("Automated GPUTester PR detected", "success");
     return;
   }
 
