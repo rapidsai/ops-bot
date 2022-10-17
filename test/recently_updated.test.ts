@@ -57,6 +57,9 @@ describe("Recently Updated", () => {
       expect(mockCreateCommitStatus).toBeCalledTimes(2);
       expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
       expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
+      expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
+        "https://docs.rapids.ai/resources/recently-updated/"
+      );
       expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
         "Automated GPUTester PR detected"
       );
@@ -71,6 +74,9 @@ describe("Recently Updated", () => {
       expect(mockCreateCommitStatus).toBeCalledTimes(2);
       expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
       expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
+      expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
+        "https://docs.rapids.ai/resources/recently-updated/"
+      );
       expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
         "PR includes recent base branch changes"
       );
@@ -85,6 +91,9 @@ describe("Recently Updated", () => {
       expect(mockCreateCommitStatus).toBeCalledTimes(2);
       expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
       expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("failure");
+      expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
+        "https://docs.rapids.ai/resources/recently-updated/"
+      );
       expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
         "PR is 7 commits behind base branch. Merge latest changes"
       );
@@ -111,6 +120,9 @@ describe("Recently Updated", () => {
       expect(mockCreateCommitStatus).toBeCalledTimes(2);
       expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
       expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
+      expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
+        "https://docs.rapids.ai/resources/recently-updated/"
+      );
       expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
         "Automated GPUTester PR detected"
       );

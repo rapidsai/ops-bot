@@ -30,6 +30,7 @@ export const checkPR = async (
     owner: pr.base.repo.owner.login,
     repo: pr.base.repo.name,
     sha: pr.head.sha,
+    target_url: "https://docs.rapids.ai/resources/recently-updated/",
   });
 
   console.log("Checking if PR has recent updates:", JSON.stringify(pr));
