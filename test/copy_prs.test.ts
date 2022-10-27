@@ -63,9 +63,7 @@ describe("External Contributors", () => {
     });
   });
 
-  // This test can be unskipped once the `if (orgName === "rapidsai") return;` statement
-  // is removed from "src/plugins/CopyPRs/pr.ts"
-  test.skip("pull_request.opened, create correct comment when author is external contibutor", async () => {
+  test("pull_request.opened, create correct comment when author is external contibutor", async () => {
     const prContext = makePRContext({ action: "opened", user: "ayodes" });
     mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
     mockCreateComment.mockResolvedValueOnce(true);
