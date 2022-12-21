@@ -15,6 +15,7 @@ provider:
   environment:
     JENKINS_USERNAME: ${env:JENKINS_USERNAME}
     JENKINS_TOKEN: ${env:JENKINS_TOKEN}
+    NODE_ENV: production
 
 functions:
   handleProbot:
