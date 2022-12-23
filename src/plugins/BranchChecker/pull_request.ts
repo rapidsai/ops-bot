@@ -28,6 +28,6 @@ export class PRBranchChecker {
   async checkPR() {
     const { context } = this;
     if (await featureIsDisabled(context, "branch_checker")) return;
-    await checkPR(context.octokit, context.payload.pull_request);
+    await checkPR(context, context.payload.pull_request);
   }
 }

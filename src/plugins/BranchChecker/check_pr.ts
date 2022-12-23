@@ -20,11 +20,12 @@ import {
   isVersionedBranch,
   getVersionFromBranch,
 } from "../../shared";
-import { PRContext, ProbotOctokit, PullsListResponseData } from "../../types";
+import { PRContext, PullsListResponseData } from "../../types";
+import { Context } from "probot";
 import axios from "axios";
 
 export const checkPR = async (
-  octokit: ProbotOctokit,
+  context: Context,
   pr: PRContext["payload"]["pull_request"] | PullsListResponseData[0]
 ) => {
   const prBaseBranch = pr.base.ref;
@@ -32,14 +33,14 @@ export const checkPR = async (
     pr.base.repo.default_branch
   );
   const errDescription = "Base branch is not under active development";
-  const setCommitStatus = createSetCommitStatus(octokit, {
+  const setCommitStatus = createSetCommitStatus(context.octokit, {
     context: "Branch Checker",
     owner: pr.base.repo.owner.login,
     repo: pr.base.repo.name,
     sha: pr.head.sha,
   });
 
-  console.log("Checking base branch on PR:", JSON.stringify(pr));
+  context.log.info({ ...context.payload, pr }, "check base branch");
 
   await setCommitStatus("Checking base branch...", "pending");
 

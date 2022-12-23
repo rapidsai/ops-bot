@@ -36,6 +36,6 @@ export class RepositoryBranchChecker {
       per_page: 100,
     });
 
-    await Promise.all(prs.map((pr) => checkPR(context.octokit, pr)));
+    await Promise.all(prs.map((pr) => checkPR(context, pr)));
   }
 }
