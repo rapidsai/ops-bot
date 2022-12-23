@@ -47,7 +47,7 @@ export class PushRecentlyUpdated {
       "recently_updated_threshold"
     );
     await Promise.all(
-      prs.map((pr) => checkPR(context.octokit, pr, recently_updated_threshold))
+      prs.map((pr) => checkPR(context, pr, recently_updated_threshold))
     );
   }
 }

@@ -1,18 +1,18 @@
 /*
-* Copyright (c) 2022, NVIDIA CORPORATION.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2022, NVIDIA CORPORATION.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import {
   AutoMergerContext,
@@ -45,18 +45,13 @@ export class AutoMerger {
 
     // Handle "status" context
     if (this.isStatusContext(context)) {
-      const sha = context.payload.sha;
       if (context.payload.state !== "success") {
-        console.warn(
-          `Status is not "success" for sha:${sha} in repo:${repo.full_name}. Skipping...`
-        );
+        context.log.info(context.payload, "status was not success");
         return;
       }
       prNumbers = await this.getPRNumbersfromSHA(context);
       if (!prNumbers.length) {
-        console.warn(
-          `Could not find PR for sha:${sha} in repo:${repo.full_name}. Skipping...`
-        );
+        context.log.info(context.payload, "no PRs found for SHA");
         return;
       }
     }
@@ -66,17 +61,11 @@ export class AutoMerger {
       const comment = context.payload.comment.body;
       prNumbers.push(context.payload.issue.number);
       if (!issueIsPR(context)) {
-        console.warn(
-          `The following comment from ${repo.full_name} #${prNumbers[0]} was from an issue, not a PR: ${comment}.\n`,
-          `Skipping...`
-        );
+        context.log.info(context.payload, "comment was for issue, not PR");
         return;
       }
       if (!this.isMergeComment(comment)) {
-        console.warn(
-          `The following comment from ${repo.full_name} #${prNumbers[0]} was not a merge comment: ${comment}.\n`,
-          `Skipping...`
-        );
+        context.log.info(context.payload, "not a merge comment");
         return;
       }
     }
@@ -86,19 +75,14 @@ export class AutoMerger {
       const { payload } = context;
       prNumbers.push(payload.pull_request.number);
       if (payload.review.state !== "approved") {
-        console.warn(
-          `PR review for ${repo.full_name} #${prNumbers[0]} was not an approval. Skipping...`
-        );
+        context.log.info(context.payload, "PR review was not approval");
         return;
       }
     }
 
     // Catch-all
     if (!prNumbers.length) {
-      const name = context.name;
-      console.warn(
-        `No matching handler for context:${name} from repo:${repo.full_name}`
-      );
+      context.log.info(context.payload, "no matching handler");
       return;
     }
 
@@ -112,25 +96,22 @@ export class AutoMerger {
         pull_number: prNumber,
       });
 
-      const prDescription = `${repo.full_name} #${pr.number} - "${pr.title}"`;
-
       // Check if PR is mergeable (all green)
       if (!this.isPrMergeable(pr)) {
-        console.warn(
-          `${prDescription} has merge conflicts, pending CI checks or is merging to "main" branch. Skipping...`
-        );
+        context.log.info({ ...context.payload, pr }, "PR not mergeable");
         return;
       }
 
       // Check if PR has valid merge comment
-      if(!(await validCommentsExistByPredicate(
-        this.context,
-        pr.number,
-        [Permission.admin, Permission.write],
-        comment => this.isMergeComment(comment.body || "")))) {
-        console.warn(
-          `${prDescription} doesn't have merge comment. Skipping...`
-        );
+      if (
+        !(await validCommentsExistByPredicate(
+          this.context,
+          pr.number,
+          [Permission.admin, Permission.write],
+          (comment) => this.isMergeComment(comment.body || "")
+        ))
+      ) {
+        context.log.info(context.payload, "no merge comment on PR");
         return;
       }
 
@@ -138,7 +119,7 @@ export class AutoMerger {
       const commitMsg = await this.createCommitMessage(pr);
 
       // Merge PR
-      console.log(`Merging ${prDescription}`);
+      context.log.info({ ...context.payload, pr }, "merging PR");
       const commitTitle = this.sanitizePrTitle(pr.title) + ` (#${pr.number})`;
       await context.octokit.pulls.merge({
         owner: repo.owner.login,
@@ -227,19 +208,9 @@ export class AutoMerger {
    * @param pr
    */
   isPrMergeable(pr: PullsGetResponseData): boolean {
-    const repo = pr.base.repo.name;
-    const number = pr.number;
     const mergeable_state = pr.mergeable_state;
     const mergeable = pr.mergeable;
     const baseRef = pr.base.ref;
-    console.log(`${repo} ${number} merge stats:`); // i.e. "cudf 3075 merge stats"
-    console.log(
-      JSON.stringify({
-        mergeable_state,
-        mergeable,
-        baseRef,
-      })
-    );
     return (
       (mergeable_state === "clean" || mergeable_state === "unstable") &&
       mergeable === true &&

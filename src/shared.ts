@@ -115,7 +115,7 @@ export const featureIsDisabled = async (
     defaults: DefaultOpsBotConfig,
   });
 
-  console.log(`${repoParams.repo} config: `, JSON.stringify(config, null, 2));
+  context.log.info({ ...repoParams, config }, "repo config");
   return !config[feature];
 };
 
@@ -134,7 +134,7 @@ export const getConfigValue = async (
     defaults: DefaultOpsBotConfig,
   });
 
-  console.log(`${repoParams.repo} config: `, JSON.stringify(config, null, 2));
+  context.log.info({ ...repoParams, config }, "repo config");
   return config[value];
 };
 

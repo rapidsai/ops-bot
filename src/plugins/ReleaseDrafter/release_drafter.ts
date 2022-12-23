@@ -1,18 +1,18 @@
 /*
-* Copyright (c) 2022, NVIDIA CORPORATION.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2022, NVIDIA CORPORATION.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import {
   PushContext,
@@ -52,41 +52,34 @@ export class ReleaseDrafter {
   }
 
   async draftRelease(): Promise<any> {
-    const { context, branchName, repo } = this;
+    const { context } = this;
     if (await featureIsDisabled(context, "release_drafter")) return;
     const { created, deleted } = context.payload;
 
     // Don't run on branch created/delete pushes
     if (created || deleted) {
-      const action = created ? "created" : "deleted";
-      console.warn(`Release drafts not generated on action: ${action}`);
+      context.log.info(context.payload, "no drafts on create/delete");
       return;
     }
 
     // Only run draft-releaser on valid release branches
-    if (!await this.isValidBranch()) {
-      console.warn(
-        "Release drafts are only supported for default or default+-1 versioned branches"
-      );
+    if (!(await this.isValidBranch())) {
+      context.log.info(context.payload, "invalid branch");
       return;
     }
 
-    console.log(`Drafting release for branch ${branchName} of ${repo.name}.`);
+    context.log.info(context.payload, "drafting release");
 
     const prs = await this.getPRsFromBranch();
     const releaseDraftBody = this.getReleaseDraftBody(prs);
     const releaseId = await this.getExistingDraftReleaseId();
     await this.createOrUpdateDraftRelease(releaseId, releaseDraftBody);
-
-    console.log(
-      `Release notes for branch '${branchName}' of '${repo.name}' published.`
-    );
   }
 
   /**
    * Returns true if the branch name is valid. Valid branches should match
    * the branch-yy.mm pattern and have a version that's the same as the repo's
-   * default branch or branches one or two versions before to account 
+   * default branch or branches one or two versions before to account
    * for burndown & code-freeze.
    */
   async isValidBranch(): Promise<boolean> {
@@ -94,12 +87,20 @@ export class ReleaseDrafter {
     const { branchVersionNumber } = this;
     const defaultBranchVersionNumber = getVersionFromBranch(this.defaultBranch);
 
-    if (defaultBranchVersionNumber === branchVersionNumber) return true
-    const { data: json } = await axios.get<{legacy: {version}, stable:{version}, nightly:{version}}>(
-      `https://raw.githubusercontent.com/rapidsai/docs/gh-pages/_data/releases.json`,
+    if (defaultBranchVersionNumber === branchVersionNumber) return true;
+    const { data: json } = await axios.get<{
+      legacy: { version };
+      stable: { version };
+      nightly: { version };
+    }>(
+      `https://raw.githubusercontent.com/rapidsai/docs/gh-pages/_data/releases.json`
     );
-    
-    return [json.stable.version, json.nightly.version, json.legacy.version].includes(branchVersionNumber)
+
+    return [
+      json.stable.version,
+      json.nightly.version,
+      json.legacy.version,
+    ].includes(branchVersionNumber);
   }
 
   /**
@@ -147,8 +148,9 @@ export class ReleaseDrafter {
       const pr = prs[i];
       const categoryLabel = pr.labels.find(categoryFromLabels);
       if (!categoryLabel) {
-        console.warn(
-          `No category label found for PR ${pr.number} - ${pr.title}. Skipping changelog entry...`
+        this.context.log.info(
+          { ...this.context.payload, pr },
+          "no category label found"
         );
         continue;
       }
@@ -202,7 +204,7 @@ export class ReleaseDrafter {
       });
       return release.id;
     } catch (error) {
-      console.warn(`No existing release: ${repo.full_name} ${releaseTagName}`);
+      context.log.info(context.payload, "no existing release");
       return -1;
     }
   }

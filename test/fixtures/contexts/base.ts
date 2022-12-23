@@ -46,6 +46,14 @@ export const makeContext = (payload, name: EmitterWebhookEventName) => {
     name,
     payload,
     repo: mockContextRepo,
+    log: {
+      trace: () => {},
+      debug: () => {},
+      info: () => {},
+      warn: () => {},
+      error: () => {},
+      fatal: () => {},
+    },
     octokit: {
       issues: {
         listComments: mockListComments,

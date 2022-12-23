@@ -30,18 +30,15 @@ export class CommentCopyPRs {
 
   async maybeCopyPR(): Promise<any> {
     if (await featureIsDisabled(this.context, "copy_prs")) return;
-    const { payload } = this.context;
-    const prNumber = payload.issue.number;
-    const username = payload.comment.user.login;
+    const context = this.context;
+    const { payload } = context;
 
     if (!isOkayToTestComment(payload.comment.body)) {
       return;
     }
 
     if (!issueIsPR(this.context)) {
-      console.warn(
-        `Comment on ${payload.repository.full_name} #${prNumber} was not on a PR. Skipping...`
-      );
+      context.log.info(context.payload, "comment was for issue, not PR");
       return;
     }
 
@@ -57,10 +54,8 @@ export class CommentCopyPRs {
       return;
     }
 
-    if (!(await this.authorHasPermission(username))) {
-      console.warn(
-        `Comment on ${payload.repository.full_name} #${prNumber} by ${username} does not have trigger permissions. Skipping...`
-      );
+    if (!(await this.authorHasPermission(payload.comment.user.login))) {
+      context.log.info(context.payload, "invalid ok to test permission");
       return;
     }
 

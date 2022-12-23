@@ -15,17 +15,18 @@
  */
 
 import { createSetCommitStatus, isGPUTesterPR } from "../../shared";
-import { PRContext, ProbotOctokit, PullsListResponseData } from "../../types";
+import { PRContext, PullsListResponseData } from "../../types";
+import { Context } from "probot";
 
 export const checkPR = async (
-  octokit: ProbotOctokit,
+  context: Context,
   pr: PRContext["payload"]["pull_request"] | PullsListResponseData[0],
   recently_updated_threshold: number
 ) => {
   const prBaseBranch = pr.base.ref;
   const prHeadLabel = pr.head.label;
 
-  const setCommitStatus = createSetCommitStatus(octokit, {
+  const setCommitStatus = createSetCommitStatus(context.octokit, {
     context: "Recently Updated",
     owner: pr.base.repo.owner.login,
     repo: pr.base.repo.name,
@@ -33,7 +34,7 @@ export const checkPR = async (
     target_url: "https://docs.rapids.ai/resources/recently-updated/",
   });
 
-  console.log("Checking if PR has recent updates:", JSON.stringify(pr));
+  context.log.info(context.payload, "checking recent updates");
 
   await setCommitStatus("Checking if PR has recent updates...", "pending");
 
@@ -42,11 +43,13 @@ export const checkPR = async (
     return;
   }
 
-  const { data: resp } = await octokit.repos.compareCommitsWithBasehead({
-    owner: pr.base.repo.owner.login,
-    repo: pr.base.repo.name,
-    basehead: `${prBaseBranch}...${prHeadLabel}`,
-  });
+  const { data: resp } = await context.octokit.repos.compareCommitsWithBasehead(
+    {
+      owner: pr.base.repo.owner.login,
+      repo: pr.base.repo.name,
+      basehead: `${prBaseBranch}...${prHeadLabel}`,
+    }
+  );
 
   const behind_by = resp.behind_by;
 

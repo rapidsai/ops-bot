@@ -29,7 +29,7 @@ export class PRRecentlyUpdated {
     const { context } = this;
     if (await featureIsDisabled(context, "recently_updated")) return;
     await checkPR(
-      context.octokit,
+      context,
       context.payload.pull_request,
       await getConfigValue(context, "recently_updated_threshold")
     );
