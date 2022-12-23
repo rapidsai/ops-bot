@@ -6,7 +6,7 @@ provider:
   timeout: 30
   memorySize: 1024
   stage: dev
-  runtime: nodejs14.x
+  runtime: nodejs18.x
   logRetentionInDays: 60
   apiGateway:
     shouldStartNameWithService: true

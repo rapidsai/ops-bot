@@ -10,11 +10,15 @@ on:
       - "serverless.yaml"
       - ".github/workflows/deploy.yaml"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     name: Deploy Probot Application
     runs-on: ubuntu-latest
-    container: node:14
+    container: node:18
     steps:
       - name: Checkout code
         uses: actions/checkout@v2

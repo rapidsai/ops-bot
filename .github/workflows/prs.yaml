@@ -2,10 +2,14 @@ name: unit-tests
 on:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   probot:
     runs-on: ubuntu-latest
-    container: node:14
+    container: node:18
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
