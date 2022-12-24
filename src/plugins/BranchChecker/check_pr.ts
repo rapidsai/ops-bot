@@ -40,7 +40,7 @@ export const checkPR = async (
     sha: pr.head.sha,
   });
 
-  context.log.info({ ...context.payload, pr }, "check base branch");
+  this.logger.info({ ...context.payload, pr }, "check base branch");
 
   await setCommitStatus("Checking base branch...", "pending");
 

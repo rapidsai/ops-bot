@@ -47,12 +47,12 @@ export class AutoMerger extends OpsBotPlugin {
     // Handle "status" context
     if (this.isStatusContext(context)) {
       if (context.payload.state !== "success") {
-        context.log.info(context.payload, "status was not success");
+        this.logger.info(context.payload, "status was not success");
         return;
       }
       prNumbers = await this.getPRNumbersfromSHA(context);
       if (!prNumbers.length) {
-        context.log.info(context.payload, "no PRs found for SHA");
+        this.logger.info(context.payload, "no PRs found for SHA");
         return;
       }
     }
@@ -62,11 +62,11 @@ export class AutoMerger extends OpsBotPlugin {
       const comment = context.payload.comment.body;
       prNumbers.push(context.payload.issue.number);
       if (!issueIsPR(context)) {
-        context.log.info(context.payload, "comment was for issue, not PR");
+        this.logger.info(context.payload, "comment was for issue, not PR");
         return;
       }
       if (!this.isMergeComment(comment)) {
-        context.log.info(context.payload, "not a merge comment");
+        this.logger.info(context.payload, "not a merge comment");
         return;
       }
     }
@@ -76,14 +76,14 @@ export class AutoMerger extends OpsBotPlugin {
       const { payload } = context;
       prNumbers.push(payload.pull_request.number);
       if (payload.review.state !== "approved") {
-        context.log.info(context.payload, "PR review was not approval");
+        this.logger.info(context.payload, "PR review was not approval");
         return;
       }
     }
 
     // Catch-all
     if (!prNumbers.length) {
-      context.log.info(context.payload, "no matching handler");
+      this.logger.info(context.payload, "no matching handler");
       return;
     }
 
@@ -99,7 +99,7 @@ export class AutoMerger extends OpsBotPlugin {
 
       // Check if PR is mergeable (all green)
       if (!this.isPrMergeable(pr)) {
-        context.log.info({ ...context.payload, pr }, "PR not mergeable");
+        this.logger.info({ ...context.payload, pr }, "PR not mergeable");
         return;
       }
 
@@ -112,7 +112,7 @@ export class AutoMerger extends OpsBotPlugin {
           (comment) => this.isMergeComment(comment.body || "")
         ))
       ) {
-        context.log.info(context.payload, "no merge comment on PR");
+        this.logger.info(context.payload, "no merge comment on PR");
         return;
       }
 
@@ -120,7 +120,7 @@ export class AutoMerger extends OpsBotPlugin {
       const commitMsg = await this.createCommitMessage(pr);
 
       // Merge PR
-      context.log.info({ ...context.payload, pr }, "merging PR");
+      this.logger.info({ ...context.payload, pr }, "merging PR");
       const commitTitle = this.sanitizePrTitle(pr.title) + ` (#${pr.number})`;
       await context.octokit.pulls.merge({
         owner: repo.owner.login,
