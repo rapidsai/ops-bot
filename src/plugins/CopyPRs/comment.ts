@@ -43,7 +43,7 @@ export class CommentCopyPRs extends OpsBotPlugin {
     }
 
     if (!issueIsPR(this.context)) {
-      this.logger.info(context.payload, "comment was for issue, not PR");
+      this.logger.info("comment was for issue, not PR");
       return;
     }
 
@@ -60,7 +60,7 @@ export class CommentCopyPRs extends OpsBotPlugin {
     }
 
     if (!(await this.authorHasPermission(payload.comment.user.login))) {
-      this.logger.info(context.payload, "invalid ok to test permission");
+      this.logger.info("invalid ok to test permission");
       return;
     }
 

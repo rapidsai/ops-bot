@@ -15,7 +15,10 @@ export class OpsBotPlugin {
 
   constructor(pluginName: keyof OpsBotConfigFeatureNames, context: Context) {
     this.context = context;
-    this.logger = context.log.child({ plugin: pluginName });
+    this.logger = context.log.child({
+      plugin: pluginName,
+      payload: context.payload,
+    });
     this.pluginName = pluginName;
   }
 
@@ -53,7 +56,7 @@ export class OpsBotPlugin {
       defaults: DefaultOpsBotConfig,
     });
 
-    this.logger.info({ ...repoParams, config }, "repo config");
+    this.logger.info({ config }, "repo config");
     return config;
   }
 }

@@ -56,17 +56,17 @@ export class ReleaseDrafter extends OpsBotPlugin {
 
     // Don't run on branch created/delete pushes
     if (created || deleted) {
-      this.logger.info(context.payload, "no drafts on create/delete");
+      this.logger.info("no drafts on create/delete");
       return;
     }
 
     // Only run draft-releaser on valid release branches
     if (!(await this.isValidBranch())) {
-      this.logger.info(context.payload, "invalid branch");
+      this.logger.info("invalid branch");
       return;
     }
 
-    this.logger.info(context.payload, "drafting release");
+    this.logger.info("drafting release");
 
     const prs = await this.getPRsFromBranch();
     const releaseDraftBody = this.getReleaseDraftBody(prs);
@@ -146,10 +146,7 @@ export class ReleaseDrafter extends OpsBotPlugin {
       const pr = prs[i];
       const categoryLabel = pr.labels.find(categoryFromLabels);
       if (!categoryLabel) {
-        this.logger.info(
-          { ...this.context.payload, pr },
-          "no category label found"
-        );
+        this.logger.info({ pr }, "no category label found");
         continue;
       }
       const category = categoryLabel.name as string; // this will be a string based on checks above
@@ -202,7 +199,7 @@ export class ReleaseDrafter extends OpsBotPlugin {
       });
       return release.id;
     } catch (error) {
-      this.logger.info(context.payload, "no existing release");
+      this.logger.info("no existing release");
       return -1;
     }
   }

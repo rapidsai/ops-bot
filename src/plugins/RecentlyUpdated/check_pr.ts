@@ -36,7 +36,7 @@ export const checkPR = async function (
     target_url: "https://docs.rapids.ai/resources/recently-updated/",
   });
 
-  this.logger.info(context.payload, "checking recent updates");
+  this.logger.info({ pr }, "checking recent updates");
 
   await setCommitStatus("Checking if PR has recent updates...", "pending");
 
