@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-import { featureIsDisabled, getConfigValue } from "../../shared";
+import { OpsBotPlugin } from "../../plugin";
 import { PRContext } from "../../types";
 import { checkPR } from "./check_pr";
 
-export class PRRecentlyUpdated {
-  context: PRContext;
+export class PRRecentlyUpdated extends OpsBotPlugin {
+  public context: PRContext;
 
   constructor(context: PRContext) {
+    super("recently_updated", context);
     this.context = context;
   }
 
   async checkPR() {
     const { context } = this;
-    if (await featureIsDisabled(context, "recently_updated")) return;
+    if (await this.pluginIsDisabled()) return;
     await checkPR(
       context,
       context.payload.pull_request,
-      await getConfigValue(context, "recently_updated_threshold")
+      await this.getConfigValue("recently_updated_threshold")
     );
   }
 }

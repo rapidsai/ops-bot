@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-import { Context } from "probot";
-import {
-  DefaultOpsBotConfig,
-  OpsBotConfigFeatureNames,
-  OpsBotConfigFeatureValues,
-  OpsBotConfigPath,
-} from "./config";
 import {
   AutoMergerContext,
   CommitStatus,
@@ -97,45 +90,6 @@ export const isGPUTesterPR = (
   pullRequest: Pick<PullsGetResponseData, "user">
 ): boolean => {
   return pullRequest.user?.login.toLowerCase() === "gputester";
-};
-
-/**
- *
- * Returns true if the specified feature is disabled.
- * The configuration file is fetched from the repository's default branch.
- */
-export const featureIsDisabled = async (
-  context: Context,
-  feature: keyof OpsBotConfigFeatureNames
-): Promise<boolean> => {
-  const repoParams = context.repo();
-  const { config } = await context.octokit.config.get({
-    ...repoParams,
-    path: OpsBotConfigPath,
-    defaults: DefaultOpsBotConfig,
-  });
-
-  context.log.info({ ...repoParams, config }, "repo config");
-  return !config[feature];
-};
-
-/**
- *
- * Returns the specified configuration value.
- */
-export const getConfigValue = async (
-  context: Context,
-  value: keyof OpsBotConfigFeatureValues
-): Promise<number> => {
-  const repoParams = context.repo();
-  const { config } = await context.octokit.config.get({
-    ...repoParams,
-    path: OpsBotConfigPath,
-    defaults: DefaultOpsBotConfig,
-  });
-
-  context.log.info({ ...repoParams, config }, "repo config");
-  return config[value];
 };
 
 /**

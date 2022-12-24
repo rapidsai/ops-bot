@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-import {
-  createSetCommitStatus,
-  featureIsDisabled,
-  isGPUTesterPR,
-} from "../../shared";
+import { OpsBotPlugin } from "../../plugin";
+import { createSetCommitStatus, isGPUTesterPR } from "../../shared";
 import { PRContext } from "../../types";
 
-export class LabelChecker {
+export class LabelChecker extends OpsBotPlugin {
   public context: PRContext;
 
   constructor(context: PRContext) {
+    super("label_checker", context);
     this.context = context;
   }
 
   async checkLabels(): Promise<any> {
     const context = this.context;
 
-    if (await featureIsDisabled(context, "label_checker")) return;
+    if (await this.pluginIsDisabled()) return;
 
     const setCommitStatus = createSetCommitStatus(context.octokit, {
       context: "Label Checker",

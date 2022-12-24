@@ -42,6 +42,14 @@ export const mockListPullRequestsFromCommit = jest
   .mockName("mockListPullRequestsFromCommit");
 export const mockListPulls = jest.fn().mockName("mockListPulls");
 export const mockListReviews = jest.fn().mockName("mockListReviews");
+export const mockLogger = {
+  trace: () => {},
+  debug: () => {},
+  info: () => {},
+  warn: () => {},
+  error: () => {},
+  fatal: () => {},
+};
 export const mockMerge = jest.fn().mockName("mockMerge");
 export const mockPaginate = jest.fn().mockName("mockPaginate");
 export const mockPullsGet = jest.fn().mockName("mockPullsGet");

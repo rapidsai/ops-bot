@@ -33,6 +33,7 @@ import {
   mockListPullRequestsFromCommit,
   mockListPulls,
   mockListReviews,
+  mockLogger,
   mockMerge,
   mockPaginate,
   mockPullsGet,
@@ -47,12 +48,8 @@ export const makeContext = (payload, name: EmitterWebhookEventName) => {
     payload,
     repo: mockContextRepo,
     log: {
-      trace: () => {},
-      debug: () => {},
-      info: () => {},
-      warn: () => {},
-      error: () => {},
-      fatal: () => {},
+      ...mockLogger,
+      child: () => mockLogger,
     },
     octokit: {
       issues: {

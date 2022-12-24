@@ -25,21 +25,22 @@ import {
 import strip from "strip-comments";
 import {
   Command,
-  featureIsDisabled,
   issueIsPR,
   Permission,
   validCommentsExistByPredicate,
 } from "../../shared";
+import { OpsBotPlugin } from "../../plugin";
 
-export class AutoMerger {
+export class AutoMerger extends OpsBotPlugin {
   public context: AutoMergerContext;
   constructor(context: AutoMergerContext) {
+    super("auto_merger", context);
     this.context = context;
   }
 
   async maybeMergePR(): Promise<any> {
     const context = this.context;
-    if (await featureIsDisabled(context, "auto_merger")) return;
+    if (await this.pluginIsDisabled()) return;
     const { repository: repo } = context.payload;
     let prNumbers: number[] = []; // will usually only contain 1 number, except in rare instances w/ status contexts
 

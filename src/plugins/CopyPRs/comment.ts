@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+import { OpsBotPlugin } from "../../plugin";
 import {
-  featureIsDisabled,
   getPRBranchName,
   isOkayToTestComment,
   isOrgMember,
@@ -25,11 +25,16 @@ import {
 } from "../../shared";
 import { IssueCommentContext } from "../../types";
 
-export class CommentCopyPRs {
-  constructor(private context: IssueCommentContext) {}
+export class CommentCopyPRs extends OpsBotPlugin {
+  public context: IssueCommentContext;
+
+  constructor(context: IssueCommentContext) {
+    super("copy_prs", context);
+    this.context = context;
+  }
 
   async maybeCopyPR(): Promise<any> {
-    if (await featureIsDisabled(this.context, "copy_prs")) return;
+    if (await this.pluginIsDisabled()) return;
     const context = this.context;
     const { payload } = context;
 
