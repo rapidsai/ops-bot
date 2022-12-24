@@ -15,20 +15,22 @@
  */
 
 import axios from "axios";
-import { Command, featureIsDisabled, getPRBranchName, issueIsPR } from "../../shared";
+import { OpsBotPlugin } from "../../plugin";
+import { Command, getPRBranchName, issueIsPR } from "../../shared";
 import { IssueCommentContext } from "../../types";
 
-export class RerunTests {
+export class RerunTests extends OpsBotPlugin {
   public context: IssueCommentContext;
 
   constructor(context: IssueCommentContext) {
+    super("rerun_tests", context);
     this.context = context;
   }
 
   async maybeRerunTests(): Promise<any> {
     const context = this.context;
 
-    if (await featureIsDisabled(context, "rerun_tests")) return;
+    if (await this.pluginIsDisabled()) return;
 
     if (!issueIsPR(context)) return;
     if (!context.payload.comment.body.match(Command.RerunTests)) return;

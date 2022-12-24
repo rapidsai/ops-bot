@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-import { featureIsDisabled, getConfigValue } from "../../shared";
+import { OpsBotPlugin } from "../../plugin";
 import { PushContext } from "../../types";
 import { checkPR } from "./check_pr";
 
-export class PushRecentlyUpdated {
-  context: PushContext;
+export class PushRecentlyUpdated extends OpsBotPlugin {
+  public context: PushContext;
 
   constructor(context: PushContext) {
+    super("recently_updated", context);
     this.context = context;
   }
 
   async checkAllPRs() {
     const { context } = this;
-    if (await featureIsDisabled(context, "recently_updated")) return;
+    if (await this.pluginIsDisabled()) return;
     const repo = context.payload.repository;
     const ref = context.payload.ref;
 
@@ -42,12 +43,13 @@ export class PushRecentlyUpdated {
       repo: repo.name,
       per_page: 100,
     });
-    const recently_updated_threshold = await getConfigValue(
-      context,
+    const recently_updated_threshold = await this.getConfigValue(
       "recently_updated_threshold"
     );
+
+    const bound = checkPR.bind(this);
     await Promise.all(
-      prs.map((pr) => checkPR(context, pr, recently_updated_threshold))
+      prs.map((pr) => bound(context, pr, recently_updated_threshold))
     );
   }
 }

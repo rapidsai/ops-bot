@@ -17,12 +17,14 @@
 import { createSetCommitStatus, isGPUTesterPR } from "../../shared";
 import { PRContext, PullsListResponseData } from "../../types";
 import { Context } from "probot";
+import { OpsBotPlugin } from "../../plugin";
 
-export const checkPR = async (
+export const checkPR = async function (
+  this: OpsBotPlugin,
   context: Context,
   pr: PRContext["payload"]["pull_request"] | PullsListResponseData[0],
   recently_updated_threshold: number
-) => {
+) {
   const prBaseBranch = pr.base.ref;
   const prHeadLabel = pr.head.label;
 
@@ -34,7 +36,7 @@ export const checkPR = async (
     target_url: "https://docs.rapids.ai/resources/recently-updated/",
   });
 
-  context.log.info(context.payload, "checking recent updates");
+  this.logger.info(context.payload, "checking recent updates");
 
   await setCommitStatus("Checking if PR has recent updates...", "pending");
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+import { OpsBotPlugin } from "../../plugin";
 import {
-  featureIsDisabled,
   getPRBranchName,
   isGPUTesterPR,
   isOrgMember,
@@ -23,13 +23,18 @@ import {
 } from "../../shared";
 import { PRContext } from "../../types";
 
-export class PRCopyPRs {
-  constructor(private context: PRContext) {}
+export class PRCopyPRs extends OpsBotPlugin {
+  public context: PRContext;
+
+  constructor(context: PRContext) {
+    super("copy_prs", context);
+    this.context = context;
+  }
 
   async maybeCopyPR(): Promise<any> {
     const { payload } = this.context;
     const orgName = payload.repository.owner.login;
-    if (await featureIsDisabled(this.context, "copy_prs")) return;
+    if (await this.pluginIsDisabled()) return;
 
     if (isGPUTesterPR(payload.pull_request)) {
       return;

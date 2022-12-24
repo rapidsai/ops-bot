@@ -23,14 +23,11 @@ import { basename } from "path";
 import { resolve } from "path";
 import { readFileSync } from "fs";
 import nunjucks from "nunjucks";
-import {
-  featureIsDisabled,
-  getVersionFromBranch,
-  isVersionedBranch,
-} from "../../shared";
+import { getVersionFromBranch, isVersionedBranch } from "../../shared";
 import axios from "axios";
+import { OpsBotPlugin } from "../../plugin";
 
-export class ReleaseDrafter {
+export class ReleaseDrafter extends OpsBotPlugin {
   context: PushContext;
   branchName: string;
   repo: PayloadRepository;
@@ -41,6 +38,7 @@ export class ReleaseDrafter {
   defaultBranch: string;
 
   constructor(context: PushContext) {
+    super("release_drafter", context);
     this.context = context;
     this.branchName = basename(context.payload.ref);
     this.repo = context.payload.repository;
@@ -53,22 +51,22 @@ export class ReleaseDrafter {
 
   async draftRelease(): Promise<any> {
     const { context } = this;
-    if (await featureIsDisabled(context, "release_drafter")) return;
+    if (await this.pluginIsDisabled()) return;
     const { created, deleted } = context.payload;
 
     // Don't run on branch created/delete pushes
     if (created || deleted) {
-      context.log.info(context.payload, "no drafts on create/delete");
+      this.logger.info(context.payload, "no drafts on create/delete");
       return;
     }
 
     // Only run draft-releaser on valid release branches
     if (!(await this.isValidBranch())) {
-      context.log.info(context.payload, "invalid branch");
+      this.logger.info(context.payload, "invalid branch");
       return;
     }
 
-    context.log.info(context.payload, "drafting release");
+    this.logger.info(context.payload, "drafting release");
 
     const prs = await this.getPRsFromBranch();
     const releaseDraftBody = this.getReleaseDraftBody(prs);
@@ -148,7 +146,7 @@ export class ReleaseDrafter {
       const pr = prs[i];
       const categoryLabel = pr.labels.find(categoryFromLabels);
       if (!categoryLabel) {
-        this.context.log.info(
+        this.logger.info(
           { ...this.context.payload, pr },
           "no category label found"
         );
@@ -204,7 +202,7 @@ export class ReleaseDrafter {
       });
       return release.id;
     } catch (error) {
-      context.log.info(context.payload, "no existing release");
+      this.logger.info(context.payload, "no existing release");
       return -1;
     }
   }

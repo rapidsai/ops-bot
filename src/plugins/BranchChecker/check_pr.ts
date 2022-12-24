@@ -23,11 +23,13 @@ import {
 import { PRContext, PullsListResponseData } from "../../types";
 import { Context } from "probot";
 import axios from "axios";
+import { OpsBotPlugin } from "../../plugin";
 
-export const checkPR = async (
+export const checkPR = async function (
+  this: OpsBotPlugin,
   context: Context,
   pr: PRContext["payload"]["pull_request"] | PullsListResponseData[0]
-) => {
+) {
   const prBaseBranch = pr.base.ref;
   const repoDefaultBranchVersion = getVersionFromBranch(
     pr.base.repo.default_branch
@@ -40,7 +42,7 @@ export const checkPR = async (
     sha: pr.head.sha,
   });
 
-  context.log.info({ ...context.payload, pr }, "check base branch");
+  this.logger.info({ ...context.payload, pr }, "check base branch");
 
   await setCommitStatus("Checking base branch...", "pending");
 
