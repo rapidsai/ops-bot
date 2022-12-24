@@ -46,8 +46,10 @@ export class PushRecentlyUpdated extends OpsBotPlugin {
     const recently_updated_threshold = await this.getConfigValue(
       "recently_updated_threshold"
     );
+
+    const bound = checkPR.bind(this);
     await Promise.all(
-      prs.map((pr) => checkPR(context, pr, recently_updated_threshold))
+      prs.map((pr) => bound(context, pr, recently_updated_threshold))
     );
   }
 }

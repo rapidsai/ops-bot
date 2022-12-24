@@ -37,6 +37,7 @@ export class RepositoryBranchChecker extends OpsBotPlugin {
       per_page: 100,
     });
 
-    await Promise.all(prs.map((pr) => checkPR(context, pr)));
+    const bound = checkPR.bind(this);
+    await Promise.all(prs.map((pr) => bound(context, pr)));
   }
 }

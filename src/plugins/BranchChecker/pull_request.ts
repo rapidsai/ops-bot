@@ -29,6 +29,7 @@ export class PRBranchChecker extends OpsBotPlugin {
   async checkPR() {
     const { context } = this;
     if (await this.pluginIsDisabled()) return;
-    await checkPR(context, context.payload.pull_request);
+    const bound = checkPR.bind(this);
+    await bound(context, context.payload.pull_request);
   }
 }
