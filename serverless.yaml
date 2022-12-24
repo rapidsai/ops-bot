@@ -3,7 +3,7 @@ service: gpuci-serverless-ops-bot-probot
 provider:
   name: aws
   region: us-east-2
-  timeout: 30
+  timeout: 900
   memorySize: 1024
   stage: dev
   runtime: nodejs18.x
