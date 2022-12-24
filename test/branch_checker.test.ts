@@ -34,7 +34,7 @@ import { makeConfigReponse } from "./fixtures/responses/get_config";
 jest.mock("axios");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-describe("Label Checker", () => {
+describe("Branch Checker", () => {
   describe("Pull Request Event", () => {
     beforeEach(() => {
       mockCreateCommitStatus.mockReset();
