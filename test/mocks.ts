@@ -37,9 +37,6 @@ export const mockGetUserPermissionLevel = jest
   .mockName("mockGetUserPermissionLevel");
 export const mockListComments = jest.fn().mockName("mockListComments");
 export const mockListCommits = jest.fn().mockName("mockListCommits");
-export const mockListPullRequestsFromCommit = jest
-  .fn()
-  .mockName("mockListPullRequestsFromCommit");
 export const mockListPulls = jest.fn().mockName("mockListPulls");
 export const mockListReviews = jest.fn().mockName("mockListReviews");
 export const mockLogger = {
@@ -53,5 +50,8 @@ export const mockLogger = {
 export const mockMerge = jest.fn().mockName("mockMerge");
 export const mockPaginate = jest.fn().mockName("mockPaginate");
 export const mockPullsGet = jest.fn().mockName("mockPullsGet");
+export const mockSearchIssuesAndPullRequests = jest
+  .fn()
+  .mockName("mockSearchIssuesAndPullRequests");
 export const mockUpdateRef = jest.fn().mockName("mockUpdateRef");
 export const mockUpdateRelease = jest.fn().mockName("mockUpdateRelease");

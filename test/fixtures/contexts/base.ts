@@ -30,7 +30,7 @@ import {
   mockGetUserPermissionLevel,
   mockListComments,
   mockListCommits,
-  mockListPullRequestsFromCommit,
+  mockSearchIssuesAndPullRequests,
   mockListPulls,
   mockListReviews,
   mockLogger,
@@ -67,7 +67,6 @@ export const makeContext = (payload, name: EmitterWebhookEventName) => {
         createRelease: mockCreateRelease,
         getCollaboratorPermissionLevel: mockGetUserPermissionLevel,
         listCommits: mockListCommits,
-        listPullRequestsAssociatedWithCommit: mockListPullRequestsFromCommit,
         getReleaseByTag: mockGetReleaseByTag,
         updateRelease: mockUpdateRelease,
         compareCommitsWithBasehead: mockCompareCommitsWithBasehead,
@@ -89,6 +88,9 @@ export const makeContext = (payload, name: EmitterWebhookEventName) => {
           deleteRef: mockDeleteRef,
           createRef: mockCreateRef,
         },
+      },
+      search: {
+        issuesAndPullRequests: mockSearchIssuesAndPullRequests,
       },
     },
   };

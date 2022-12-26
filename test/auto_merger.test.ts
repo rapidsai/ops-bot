@@ -23,7 +23,7 @@ import { data as list_commits } from "./fixtures/responses/list_commits.json";
 import { default as list_reviews } from "./fixtures/responses/list_reviews.json";
 import { makeResponse as makePullResponse } from "./fixtures/responses/pulls_get";
 import { default as user_permission } from "./fixtures/responses/get_collaborator_permission_level.json";
-import { default as commitPRs } from "./fixtures/responses/list_pull_requests_associated_with_commit.json";
+import { default as commitPRs } from "./fixtures/responses/search_issues_and_pull_requests.json";
 import { user, userNoName } from "./fixtures/responses/get_by_username";
 import {
   mockConfigGet,
@@ -31,7 +31,7 @@ import {
   mockGetByUsername,
   mockGetUserPermissionLevel,
   mockListComments,
-  mockListPullRequestsFromCommit,
+  mockSearchIssuesAndPullRequests,
   mockListReviews,
   mockMerge,
   mockPaginate,
@@ -45,7 +45,7 @@ describe("Auto Merger", () => {
     mockGetByUsername.mockReset();
     mockGetUserPermissionLevel.mockReset();
     mockListComments.mockReset();
-    mockListPullRequestsFromCommit.mockReset();
+    mockSearchIssuesAndPullRequests.mockReset();
     mockListReviews.mockReset();
     mockMerge.mockReset();
     mockPaginate.mockReset();
@@ -58,7 +58,7 @@ describe("Auto Merger", () => {
   });
 
   test("status context", async () => {
-    mockListPullRequestsFromCommit.mockResolvedValueOnce(commitPRs);
+    mockSearchIssuesAndPullRequests.mockResolvedValueOnce(commitPRs);
     mockPullsGet.mockResolvedValueOnce(makePullResponse());
     mockPaginate.mockResolvedValueOnce(list_comments); // listComments in checkForValidMergeComment
     mockGetUserPermissionLevel.mockResolvedValueOnce(user_permission);
@@ -109,7 +109,7 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
       "This text is included\n \nSample body text",
     ],
   ])("PR body text test - %s", async (_, PR_body, expected_body) => {
-    mockListPullRequestsFromCommit.mockResolvedValueOnce(commitPRs);
+    mockSearchIssuesAndPullRequests.mockResolvedValueOnce(commitPRs);
     mockPullsGet.mockResolvedValueOnce(makePullResponse({ body: PR_body }));
     mockPaginate.mockResolvedValueOnce(list_comments); // listComments in checkForValidMergeComment
     mockGetUserPermissionLevel.mockResolvedValueOnce(user_permission);
@@ -152,7 +152,7 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
     expect(mockGetByUsername).toBeCalledTimes(0);
     expect(mockGetUserPermissionLevel).toBeCalledTimes(0);
     expect(mockListComments).toBeCalledTimes(0);
-    expect(mockListPullRequestsFromCommit).toBeCalledTimes(0);
+    expect(mockSearchIssuesAndPullRequests).toBeCalledTimes(0);
     expect(mockListReviews).toBeCalledTimes(0);
     expect(mockMerge).toBeCalledTimes(0);
     expect(mockPaginate).toBeCalledTimes(0);
@@ -165,7 +165,7 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
     expect(mockGetByUsername).toBeCalledTimes(0);
     expect(mockGetUserPermissionLevel).toBeCalledTimes(0);
     expect(mockListComments).toBeCalledTimes(0);
-    expect(mockListPullRequestsFromCommit).toBeCalledTimes(0);
+    expect(mockSearchIssuesAndPullRequests).toBeCalledTimes(0);
     expect(mockListReviews).toBeCalledTimes(0);
     expect(mockMerge).toBeCalledTimes(0);
     expect(mockPaginate).toBeCalledTimes(0);
