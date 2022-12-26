@@ -163,34 +163,20 @@ export class AutoMerger extends OpsBotPlugin {
   }
 
   /**
-   * Looks in forked and source repos to determine the PR numbers associated
-   * with the given commit SHA. Returns empty array if no PRs found.
+   * Returns open pull requests that contain SHA from webhook payload.
    * @param context
    */
   async getPRNumbersfromSHA(context: StatusContext): Promise<number[]> {
-    const repoName = context.payload.repository.name;
-    const sourceRepoOwner = context.payload.repository.owner.login;
-    const repoOwners = [sourceRepoOwner];
-    const forkedRepoOwner = context.payload.commit.author?.login;
-    if (forkedRepoOwner) repoOwners.push(forkedRepoOwner);
+    const sha = context.payload.sha;
+    const repoName = context.payload.repository.full_name;
 
-    let prNumbers: number[] = [];
+    const { data: prs } = await context.octokit.search.issuesAndPullRequests({
+      q: `${sha}+is:pr+is:open+repo:${repoName}`,
+      per_page: 100,
+    });
 
-    for (const repoOwner of repoOwners) {
-      try {
-        const { data: prs } =
-          await context.octokit.repos.listPullRequestsAssociatedWithCommit({
-            commit_sha: context.payload.sha,
-            owner: repoOwner,
-            repo: repoName,
-          });
-        if (!prs.length) continue;
-        prNumbers = [...prNumbers, ...prs.map((pr) => pr.number)];
-      } catch (error) {
-        continue;
-      }
-    }
-
+    const prNumbers = prs.items.map((el) => el.number);
+    this.logger.info({ prs: prNumbers }, "PRs associated with commit");
     return prNumbers;
   }
 
