@@ -16,20 +16,17 @@
 
 import {
   AutoMergerContext,
-  IssueCommentContext,
-  PRReviewContext,
   PullsGetResponseData,
-  StatusContext,
   UsersGetByUsernameResponseData,
 } from "../../types";
 import strip from "strip-comments";
 import {
-  Command,
-  issueIsPR,
+  isMergeComment,
   Permission,
   validCommentsExistByPredicate,
 } from "../../shared";
 import { OpsBotPlugin } from "../../plugin";
+import { PRNumberResolver } from "./resolve_prs";
 
 export class AutoMerger extends OpsBotPlugin {
   public context: AutoMergerContext;
@@ -42,50 +39,11 @@ export class AutoMerger extends OpsBotPlugin {
     const context = this.context;
     if (await this.pluginIsDisabled()) return;
     const { repository: repo } = context.payload;
-    let prNumbers: number[] = []; // will usually only contain 1 number, except in rare instances w/ status contexts
 
-    // Handle "status" context
-    if (this.isStatusContext(context)) {
-      if (context.payload.state !== "success") {
-        this.logger.info("status was not success");
-        return;
-      }
-      prNumbers = await this.getPRNumbersfromSHA(context);
-      if (!prNumbers.length) {
-        this.logger.info("no PRs found for SHA");
-        return;
-      }
-    }
-
-    // Handle "issue_comment" context
-    if (this.isIssueCommentContext(context)) {
-      const comment = context.payload.comment.body;
-      prNumbers.push(context.payload.issue.number);
-      if (!issueIsPR(context)) {
-        this.logger.info("comment was for issue, not PR");
-        return;
-      }
-      if (!this.isMergeComment(comment)) {
-        this.logger.info("not a merge comment");
-        return;
-      }
-    }
-
-    // Handle "pull_request_review" context
-    if (this.isPRReviewContext(context)) {
-      const { payload } = context;
-      prNumbers.push(payload.pull_request.number);
-      if (payload.review.state !== "approved") {
-        this.logger.info("PR review was not approval");
-        return;
-      }
-    }
-
-    // Catch-all
-    if (!prNumbers.length) {
-      this.logger.info("no matching handler");
-      return;
-    }
+    const prNumbers = await new PRNumberResolver(
+      context,
+      this.logger
+    ).getPrNumbers();
 
     for (let i = 0; i < prNumbers.length; i++) {
       const prNumber = prNumbers[i];
@@ -109,7 +67,7 @@ export class AutoMerger extends OpsBotPlugin {
           this.context,
           pr.number,
           [Permission.admin, Permission.write],
-          (comment) => this.isMergeComment(comment.body || "")
+          (comment) => isMergeComment(comment.body || "")
         ))
       ) {
         this.logger.info("no merge comment on PR");
@@ -131,61 +89,6 @@ export class AutoMerger extends OpsBotPlugin {
         commit_message: commitMsg,
       });
     }
-  }
-
-  /**
-   * Type guard that determines whether or not the provided context
-   * is a StatusContext
-   * @param context
-   */
-  isStatusContext(context: AutoMergerContext): context is StatusContext {
-    return context.name === "status";
-  }
-
-  /**
-   * Type guard that determines whether or not the provided context
-   * is an IssueCommentContext
-   * @param context
-   */
-  isIssueCommentContext(
-    context: AutoMergerContext
-  ): context is IssueCommentContext {
-    return context.name.startsWith("issue_comment");
-  }
-
-  /**
-   * Type guard that determines whether or not the provided context
-   * is a PRReviewContext
-   * @param context
-   */
-  isPRReviewContext(context: AutoMergerContext): context is PRReviewContext {
-    return context.name.startsWith("pull_request_review");
-  }
-
-  /**
-   * Returns open pull requests that contain SHA from webhook payload.
-   * @param context
-   */
-  async getPRNumbersfromSHA(context: StatusContext): Promise<number[]> {
-    const sha = context.payload.sha;
-    const repoName = context.payload.repository.full_name;
-
-    const { data: prs } = await context.octokit.search.issuesAndPullRequests({
-      q: `${sha}+is:pr+is:open+repo:${repoName}`,
-      per_page: 100,
-    });
-
-    const prNumbers = prs.items.map((el) => el.number);
-    this.logger.info({ prs: prNumbers }, "PRs associated with commit");
-    return prNumbers;
-  }
-
-  /**
-   * Returns true if the given comment is the merge comment string.
-   * @param comment
-   */
-  isMergeComment(comment: string): boolean {
-    return Boolean(comment.match(Command.Merge));
   }
 
   /**
