@@ -2,6 +2,7 @@ import { Logger } from "probot";
 import { issueIsPR, isMergeComment } from "../../shared";
 import {
   AutoMergerContext,
+  CheckSuiteContext,
   IssueCommentContext,
   PRReviewContext,
   StatusContext,
@@ -25,6 +26,8 @@ export class PRNumberResolver {
         return this.issueCommentContextHandler(context);
       case "pull_request_review":
         return this.pullRequestReviewContextHandler(context);
+      case "check_suite":
+        return this.checkSuiteContextHandler(context);
       default:
         return [];
     }
@@ -36,6 +39,16 @@ export class PRNumberResolver {
       return [];
     }
     return this.getPRNumbersfromSHA(context.payload.sha);
+  }
+
+  async checkSuiteContextHandler(
+    context: CheckSuiteContext
+  ): Promise<number[]> {
+    if (context.payload.check_suite.conclusion !== "success") {
+      this.logger.info("check suite was not success");
+      return [];
+    }
+    return this.getPRNumbersfromSHA(context.payload.check_suite.head_sha);
   }
 
   issueCommentContextHandler(context: IssueCommentContext): number[] {
