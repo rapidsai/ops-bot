@@ -120,6 +120,14 @@ export const isOkayToTestComment = (comment: string): Boolean => {
 };
 
 /**
+ * Returns true if the given comment is the merge comment string.
+ * @param comment
+ */
+export const isMergeComment = (comment: string): boolean => {
+  return Boolean(comment.match(Command.Merge));
+};
+
+/**
  * Retrieves the issue/PR comments that fit provided criteria
  * @param context
  * @param prNumber
