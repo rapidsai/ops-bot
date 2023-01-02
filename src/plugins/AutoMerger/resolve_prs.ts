@@ -1,5 +1,5 @@
 import { Logger } from "probot";
-import { issueIsPR, isMergeComment } from "../../shared";
+import { issueIsPR, isMergeComment, isOldMergeComment } from "../../shared";
 import {
   AutoMergerContext,
   CheckSuiteContext,
@@ -51,10 +51,24 @@ export class PRNumberResolver {
     return this.getPRNumbersfromSHA(context.payload.check_suite.head_sha);
   }
 
-  issueCommentContextHandler(context: IssueCommentContext): number[] {
+  async issueCommentContextHandler(
+    context: IssueCommentContext
+  ): Promise<number[]> {
     const comment = context.payload.comment.body;
     if (!issueIsPR(context)) {
       this.logger.info("comment was for issue, not PR");
+      return [];
+    }
+    if (isOldMergeComment(comment)) {
+      this.logger.info("old merge comment");
+      const author = context.payload.comment.user.login;
+      const params = context.issue({
+        body: [
+          `@${author}, the \`@gpucibot merge\` command has been replaced with \`/merge\`.`,
+          `Please re-comment this PR with \`/merge\` and use this new command in the future.`,
+        ].join("\n\n"),
+      });
+      await context.octokit.issues.createComment(params);
       return [];
     }
     if (!isMergeComment(comment)) {
