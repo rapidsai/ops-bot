@@ -6,7 +6,7 @@ This repo contains a [Probot](https://github.com/probot/probot) application. The
 
 The plugins are listed in the [src/plugins](./src/plugins) folder.
 
-- **Label Checker** - Sets a status on PRs that passes if one (and only one) of the following labels from each list have been applied:
+- **Label Checker** - Sets a status on PRs that passes if one (and only one) oasdfasdff the following labels from each list have been applied:
   - `bug`, `doc`, `feature request`, or `improvement`
   - `breaking` or `non-breaking`
 - **Release Drafter** - Opens up a draft release on GitHub anytime a PR is merged to a versioned branch (i.e. `branch-0.17`, `branch-0.18`, etc.). The draft body includes a categorized changelog consisting of the PRs that have been merged on that branch.
