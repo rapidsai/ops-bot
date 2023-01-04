@@ -32,7 +32,8 @@ export const Permission = {
 export const Command = {
   OkToTest: new RegExp("^/ok(ay)? to test$"),
   RerunTests: new RegExp("^/rerun tests$"),
-  Merge: new RegExp("^@gpucibot merge$"),
+  Merge: new RegExp("^/merge$"),
+  OldMerge: new RegExp("^@gpucibot merge$"),
 };
 
 /**
@@ -125,6 +126,14 @@ export const isOkayToTestComment = (comment: string): Boolean => {
  */
 export const isMergeComment = (comment: string): boolean => {
   return Boolean(comment.match(Command.Merge));
+};
+
+/**
+ * Returns true if the given comment is the old merge comment string.
+ * @param comment
+ */
+export const isOldMergeComment = (comment: string): boolean => {
+  return Boolean(comment.match(Command.OldMerge));
 };
 
 /**
