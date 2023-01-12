@@ -9,7 +9,7 @@ concurrency:
 jobs:
   probot:
     runs-on: ubuntu-latest
-    container: node:18
+    container: node:19
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
