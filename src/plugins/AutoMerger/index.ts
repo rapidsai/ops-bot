@@ -21,7 +21,7 @@ export const initAutoMerger = (app: Probot) => {
   app.on(
     [
       "issue_comment.created",
-      "pull_request_review.submitted",
+      "pull_request_review",
       "status",
       "check_suite.completed",
     ],

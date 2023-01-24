@@ -79,7 +79,7 @@ export class PRNumberResolver {
   }
 
   pullRequestReviewContextHandler(context: PRReviewContext): number[] {
-    if (context.payload.review.state !== "approved") {
+    if (context.payload.review.state === "changes_requested") {
       this.logger.info("PR review was not approval");
       return [];
     }
