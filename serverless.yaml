@@ -44,14 +44,17 @@ functions:
   authorizerFn:
     handler: dist/authorizer.handler
     environment:
-      probotFnName: *probotFn
+      probotFnName:
+        "Fn::GetAtt":
+          - *probotFn
+          - Arn
       PRIVATE_KEY: ${env:PRIVATE_KEY}
     events:
       - http:
           path: /
           method: POST
   nvidiaOrgProbot:
-    handler: dist/serverless.probot
+    handler: dist/probot.handler
     events:
       - http:
           path: /nvidia-org
@@ -62,7 +65,7 @@ functions:
       WEBHOOK_SECRET: ${env:NVIDIA_ORG_WEBHOOK_SECRET}
       PRIVATE_KEY: ${env:NVIDIA_ORG_PRIVATE_KEY}
   morpheusOrgProbot:
-    handler: dist/serverless.probot
+    handler: dist/probot.handler
     events:
       - http:
           path: /nv-morpheus-org
