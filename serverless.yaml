@@ -3,7 +3,7 @@ service: gpuci-serverless-ops-bot-probot
 provider:
   name: aws
   region: us-east-2
-  timeout: 900 # mv to function once consolidated
+  timeout: 900
   memorySize: 1024
   stage: dev
   runtime: nodejs18.x
@@ -18,22 +18,15 @@ provider:
     NODE_ENV: production
     LOG_FORMAT: json
     LOG_LEVEL: debug
-  iam:
-    role:
-      statements:
-        - Effect: Allow
-          Action:
-            - "lambda:InvokeFunction"
-          Resource:
-            Fn::Join:
-              - "-"
-              - - arn:aws:lambda:${aws:region}:${aws:accountId}:function:${self:service}-${sls:stage}
-                - &probotFn handleProbot
 
 functions:
-  *probotFn :
-    handler: dist/probot.handler
+  handleProbot:
+    handler: dist/serverless.probot
     events:
+      - http:
+          path: /
+          method: POST
+          async: true
       - http:
           path: /probot
           method: GET
@@ -41,15 +34,6 @@ functions:
       APP_ID: ${env:APP_ID}
       WEBHOOK_SECRET: ${env:WEBHOOK_SECRET}
       PRIVATE_KEY: ${env:PRIVATE_KEY}
-  authorizerFn:
-    handler: dist/authorizer.handler
-    environment:
-      probotFnName: *probotFn
-      PRIVATE_KEY: ${env:PRIVATE_KEY}
-    events:
-      - http:
-          path: /
-          method: POST
   nvidiaOrgProbot:
     handler: dist/serverless.probot
     events:
