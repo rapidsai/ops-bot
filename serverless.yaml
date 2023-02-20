@@ -63,14 +63,3 @@ functions:
       APP_ID: ${env:NVIDIA_ORG_APP_ID}
       WEBHOOK_SECRET: ${env:NVIDIA_ORG_WEBHOOK_SECRET}
       PRIVATE_KEY: ${env:NVIDIA_ORG_PRIVATE_KEY}
-  morpheusOrgProbot:
-    handler: dist/probot.handler
-    events:
-      - http:
-          path: /nv-morpheus-org
-          method: POST
-          async: true
-    environment:
-      APP_ID: ${env:MORPHEUS_ORG_APP_ID}
-      WEBHOOK_SECRET: ${env:MORPHEUS_ORG_WEBHOOK_SECRET}
-      PRIVATE_KEY: ${env:MORPHEUS_ORG_PRIVATE_KEY}
