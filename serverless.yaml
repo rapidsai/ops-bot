@@ -25,10 +25,9 @@ provider:
           Action:
             - "lambda:InvokeFunction"
           Resource:
-            Fn::Join:
-              - "-"
-              - - arn:aws:lambda:${aws:region}:${aws:accountId}:function:${self:service}-${sls:stage}
-                - &probotFn handleProbot
+            Fn::Sub:
+              - arn:aws:lambda:${aws:region}:${aws:accountId}:function:${AWS::StackName}-${fnName}
+              - fnName: &probotFn handleProbot
 
 functions:
   *probotFn :
@@ -45,9 +44,9 @@ functions:
     handler: dist/authorizer.handler
     environment:
       probotFnName:
-        "Fn::GetAtt":
-          - *probotFn
-          - Arn
+        Fn::Sub:
+          - ${AWS::StackName}-${fnName}
+          - fnName: *probotFn
       PRIVATE_KEY: ${env:PRIVATE_KEY}
     events:
       - http:
