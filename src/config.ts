@@ -25,7 +25,6 @@ export type OpsBotConfigFeatureNames = {
   release_drafter: boolean;
   recently_updated: boolean;
   copy_prs: boolean;
-  rerun_tests: boolean;
 };
 
 /**
@@ -51,7 +50,6 @@ export const DefaultOpsBotConfig: OpsBotConfig = {
   release_drafter: false,
   recently_updated: false,
   copy_prs: false,
-  rerun_tests: false,
   recently_updated_threshold: 5,
 };
 

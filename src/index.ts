@@ -21,7 +21,6 @@ import { initCopyPRs } from "./plugins/CopyPRs";
 import { initLabelChecker } from "./plugins/LabelChecker";
 import { initRecentlyUpdated } from "./plugins/RecentlyUpdated";
 import { initReleaseDrafter } from "./plugins/ReleaseDrafter";
-import { initRerunTests } from "./plugins/RerunTests";
 
 export = (app: Probot) => {
   initBranchChecker(app);
@@ -30,5 +29,4 @@ export = (app: Probot) => {
   initAutoMerger(app);
   initRecentlyUpdated(app);
   initCopyPRs(app);
-  initRerunTests(app);
 };

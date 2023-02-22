@@ -31,7 +31,6 @@ export const Permission = {
 
 export const Command = {
   OkToTest: new RegExp("^/ok(ay)? to test$"),
-  RerunTests: new RegExp("^/rerun tests$"),
   Merge: new RegExp("^/merge$"),
   OldMerge: new RegExp("^@gpucibot merge$"),
 };

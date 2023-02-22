@@ -13,8 +13,6 @@ provider:
   deploymentBucket:
     name: rapids-serverless-deployments
   environment:
-    JENKINS_USERNAME: ${env:JENKINS_USERNAME}
-    JENKINS_TOKEN: ${env:JENKINS_TOKEN}
     NODE_ENV: production
     LOG_FORMAT: json
     LOG_LEVEL: debug

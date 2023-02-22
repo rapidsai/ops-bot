@@ -43,5 +43,3 @@ jobs:
           NVIDIA_ORG_APP_ID: ${{ secrets.NVIDIA_ORG_APP_ID }}
           NVIDIA_ORG_WEBHOOK_SECRET: ${{ secrets.NVIDIA_ORG_WEBHOOK_SECRET }}
           NVIDIA_ORG_PRIVATE_KEY: ${{ secrets.NVIDIA_ORG_PRIVATE_KEY }}
-          JENKINS_USERNAME: ${{ secrets.JENKINS_USERNAME }}
-          JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
