@@ -27,7 +27,7 @@
     "nunjucks": "^3.2.3",
     "probot": "^12.2.9",
     "strip-comments": "^2.0.1",
-    "webhook-authorizer": "github:rapidsai/webhook-authorizer#309f0d1180ea52304ae20d76dc526e16f767e081"
+    "webhook-authorizer": "github:rapidsai/webhook-authorizer#68808c6a9eb8c52f20a4129e7b87a1a7b572e149"
   },
   "devDependencies": {
     "@types/jest": "^29.2.5",
