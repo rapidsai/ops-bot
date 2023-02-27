@@ -25,6 +25,8 @@ provider:
           Resource:
             Fn::Sub:
               - arn:aws:lambda:${aws:region}:${aws:accountId}:function:${AWS::StackName}-${fnName}
+              # A YAML anchor is used since `Ref` results in circular dependency issues between
+              # the Lambda function and this policy.
               - fnName: &probotFn handleProbot
 
 functions:
