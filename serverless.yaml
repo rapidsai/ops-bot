@@ -52,14 +52,3 @@ functions:
       - http:
           path: /
           method: POST
-  nvidiaOrgProbot:
-    handler: dist/probot.handler
-    events:
-      - http:
-          path: /nvidia-org
-          method: POST
-          async: true
-    environment:
-      APP_ID: ${env:NVIDIA_ORG_APP_ID}
-      WEBHOOK_SECRET: ${env:NVIDIA_ORG_WEBHOOK_SECRET}
-      PRIVATE_KEY: ${env:NVIDIA_ORG_PRIVATE_KEY}
