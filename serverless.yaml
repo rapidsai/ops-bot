@@ -15,6 +15,9 @@ provider:
     NODE_ENV: production
     LOG_FORMAT: json
     LOG_LEVEL: debug
+    APP_ID: ${env:APP_ID}
+    WEBHOOK_SECRET: ${env:WEBHOOK_SECRET}
+    PRIVATE_KEY: ${env:PRIVATE_KEY}
   iam:
     role:
       statements:
@@ -35,10 +38,6 @@ functions:
       - http:
           path: /probot
           method: GET
-    environment:
-      APP_ID: ${env:APP_ID}
-      WEBHOOK_SECRET: ${env:WEBHOOK_SECRET}
-      PRIVATE_KEY: ${env:PRIVATE_KEY}
     timeout: 900
   authorizerFn:
     handler: dist/authorizer.handler
@@ -47,7 +46,6 @@ functions:
         Fn::Sub:
           - ${AWS::StackName}-${fnName}
           - fnName: *probotFn
-      PRIVATE_KEY: ${env:PRIVATE_KEY}
     events:
       - http:
           path: /
