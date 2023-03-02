@@ -34,10 +34,6 @@ provider:
 functions:
   *probotFn :
     handler: dist/probot.handler
-    events:
-      - http:
-          path: /probot
-          method: GET
     timeout: 900
   authorizerFn:
     handler: dist/authorizer.handler
