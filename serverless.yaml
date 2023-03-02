@@ -3,7 +3,6 @@ service: gpuci-serverless-ops-bot-probot
 provider:
   name: aws
   region: us-east-2
-  timeout: 900 # mv to function once consolidated
   memorySize: 1024
   stage: dev
   runtime: nodejs18.x
@@ -40,6 +39,7 @@ functions:
       APP_ID: ${env:APP_ID}
       WEBHOOK_SECRET: ${env:WEBHOOK_SECRET}
       PRIVATE_KEY: ${env:PRIVATE_KEY}
+    timeout: 900
   authorizerFn:
     handler: dist/authorizer.handler
     environment:
