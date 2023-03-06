@@ -124,7 +124,7 @@ export const isOkayToTestComment = (comment: string): Boolean => {
  * @param comment
  */
 export const isMergeComment = (comment: string): boolean => {
-  return Boolean(comment.match(Command.Merge));
+  return Boolean(comment.trim().match(Command.Merge));
 };
 
 /**
