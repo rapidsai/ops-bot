@@ -116,7 +116,7 @@ export const getPRBranchName = (number: number) => {
  * @param comment
  */
 export const isOkayToTestComment = (comment: string): Boolean => {
-  return Boolean(comment.match(Command.OkToTest));
+  return Boolean(comment.trim().match(Command.OkToTest));
 };
 
 /**
@@ -132,7 +132,7 @@ export const isMergeComment = (comment: string): boolean => {
  * @param comment
  */
 export const isOldMergeComment = (comment: string): boolean => {
-  return Boolean(comment.match(Command.OldMerge));
+  return Boolean(comment.trim().match(Command.OldMerge));
 };
 
 /**
