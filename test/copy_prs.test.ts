@@ -33,15 +33,16 @@ import { default as repoResp } from "./fixtures/responses/context_repo.json";
 import { makeIssueCommentContext } from "./fixtures/contexts/issue_comment";
 import { CommentCopyPRs } from "../src/plugins/CopyPRs/comment";
 
-describe("External Contributors", () => {
+describe("Copy PRs", () => {
   beforeEach(() => {
     mockCheckMembershipForUser.mockReset();
-    mockGetUserPermissionLevel.mockReset();
-    mockUpdateRef.mockReset();
+    mockCreateComment.mockReset();
     mockCreateRef.mockReset();
-    mockPullsGet.mockReset();
-    mockPaginate.mockReset();
     mockDeleteRef.mockReset();
+    mockGetUserPermissionLevel.mockReset();
+    mockPaginate.mockReset();
+    mockPullsGet.mockReset();
+    mockUpdateRef.mockReset();
   });
 
   beforeAll(() => {
@@ -84,29 +85,23 @@ describe("External Contributors", () => {
     expect(mockCreateRef).toBeCalledTimes(0);
   });
 
-  test("pull_request.synchronize, update ref for org member", async () => {
-    const prContext = makePRContext({ action: "synchronize", user: "ayode" });
-    mockCheckMembershipForUser.mockResolvedValueOnce({ status: 204 });
+  test.each(["synchronize", "reopened"])(
+    "pull_request.%s, update ref for org member",
+    async (action) => {
+      const prContext = makePRContext({ action, user: "ayode" });
+      mockCheckMembershipForUser.mockResolvedValueOnce({ status: 204 });
 
-    await new PRCopyPRs(prContext).maybeCopyPR();
+      await new PRCopyPRs(prContext).maybeCopyPR();
 
-    expect(mockUpdateRef).toBeCalledTimes(1);
-    expect(mockGetUserPermissionLevel).toBeCalledTimes(0);
-  });
+      expect(mockCheckMembershipForUser).toBeCalledWith({
+        username: "ayode",
+        org: "rapidsai",
+      });
 
-  test("pull_request.reopened, update ref for org members", async () => {
-    const prContext = makePRContext({ action: "reopened", user: "ayodes" });
-    mockCheckMembershipForUser.mockResolvedValueOnce({ status: 204 });
-
-    await new PRCopyPRs(prContext).maybeCopyPR();
-
-    expect(mockCheckMembershipForUser).toBeCalledWith({
-      username: "ayodes",
-      org: "rapidsai",
-    });
-    expect(mockPaginate).toBeCalledTimes(0);
-    expect(mockUpdateRef).toBeCalledTimes(1);
-  });
+      expect(mockGetUserPermissionLevel).toBeCalledTimes(0);
+      expect(mockUpdateRef).toBeCalledTimes(1);
+    }
+  );
 
   test("pull_request.closed, delete source branch", async () => {
     const prContext = makePRContext({ action: "closed", user: "ayode" });
@@ -131,6 +126,10 @@ describe("External Contributors", () => {
     await new CommentCopyPRs(issueContext).maybeCopyPR();
 
     expect(mockCheckMembershipForUser).toHaveBeenCalledTimes(0);
+    expect(mockPaginate).toBeCalledTimes(0);
+    expect(mockUpdateRef).toBeCalledTimes(0);
+    expect(mockCreateRef).toBeCalledTimes(0);
+    expect(mockCreateComment).toBeCalledTimes(0);
   });
 
   test.each([["/ok to test"], ["/okay to test"]])(
@@ -141,6 +140,10 @@ describe("External Contributors", () => {
       await new CommentCopyPRs(issueContext).maybeCopyPR();
 
       expect(mockCheckMembershipForUser).toHaveBeenCalledTimes(0);
+      expect(mockPaginate).toBeCalledTimes(0);
+      expect(mockUpdateRef).toBeCalledTimes(0);
+      expect(mockCreateRef).toBeCalledTimes(0);
+      expect(mockCreateComment).toBeCalledTimes(0);
     }
   );
 
