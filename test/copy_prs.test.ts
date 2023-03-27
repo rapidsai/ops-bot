@@ -163,12 +163,18 @@ describe("Copy PRs", () => {
     "issue_comment.created, if commenter has insufficient permissions",
     async (body) => {
       const issueContext = makeIssueCommentContext({ is_pr: true, body });
-      mockGetUserPermissionLevel.mockResolvedValueOnce({
-        data: { permission: "non-admin" },
-      });
       mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
+      mockGetUserPermissionLevel.mockResolvedValueOnce({
+        data: { permission: "read" },
+      }); // mocks isTrustedExternalCollaborator
+      mockGetUserPermissionLevel.mockResolvedValueOnce({
+        data: { permission: "read" },
+      }); // mocks authorHasPermission
       await new CommentCopyPRs(issueContext).maybeCopyPR();
 
+      expect(mockUpdateRef).toBeCalledTimes(0);
+      expect(mockCreateRef).toBeCalledTimes(0);
+      expect(mockCreateComment).toBeCalledTimes(0);
       expect(mockCheckMembershipForUser).toHaveBeenCalledTimes(1);
       expect(mockGetUserPermissionLevel).toHaveBeenCalledWith({
         owner: issueContext.payload.repository.owner.login,
@@ -186,8 +192,11 @@ describe("Copy PRs", () => {
     async (body, permission) => {
       const issueContext = makeIssueCommentContext({ is_pr: true, body });
       mockGetUserPermissionLevel.mockResolvedValueOnce({
+        data: { permission: "read" },
+      }); // mocks isTrustedExternalCollaborator
+      mockGetUserPermissionLevel.mockResolvedValueOnce({
         data: { permission },
-      });
+      }); // mocks authorHasPermission
       mockPullsGet.mockResolvedValueOnce({
         data: { head: { sha: "sha1234" } },
       });
@@ -217,8 +226,11 @@ describe("Copy PRs", () => {
     async (body, permission) => {
       const issueContext = makeIssueCommentContext({ is_pr: true, body });
       mockGetUserPermissionLevel.mockResolvedValueOnce({
+        data: { permission: "read" },
+      }); // mocks isTrustedExternalCollaborator
+      mockGetUserPermissionLevel.mockResolvedValueOnce({
         data: { permission },
-      });
+      }); // mocks authorHasPermission
       mockPullsGet.mockResolvedValueOnce({
         data: { head: { sha: "sha1234" } },
       });
