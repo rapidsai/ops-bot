@@ -64,9 +64,32 @@ describe("Copy PRs", () => {
     });
   });
 
-  test("pull_request.opened, create correct comment when author is external contibutor", async () => {
+  test.each(["write", "admin"])(
+    "pull_request.opened, create branch when author is trusted external collaborator: %s",
+    async (permission) => {
+      const prContext = makePRContext({ action: "opened", user: "ayode" });
+      mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
+      mockGetUserPermissionLevel.mockResolvedValueOnce({
+        data: { permission },
+      }); // mocks isTrustedExternalCollaborator
+
+      await new PRCopyPRs(prContext).maybeCopyPR();
+
+      expect(mockCreateComment).toBeCalledTimes(0);
+      expect(mockCreateRef).toBeCalledTimes(1);
+      expect(mockCheckMembershipForUser).toBeCalledWith({
+        username: "ayode",
+        org: "rapidsai",
+      });
+    }
+  );
+
+  test("pull_request.opened, create correct comment when author is not trusted user", async () => {
     const prContext = makePRContext({ action: "opened", user: "ayodes" });
     mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
+    mockGetUserPermissionLevel.mockResolvedValueOnce({
+      data: { permission: "read" },
+    }); // mocks isTrustedExternalCollaborator
     mockCreateComment.mockResolvedValueOnce(true);
 
     await new PRCopyPRs(prContext).maybeCopyPR();
@@ -99,6 +122,32 @@ describe("Copy PRs", () => {
       });
 
       expect(mockGetUserPermissionLevel).toBeCalledTimes(0);
+      expect(mockUpdateRef).toBeCalledTimes(1);
+    }
+  );
+
+  test.each([
+    { action: "synchronize", permission: "write" },
+    { action: "reopened", permission: "write" },
+    { action: "synchronize", permission: "admin" },
+    { action: "reopened", permission: "admin" },
+  ])(
+    "pull_request.$action, update ref for trusted external collaborator: $permission",
+    async ({ action, permission }) => {
+      const prContext = makePRContext({ action, user: "ayode" });
+      mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
+      mockGetUserPermissionLevel.mockResolvedValueOnce({
+        data: { permission },
+      }); // mocks isTrustedExternalCollaborator
+
+      await new PRCopyPRs(prContext).maybeCopyPR();
+
+      expect(mockCheckMembershipForUser).toBeCalledWith({
+        username: "ayode",
+        org: "rapidsai",
+      });
+
+      expect(mockGetUserPermissionLevel).toBeCalledTimes(1);
       expect(mockUpdateRef).toBeCalledTimes(1);
     }
   );
@@ -153,6 +202,26 @@ describe("Copy PRs", () => {
       const issueContext = makeIssueCommentContext({ is_pr: true, body });
 
       mockCheckMembershipForUser.mockResolvedValueOnce({ status: 204 });
+      await new CommentCopyPRs(issueContext).maybeCopyPR();
+
+      expect(mockCheckMembershipForUser).toHaveBeenCalledTimes(1);
+    }
+  );
+
+  test.each([
+    { body: "/ok to test", permission: "write" },
+    { body: "/okay to test", permission: "write" },
+    { body: "/ok to test", permission: "admin" },
+    { body: "/okay to test", permission: "admin" },
+  ])(
+    "issue_comment.created, do nothing if issue author is trusted external collaborator",
+    async ({ body, permission }) => {
+      const issueContext = makeIssueCommentContext({ is_pr: true, body });
+
+      mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
+      mockGetUserPermissionLevel.mockResolvedValueOnce({
+        data: { permission },
+      }); // mocks isTrustedExternalCollaborator
       await new CommentCopyPRs(issueContext).maybeCopyPR();
 
       expect(mockCheckMembershipForUser).toHaveBeenCalledTimes(1);
