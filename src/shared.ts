@@ -188,7 +188,7 @@ export async function validCommentsExistByPredicate(
 }
 
 /**
- * Returns true if the provided user it not a member of the provided organization
+ * Returns true if the provided user is a member of the provided organization
  * @param octokit
  * @param username
  * @param org
@@ -208,6 +208,58 @@ export const isOrgMember = async (
     if ((status as number) === 204) isOrgMember = true;
   } catch (_) {}
   return isOrgMember;
+};
+
+/**
+ * Returns true if the provided user is an external collaborator of the providied
+ * repository with `write` or `admin` permissions
+ * @param octokit
+ * @param username
+ * @param org
+ * @returns
+ */
+export const isTrustedExternalCollaborator = async (
+  octokit: ProbotOctokit,
+  username: string,
+  org: string,
+  repo: string
+) => {
+  let isTrustedExternalCollaborator = false;
+  try {
+    const { data } = await octokit.repos.getCollaboratorPermissionLevel({
+      owner: org,
+      repo,
+      username,
+    });
+    isTrustedExternalCollaborator = [
+      Permission.write,
+      Permission.admin,
+    ].includes(data.permission);
+  } catch (_) {}
+  return isTrustedExternalCollaborator;
+};
+
+/**
+ * Returns true if the provided user is a member of the organization or an
+ * external collaborator with `write` or `admin` permissions.
+ * @param octokit
+ * @param username
+ * @param org
+ * @returns
+ */
+export const isTrustedUser = async (
+  octokit: ProbotOctokit,
+  username: string,
+  org: string,
+  repository: string
+) => {
+  let isTrustedUser = false;
+  try {
+    isTrustedUser =
+      (await isOrgMember(octokit, username, org)) ||
+      (await isTrustedExternalCollaborator(octokit, username, org, repository));
+  } catch (_) {}
+  return isTrustedUser;
 };
 
 /**

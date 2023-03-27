@@ -18,7 +18,7 @@ import { OpsBotPlugin } from "../../plugin";
 import {
   getPRBranchName,
   isOkayToTestComment,
-  isOrgMember,
+  isTrustedUser,
   issueIsPR,
   Permission,
   updateOrCreateBranch,
@@ -47,13 +47,14 @@ export class CommentCopyPRs extends OpsBotPlugin {
       return;
     }
 
-    // branches for org members are created automaticallyin ./pr.ts,
+    // branches for org members/external collaborators are created automaticallyin ./pr.ts,
     // so return here
     if (
-      await isOrgMember(
+      await isTrustedUser(
         this.context.octokit,
         payload.issue.user.login,
-        payload.repository.owner.login
+        payload.repository.owner.login,
+        payload.repository.name
       )
     ) {
       return;

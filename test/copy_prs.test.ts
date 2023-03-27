@@ -33,15 +33,16 @@ import { default as repoResp } from "./fixtures/responses/context_repo.json";
 import { makeIssueCommentContext } from "./fixtures/contexts/issue_comment";
 import { CommentCopyPRs } from "../src/plugins/CopyPRs/comment";
 
-describe("External Contributors", () => {
+describe("Copy PRs", () => {
   beforeEach(() => {
     mockCheckMembershipForUser.mockReset();
-    mockGetUserPermissionLevel.mockReset();
-    mockUpdateRef.mockReset();
+    mockCreateComment.mockReset();
     mockCreateRef.mockReset();
-    mockPullsGet.mockReset();
-    mockPaginate.mockReset();
     mockDeleteRef.mockReset();
+    mockGetUserPermissionLevel.mockReset();
+    mockPaginate.mockReset();
+    mockPullsGet.mockReset();
+    mockUpdateRef.mockReset();
   });
 
   beforeAll(() => {
@@ -63,9 +64,32 @@ describe("External Contributors", () => {
     });
   });
 
-  test("pull_request.opened, create correct comment when author is external contibutor", async () => {
+  test.each(["write", "admin"])(
+    "pull_request.opened, create branch when author is trusted external collaborator: %s",
+    async (permission) => {
+      const prContext = makePRContext({ action: "opened", user: "ayode" });
+      mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
+      mockGetUserPermissionLevel.mockResolvedValueOnce({
+        data: { permission },
+      }); // mocks isTrustedExternalCollaborator
+
+      await new PRCopyPRs(prContext).maybeCopyPR();
+
+      expect(mockCreateComment).toBeCalledTimes(0);
+      expect(mockCreateRef).toBeCalledTimes(1);
+      expect(mockCheckMembershipForUser).toBeCalledWith({
+        username: "ayode",
+        org: "rapidsai",
+      });
+    }
+  );
+
+  test("pull_request.opened, create correct comment when author is not trusted user", async () => {
     const prContext = makePRContext({ action: "opened", user: "ayodes" });
     mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
+    mockGetUserPermissionLevel.mockResolvedValueOnce({
+      data: { permission: "read" },
+    }); // mocks isTrustedExternalCollaborator
     mockCreateComment.mockResolvedValueOnce(true);
 
     await new PRCopyPRs(prContext).maybeCopyPR();
@@ -84,29 +108,49 @@ describe("External Contributors", () => {
     expect(mockCreateRef).toBeCalledTimes(0);
   });
 
-  test("pull_request.synchronize, update ref for org member", async () => {
-    const prContext = makePRContext({ action: "synchronize", user: "ayode" });
-    mockCheckMembershipForUser.mockResolvedValueOnce({ status: 204 });
+  test.each(["synchronize", "reopened"])(
+    "pull_request.%s, update ref for org member",
+    async (action) => {
+      const prContext = makePRContext({ action, user: "ayode" });
+      mockCheckMembershipForUser.mockResolvedValueOnce({ status: 204 });
 
-    await new PRCopyPRs(prContext).maybeCopyPR();
+      await new PRCopyPRs(prContext).maybeCopyPR();
 
-    expect(mockUpdateRef).toBeCalledTimes(1);
-    expect(mockGetUserPermissionLevel).toBeCalledTimes(0);
-  });
+      expect(mockCheckMembershipForUser).toBeCalledWith({
+        username: "ayode",
+        org: "rapidsai",
+      });
 
-  test("pull_request.reopened, update ref for org members", async () => {
-    const prContext = makePRContext({ action: "reopened", user: "ayodes" });
-    mockCheckMembershipForUser.mockResolvedValueOnce({ status: 204 });
+      expect(mockGetUserPermissionLevel).toBeCalledTimes(0);
+      expect(mockUpdateRef).toBeCalledTimes(1);
+    }
+  );
 
-    await new PRCopyPRs(prContext).maybeCopyPR();
+  test.each([
+    { action: "synchronize", permission: "write" },
+    { action: "reopened", permission: "write" },
+    { action: "synchronize", permission: "admin" },
+    { action: "reopened", permission: "admin" },
+  ])(
+    "pull_request.$action, update ref for trusted external collaborator: $permission",
+    async ({ action, permission }) => {
+      const prContext = makePRContext({ action, user: "ayode" });
+      mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
+      mockGetUserPermissionLevel.mockResolvedValueOnce({
+        data: { permission },
+      }); // mocks isTrustedExternalCollaborator
 
-    expect(mockCheckMembershipForUser).toBeCalledWith({
-      username: "ayodes",
-      org: "rapidsai",
-    });
-    expect(mockPaginate).toBeCalledTimes(0);
-    expect(mockUpdateRef).toBeCalledTimes(1);
-  });
+      await new PRCopyPRs(prContext).maybeCopyPR();
+
+      expect(mockCheckMembershipForUser).toBeCalledWith({
+        username: "ayode",
+        org: "rapidsai",
+      });
+
+      expect(mockGetUserPermissionLevel).toBeCalledTimes(1);
+      expect(mockUpdateRef).toBeCalledTimes(1);
+    }
+  );
 
   test("pull_request.closed, delete source branch", async () => {
     const prContext = makePRContext({ action: "closed", user: "ayode" });
@@ -131,6 +175,10 @@ describe("External Contributors", () => {
     await new CommentCopyPRs(issueContext).maybeCopyPR();
 
     expect(mockCheckMembershipForUser).toHaveBeenCalledTimes(0);
+    expect(mockPaginate).toBeCalledTimes(0);
+    expect(mockUpdateRef).toBeCalledTimes(0);
+    expect(mockCreateRef).toBeCalledTimes(0);
+    expect(mockCreateComment).toBeCalledTimes(0);
   });
 
   test.each([["/ok to test"], ["/okay to test"]])(
@@ -141,6 +189,10 @@ describe("External Contributors", () => {
       await new CommentCopyPRs(issueContext).maybeCopyPR();
 
       expect(mockCheckMembershipForUser).toHaveBeenCalledTimes(0);
+      expect(mockPaginate).toBeCalledTimes(0);
+      expect(mockUpdateRef).toBeCalledTimes(0);
+      expect(mockCreateRef).toBeCalledTimes(0);
+      expect(mockCreateComment).toBeCalledTimes(0);
     }
   );
 
@@ -156,16 +208,42 @@ describe("External Contributors", () => {
     }
   );
 
+  test.each([
+    { body: "/ok to test", permission: "write" },
+    { body: "/okay to test", permission: "write" },
+    { body: "/ok to test", permission: "admin" },
+    { body: "/okay to test", permission: "admin" },
+  ])(
+    "issue_comment.created, do nothing if issue author is trusted external collaborator",
+    async ({ body, permission }) => {
+      const issueContext = makeIssueCommentContext({ is_pr: true, body });
+
+      mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
+      mockGetUserPermissionLevel.mockResolvedValueOnce({
+        data: { permission },
+      }); // mocks isTrustedExternalCollaborator
+      await new CommentCopyPRs(issueContext).maybeCopyPR();
+
+      expect(mockCheckMembershipForUser).toHaveBeenCalledTimes(1);
+    }
+  );
+
   test.each([["/ok to test"], ["/okay to test"]])(
     "issue_comment.created, if commenter has insufficient permissions",
     async (body) => {
       const issueContext = makeIssueCommentContext({ is_pr: true, body });
-      mockGetUserPermissionLevel.mockResolvedValueOnce({
-        data: { permission: "non-admin" },
-      });
       mockCheckMembershipForUser.mockResolvedValueOnce({ status: 302 });
+      mockGetUserPermissionLevel.mockResolvedValueOnce({
+        data: { permission: "read" },
+      }); // mocks isTrustedExternalCollaborator
+      mockGetUserPermissionLevel.mockResolvedValueOnce({
+        data: { permission: "read" },
+      }); // mocks authorHasPermission
       await new CommentCopyPRs(issueContext).maybeCopyPR();
 
+      expect(mockUpdateRef).toBeCalledTimes(0);
+      expect(mockCreateRef).toBeCalledTimes(0);
+      expect(mockCreateComment).toBeCalledTimes(0);
       expect(mockCheckMembershipForUser).toHaveBeenCalledTimes(1);
       expect(mockGetUserPermissionLevel).toHaveBeenCalledWith({
         owner: issueContext.payload.repository.owner.login,
@@ -183,8 +261,11 @@ describe("External Contributors", () => {
     async (body, permission) => {
       const issueContext = makeIssueCommentContext({ is_pr: true, body });
       mockGetUserPermissionLevel.mockResolvedValueOnce({
+        data: { permission: "read" },
+      }); // mocks isTrustedExternalCollaborator
+      mockGetUserPermissionLevel.mockResolvedValueOnce({
         data: { permission },
-      });
+      }); // mocks authorHasPermission
       mockPullsGet.mockResolvedValueOnce({
         data: { head: { sha: "sha1234" } },
       });
@@ -214,8 +295,11 @@ describe("External Contributors", () => {
     async (body, permission) => {
       const issueContext = makeIssueCommentContext({ is_pr: true, body });
       mockGetUserPermissionLevel.mockResolvedValueOnce({
+        data: { permission: "read" },
+      }); // mocks isTrustedExternalCollaborator
+      mockGetUserPermissionLevel.mockResolvedValueOnce({
         data: { permission },
-      });
+      }); // mocks authorHasPermission
       mockPullsGet.mockResolvedValueOnce({
         data: { head: { sha: "sha1234" } },
       });

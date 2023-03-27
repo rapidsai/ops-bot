@@ -18,7 +18,7 @@ import { OpsBotPlugin } from "../../plugin";
 import {
   getPRBranchName,
   isGPUTesterPR,
-  isOrgMember,
+  isTrustedUser,
   updateOrCreateBranch,
 } from "../../shared";
 import { PRContext } from "../../types";
@@ -34,6 +34,7 @@ export class PRCopyPRs extends OpsBotPlugin {
   async maybeCopyPR(): Promise<any> {
     const { payload } = this.context;
     const orgName = payload.repository.owner.login;
+    const repoName = payload.repository.name;
     if (await this.pluginIsDisabled()) return;
 
     if (isGPUTesterPR(payload.pull_request)) {
@@ -43,10 +44,11 @@ export class PRCopyPRs extends OpsBotPlugin {
     // pull_request.opened event
     if (payload.action === "opened") {
       if (
-        await isOrgMember(
+        await isTrustedUser(
           this.context.octokit,
           payload.pull_request.user.login,
-          orgName
+          orgName,
+          repoName
         )
       ) {
         await this.context.octokit.rest.git.createRef({
@@ -70,10 +72,11 @@ export class PRCopyPRs extends OpsBotPlugin {
     // pull_request.synchronize
     if (payload.action === "synchronize" || payload.action === "reopened") {
       if (
-        await isOrgMember(
+        await isTrustedUser(
           this.context.octokit,
           payload.pull_request.user.login,
-          orgName
+          orgName,
+          repoName
         )
       ) {
         await updateOrCreateBranch(
