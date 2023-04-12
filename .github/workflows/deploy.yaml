@@ -14,12 +14,21 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy:
     name: Deploy Probot Application
     runs-on: ubuntu-latest
     container: node:18
     steps:
+      - name: Get AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ vars.SERVERLESS_AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Install npm dependencies
@@ -35,8 +44,6 @@ jobs:
       - name: Deploy Probot
         run: npm run deploy
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.SERVERLESS_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.SERVERLESS_AWS_SECRET_ACCESS_KEY }}
           APP_ID: ${{ secrets.APP_ID }}
           WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}

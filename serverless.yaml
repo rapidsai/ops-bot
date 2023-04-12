@@ -1,4 +1,4 @@
-service: gpuci-serverless-ops-bot-probot
+service: ops-bot
 
 provider:
   name: aws
@@ -10,7 +10,7 @@ provider:
   apiGateway:
     shouldStartNameWithService: true
   deploymentBucket:
-    name: rapids-serverless-deployments
+    name: rapidsai-serverless-deployments
   environment:
     NODE_ENV: production
     LOG_FORMAT: json
