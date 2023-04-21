@@ -22,7 +22,7 @@ jobs:
   deploy:
     name: Deploy Probot Application
     runs-on: ubuntu-latest
-    container: node:18
+    container: node:20
     steps:
       - name: Get AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
