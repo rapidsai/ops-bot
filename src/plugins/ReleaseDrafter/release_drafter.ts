@@ -166,11 +166,6 @@ export class ReleaseDrafter extends OpsBotPlugin {
       lstripBlocks: true,
     });
 
-    // Remove square brackets from title
-    nj.addFilter("sanitizeTitle", (title) =>
-      title.replace(/\[[\s\S]*?\]/g, "").trim()
-    );
-
     return nj
       .renderString(templateStr, {
         categories,

@@ -77,7 +77,7 @@ describe("Auto Merger", () => {
       repo: "cudf",
       pull_number: 1234,
       merge_method: "squash",
-      commit_title: "Implement cudf.DateOffset for months (#1234)",
+      commit_title: "[REVIEW] Implement cudf.DateOffset for months (#1234)",
       commit_message: `Implements \`cudf.DateOffset\` - an object used for calendrical arithmetic, similar to pandas.DateOffset - for month units only.
 
 Closes https://github.com/rapidsai/cudf/issues/6754
@@ -128,7 +128,7 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
       repo: "cudf",
       pull_number: 1234,
       merge_method: "squash",
-      commit_title: "Implement cudf.DateOffset for months (#1234)",
+      commit_title: "[REVIEW] Implement cudf.DateOffset for months (#1234)",
       commit_message:
         expected_body +
         `

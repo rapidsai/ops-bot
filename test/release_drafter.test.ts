@@ -114,11 +114,11 @@ describe("Release Drafter", () => {
 
 ## 🚨 Breaking Changes
 
-- Some PR title (#1234) @octokit
+- [WIP] [skip-ci] Some PR title (#1234) @octokit
 
 ## 🐛 Bug Fixes
 
-- Some PR title (#1234) @octokit
+- [WIP] [skip-ci] Some PR title (#1234) @octokit
 
 ## 📖 Documentation
 
@@ -159,11 +159,11 @@ describe("Release Drafter", () => {
 
 ## 🚨 Breaking Changes
 
-- Some PR title (#1234) @octokit
+- [WIP] [skip-ci] Some PR title (#1234) @octokit
 
 ## 🐛 Bug Fixes
 
-- Some PR title (#1234) @octokit
+- [WIP] [skip-ci] Some PR title (#1234) @octokit
 
 ## 📖 Documentation
 
