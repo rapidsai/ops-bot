@@ -79,7 +79,7 @@ export class AutoMerger extends OpsBotPlugin {
 
       // Merge PR
       this.logger.info({ pr }, "merging PR");
-      const commitTitle = this.sanitizePrTitle(pr.title) + ` (#${pr.number})`;
+      const commitTitle = `${pr.title.trim()} (#${pr.number})`;
       await context.octokit.pulls.merge({
         owner: repo.owner.login,
         repo: repo.name,
@@ -242,13 +242,5 @@ export class AutoMerger extends OpsBotPlugin {
           ).data
       )
     );
-  }
-
-  /**
-   * Removes square brackets, [], and their contents from a given string
-   * @param rawTitle
-   */
-  sanitizePrTitle(rawTitle): string {
-    return rawTitle.replace(/\[[\s\S]*?\]/g, "").trim();
   }
 }

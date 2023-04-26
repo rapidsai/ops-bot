@@ -1,5 +1,5 @@
 {% macro prEntry(pr) %}
-- {{ pr.title | sanitizeTitle }} (#{{ pr.number }}) @{{ pr.user.login }}
+- {{ pr.title | trim }} (#{{ pr.number }}) @{{ pr.user.login }}
 {%- endmacro %}
 
 ## 🔗 Links
