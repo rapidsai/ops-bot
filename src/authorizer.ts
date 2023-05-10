@@ -6,7 +6,15 @@ export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   const resp = await authorizer({
-    allowedOrgs: ["rapidsai", "nv-morpheus", "nvidia", "nv-legate"],
+    allowedOrgs: [
+      "dask-contrib",
+      "dask",
+      "numba",
+      "nv-legate",
+      "nv-morpheus",
+      "nvidia",
+      "rapidsai",
+    ],
     event,
   });
 
