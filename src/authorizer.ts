@@ -12,6 +12,7 @@ export const handler = async (
       "numba",
       "nv-legate",
       "nv-morpheus",
+      "nvidia-merlin",
       "nvidia",
       "rapidsai",
     ],
