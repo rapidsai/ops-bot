@@ -91,7 +91,7 @@ export class ReleaseDrafter extends OpsBotPlugin {
       stable: { version };
       nightly: { version };
     }>(
-      `https://raw.githubusercontent.com/rapidsai/docs/gh-pages/_data/releases.json`
+      `https://raw.githubusercontent.com/rapidsai/docs/main/_data/releases.json`
     );
 
     return [

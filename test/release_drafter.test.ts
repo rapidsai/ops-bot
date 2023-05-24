@@ -97,7 +97,7 @@ describe("Release Drafter", () => {
     await new ReleaseDrafter(branch).draftRelease();
 
     if(branch.payload.ref != "branch-21.06") {
-      expect(mockedAxios.get).toHaveBeenCalledWith("https://raw.githubusercontent.com/rapidsai/docs/gh-pages/_data/releases.json");
+      expect(mockedAxios.get).toHaveBeenCalledWith("https://raw.githubusercontent.com/rapidsai/docs/main/_data/releases.json");
     }
     expect(mockPaginate).toHaveBeenCalledTimes(1);
     expect(mockPaginate.mock.calls[0][0]).toBe(mockListPulls);
@@ -143,7 +143,7 @@ describe("Release Drafter", () => {
     await new ReleaseDrafter(branch).draftRelease();
 
     if(branch.payload.ref != "branch-21.06") {
-      expect(mockedAxios.get).toHaveBeenCalledWith("https://raw.githubusercontent.com/rapidsai/docs/gh-pages/_data/releases.json");
+      expect(mockedAxios.get).toHaveBeenCalledWith("https://raw.githubusercontent.com/rapidsai/docs/main/_data/releases.json");
     }
     expect(mockPaginate).toHaveBeenCalledTimes(1);
     expect(mockPaginate.mock.calls[0][0]).toBe(mockListPulls);

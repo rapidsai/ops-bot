@@ -82,7 +82,7 @@ const isActiveBranch = async (
   }
 
   const { data: releases } = await axios.get(
-    "https://raw.githubusercontent.com/rapidsai/docs/gh-pages/_data/releases.json"
+    "https://raw.githubusercontent.com/rapidsai/docs/main/_data/releases.json"
   );
   const nextNightlyBranchVersion = releases["next_nightly"]["version"];
 
