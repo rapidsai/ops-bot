@@ -66,7 +66,7 @@ export class AutoMerger extends OpsBotPlugin {
         !(await validCommentsExistByPredicate(
           this.context,
           pr.number,
-          [Permission.admin, Permission.write],
+          [Permission.admin, Permission.write, Permission.maintain],
           (comment) => isMergeComment(comment.body || "")
         ))
       ) {

@@ -81,7 +81,7 @@ export class CommentCopyPRs extends OpsBotPlugin {
   }
 
   private async authorHasPermission(actor) {
-    return [Permission.admin, Permission.write].includes(
+    return [Permission.admin, Permission.write, Permission.maintain].includes(
       (
         await this.context.octokit.repos.getCollaboratorPermissionLevel({
           owner: this.context.payload.repository.owner.login,

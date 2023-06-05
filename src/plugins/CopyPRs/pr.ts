@@ -64,7 +64,7 @@ export class PRCopyPRs extends OpsBotPlugin {
         owner: orgName,
         repo: payload.repository.name,
         issue_number: payload.pull_request.number,
-        body: `Pull requests from external contributors require approval from a \`${orgName}\` organization member with \`write\` or \`admin\` permissions before CI can begin.`,
+        body: `Pull requests from external contributors require approval from a \`${orgName}\` organization member with \`write\` permissions or greater before CI can begin.`,
       });
       return;
     }

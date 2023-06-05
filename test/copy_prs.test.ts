@@ -103,7 +103,7 @@ describe("Copy PRs", () => {
       owner: prContext.payload.repository.owner.login,
       repo: prContext.payload.repository.name,
       issue_number: prContext.payload.pull_request.id,
-      body: "Pull requests from external contributors require approval from a `rapidsai` organization member with `write` or `admin` permissions before CI can begin.",
+      body: "Pull requests from external contributors require approval from a `rapidsai` organization member with `write` permissions or greater before CI can begin.",
     });
     expect(mockCreateRef).toBeCalledTimes(0);
   });
@@ -131,6 +131,8 @@ describe("Copy PRs", () => {
     { action: "reopened", permission: "write" },
     { action: "synchronize", permission: "admin" },
     { action: "reopened", permission: "admin" },
+    { action: "synchronize", permission: "maintain" },
+    { action: "reopened", permission: "maintain" },
   ])(
     "pull_request.$action, update ref for trusted external collaborator: $permission",
     async ({ action, permission }) => {
@@ -213,6 +215,8 @@ describe("Copy PRs", () => {
     { body: "/okay to test", permission: "write" },
     { body: "/ok to test", permission: "admin" },
     { body: "/okay to test", permission: "admin" },
+    { body: "/ok to test", permission: "maintain" },
+    { body: "/okay to test", permission: "maintain" },
   ])(
     "issue_comment.created, do nothing if issue author is trusted external collaborator",
     async ({ body, permission }) => {

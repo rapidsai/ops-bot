@@ -27,6 +27,7 @@ import {
 export const Permission = {
   admin: "admin",
   write: "write",
+  maintain: "maintain",
 };
 
 export const Command = {
@@ -234,6 +235,7 @@ export const isTrustedExternalCollaborator = async (
     isTrustedExternalCollaborator = [
       Permission.write,
       Permission.admin,
+      Permission.maintain,
     ].includes(data.permission);
   } catch (_) {}
   return isTrustedExternalCollaborator;
