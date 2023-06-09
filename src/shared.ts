@@ -83,6 +83,10 @@ export const createSetCommitStatus = (
       state,
       description,
       target_url,
+      request: {
+        retries: 3,
+        retryAfter: 10,
+      },
     });
   };
 };
