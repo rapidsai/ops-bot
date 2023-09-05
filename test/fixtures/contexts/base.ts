@@ -15,15 +15,12 @@
  */
 
 import {
-  mockCheckMembershipForUser,
   mockCompareCommitsWithBasehead,
   mockConfigGet,
   mockContextRepo,
   mockCreateComment,
   mockCreateCommitStatus,
-  mockCreateRef,
   mockCreateRelease,
-  mockDeleteRef,
   mockGetByUsername,
   mockGetRef,
   mockGetReleaseByTag,
@@ -37,7 +34,6 @@ import {
   mockMerge,
   mockPaginate,
   mockPullsGet,
-  mockUpdateRef,
   mockUpdateRelease,
 } from "../../mocks";
 import type { EmitterWebhookEventName } from "@octokit/webhooks/dist-types/types";
@@ -78,15 +74,9 @@ export const makeContext = (payload, name: EmitterWebhookEventName) => {
       config: {
         get: mockConfigGet,
       },
-      orgs: {
-        checkMembershipForUser: mockCheckMembershipForUser,
-      },
       rest: {
         git: {
-          updateRef: mockUpdateRef,
           getRef: mockGetRef,
-          deleteRef: mockDeleteRef,
-          createRef: mockCreateRef,
         },
       },
       search: {

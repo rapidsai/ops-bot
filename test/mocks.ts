@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-export const mockCheckMembershipForUser = jest
-  .fn()
-  .mockName("mockCheckMembershipForUser");
 export const mockCompareCommitsWithBasehead = jest
   .fn()
   .mockName("mockCompareCommitsWithBasehead");
@@ -26,9 +23,7 @@ export const mockCreateComment = jest.fn().mockName("mockCreateComment");
 export const mockCreateCommitStatus = jest
   .fn()
   .mockName("mockCreateCommitStatus");
-export const mockCreateRef = jest.fn().mockName("mockCreateRef");
 export const mockCreateRelease = jest.fn().mockName("mockCreateRelease");
-export const mockDeleteRef = jest.fn().mockName("mockDeleteRef");
 export const mockGetByUsername = jest.fn().mockName("mockGetByUsername");
 export const mockGetRef = jest.fn().mockName("mockGetRef");
 export const mockGetReleaseByTag = jest.fn().mockName("mockGetReleaseByTag");
@@ -53,5 +48,4 @@ export const mockPullsGet = jest.fn().mockName("mockPullsGet");
 export const mockSearchIssuesAndPullRequests = jest
   .fn()
   .mockName("mockSearchIssuesAndPullRequests");
-export const mockUpdateRef = jest.fn().mockName("mockUpdateRef");
 export const mockUpdateRelease = jest.fn().mockName("mockUpdateRelease");

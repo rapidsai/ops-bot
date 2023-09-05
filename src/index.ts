@@ -17,7 +17,6 @@
 import { Probot } from "probot";
 import { initAutoMerger } from "./plugins/AutoMerger";
 import { initBranchChecker } from "./plugins/BranchChecker";
-import { initCopyPRs } from "./plugins/CopyPRs";
 import { initLabelChecker } from "./plugins/LabelChecker";
 import { initRecentlyUpdated } from "./plugins/RecentlyUpdated";
 import { initReleaseDrafter } from "./plugins/ReleaseDrafter";
@@ -28,5 +27,4 @@ export = (app: Probot) => {
   initReleaseDrafter(app);
   initAutoMerger(app);
   initRecentlyUpdated(app);
-  initCopyPRs(app);
 };
