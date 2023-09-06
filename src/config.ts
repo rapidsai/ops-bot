@@ -24,7 +24,6 @@ export type OpsBotConfigFeatureNames = {
   label_checker: boolean;
   release_drafter: boolean;
   recently_updated: boolean;
-  copy_prs: boolean;
 };
 
 /**
@@ -49,7 +48,6 @@ export const DefaultOpsBotConfig: OpsBotConfig = {
   label_checker: false,
   release_drafter: false,
   recently_updated: false,
-  copy_prs: false,
   recently_updated_threshold: 5,
 };
 
