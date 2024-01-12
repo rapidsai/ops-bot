@@ -145,6 +145,20 @@ describe("Branch Checker", () => {
         "Base branch is not under active development"
       );
     });
+
+    test("non-versioned default branch", async() => {
+      const context = makePRContext({
+        baseRef: "non-versioned-branch",
+        baseDefaultBranch: "non-versioned-branch",
+      });
+      await new PRBranchChecker(context).checkPR();
+      expect(mockCreateCommitStatus).toBeCalledTimes(2);
+      expect(mockCreateCommitStatus.mock.calls[0][0].state).toBe("pending");
+      expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
+      expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
+        "Base branch is under active development"
+      );
+    });
   });
 
   describe("Repository Event", () => {
