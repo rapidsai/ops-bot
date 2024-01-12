@@ -31,9 +31,6 @@ export const checkPR = async function (
   pr: PRContext["payload"]["pull_request"] | PullsListResponseData[0]
 ) {
   const prBaseBranch = pr.base.ref;
-  const repoDefaultBranchVersion = getVersionFromBranch(
-    pr.base.repo.default_branch
-  );
   const errDescription = "Base branch is not under active development";
   const setCommitStatus = createSetCommitStatus(context.octokit, {
     context: "Branch Checker",
@@ -50,10 +47,20 @@ export const checkPR = async function (
     return await setCommitStatus("Automated GPUTester PR detected", "success");
   }
 
+  if (pr.base.repo.default_branch == prBaseBranch) {
+    return await setCommitStatus(
+      "Base branch is under active development",
+      "success"
+    );
+  }
+
   if (!isVersionedBranch(prBaseBranch)) {
     return await setCommitStatus(errDescription, "failure");
   }
 
+  const repoDefaultBranchVersion = getVersionFromBranch(
+    pr.base.repo.default_branch
+  );
   const prBaseBranchVersion = getVersionFromBranch(prBaseBranch);
 
   if (await isActiveBranch(repoDefaultBranchVersion, prBaseBranchVersion)) {
