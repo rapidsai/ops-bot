@@ -255,7 +255,9 @@ describe("Forward Merger", () => {
         {
             name: "branch-21.10",
       }]
-      const mockListBranches = jest.fn().mockName("listBranches").mockResolvedValue({data: branches});
+      const mockListBranchesPaginate = jest.fn().mockName("listBranches").mockResolvedValue(branches);
+      forwardMerger.context.octokit.paginate = mockListBranchesPaginate as any;
+      const mockListBranches = jest.fn().mockName("listBranches").mockResolvedValue("something");
       forwardMerger.context.octokit.repos.listBranches = mockListBranches as any;
 
       const result = await forwardMerger.getBranches();
@@ -263,6 +265,11 @@ describe("Forward Merger", () => {
       expect(result.length).toEqual(2);
       expect(result[0].name).toEqual("branch-21.12");
       expect(result[1].name).toEqual("branch-21.10");
+      expect(mockListBranchesPaginate.mock.calls[0][0]).toBe(mockListBranches)
+      expect(mockListBranchesPaginate.mock.calls[0][1]).toMatchObject({
+          owner: context.payload.repository.owner.login,
+          repo: context.payload.repository.name,
+      });
   })
 
   test("sortBranches should sort branches by version", async () => {
@@ -278,17 +285,20 @@ describe("Forward Merger", () => {
               name: "branch-21.10",
           },
           {
+              name: "branch-19.10",
+          },
+          {
               name: "branch-22.02",
           }]
-          const mockListBranches = jest.fn().mockName("listBranches").mockResolvedValue({data: branches});
-          forwardMerger.context.octokit.repos.listBranches = mockListBranches as any;
 
-          const result = await forwardMerger.getBranches();
+          const result = await forwardMerger.sortBranches(branches);
+          console.log(result)
 
-          expect(result.length).toEqual(3);
-          expect(result[0].name).toEqual("branch-21.12");
+          expect(result.length).toEqual(4);
+          expect(result[0].name).toEqual("branch-19.10");
           expect(result[1].name).toEqual("branch-21.10");
-          expect(result[2].name).toEqual("branch-22.02");
+          expect(result[2].name).toEqual("branch-21.12");
+          expect(result[3].name).toEqual("branch-22.02");
   })
 
   test("getNextBranch should return next branch", async () => {

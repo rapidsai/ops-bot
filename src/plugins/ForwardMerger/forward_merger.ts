@@ -68,10 +68,9 @@ export class ForwardMerger extends OpsBotPlugin {
   }
 
   async getBranches() {
-    const { data: branches } = await this.context.octokit.repos.listBranches({
+    const branches = await this.context.octokit.paginate(this.context.octokit.repos.listBranches, {
       owner: this.repo.owner.login,
       repo: this.repo.name,
-      per_page: 100,
     });
     return branches.filter((branch: any) => isVersionedBranch(branch.name));
   }
