@@ -277,7 +277,7 @@ describe("Forward Merger", () => {
           ref: "refs/heads/branch-21.12",
       });
       const forwardMerger = new ForwardMerger(context, context.payload);
-      const branches = [
+      const branches: any[] = [
           {
               name: "branch-21.12",
           },
@@ -291,8 +291,7 @@ describe("Forward Merger", () => {
               name: "branch-22.02",
           }]
 
-          const result = await forwardMerger.sortBranches(branches);
-          console.log(result)
+          const result = forwardMerger.sortBranches(branches);
 
           expect(result.length).toEqual(4);
           expect(result[0].name).toEqual("branch-19.10");
@@ -306,7 +305,7 @@ describe("Forward Merger", () => {
           ref: "refs/heads/branch-21.12",
       });
       const forwardMerger = new ForwardMerger(context, context.payload);
-      const branches = [
+      const branches: any[] = [
           {
               name: "branch-21.12",
           },
@@ -330,7 +329,7 @@ describe("Forward Merger", () => {
           ref: "refs/heads/branch-22.02",
       });
       const forwardMerger = new ForwardMerger(context, context.payload);
-      const branches = [
+      const branches: any[] = [
           {
               name: "branch-21.12",
           },
@@ -356,7 +355,7 @@ describe("Forward Merger", () => {
       }
       const mockCreatePR = jest.fn().mockName("createPR").mockResolvedValue({data: {number: 1}});
       forwardMerger.context.octokit.pulls.create = mockCreatePR as any;
-      const result = await forwardMerger.openPR(nextBranch);
+      const result = await forwardMerger.openPR(nextBranch as any);
 
       expect(result!.number).toEqual(1);
       expect(mockCreatePR.mock.calls[0][0]).toMatchObject({
@@ -378,7 +377,7 @@ describe("Forward Merger", () => {
       const nextBranch = null
       const mockCreatePR = jest.fn().mockName("createPR").mockResolvedValue({data: {number: 1}});
       forwardMerger.context.octokit.pulls.create = mockCreatePR as any;
-      const result = await forwardMerger.openPR(nextBranch);
+      const result = await forwardMerger.openPR(nextBranch as any);
 
       expect(result).toBeFalsy();
       expect(mockCreatePR).not.toBeCalled();

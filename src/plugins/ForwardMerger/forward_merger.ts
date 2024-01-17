@@ -23,6 +23,7 @@ import {
 import { basename } from "path";
 import { Context } from "probot";
 import { PushEventsType } from ".";
+type Branches = Awaited<ReturnType<typeof ForwardMerger.prototype.getBranches>>;
 
 
 export class ForwardMerger extends OpsBotPlugin {
@@ -72,11 +73,11 @@ export class ForwardMerger extends OpsBotPlugin {
       owner: this.repo.owner.login,
       repo: this.repo.name,
     });
-    return branches.filter((branch: any) => isVersionedBranch(branch.name));
+    return branches.filter((branch) => isVersionedBranch(branch.name));
   }
 
-  sortBranches(branches: any) {
-    return branches.sort((a: any, b: any) => {
+  sortBranches(branches: Branches) {
+    return branches.sort((a, b) => {
       const [yearA, monthA] = getVersionFromBranch(a.name).split('.').map(Number)
       const [yearB, monthB] = getVersionFromBranch(b.name).split('.').map(Number)
       if (yearA !== yearB) {
@@ -87,15 +88,15 @@ export class ForwardMerger extends OpsBotPlugin {
     });
   }
 
-  getNextBranch(sortedBranches: any) {
+  getNextBranch(sortedBranches: Branches) {
     const currentBranchIndex = sortedBranches.findIndex(
-      (branch: any) => branch.name === this.branchName
+      (branch) => branch.name === this.branchName
     );
     const nextBranch = sortedBranches[currentBranchIndex + 1];
     return nextBranch;
   }
 
-  async openPR(nextBranch: any) {
+  async openPR(nextBranch: Branches[number]) {
     if (!nextBranch) {
       this.logger.info("No next branch found, will not open PR");
       return;
@@ -112,7 +113,7 @@ export class ForwardMerger extends OpsBotPlugin {
     return pr;
   }
 
-  async mergePR(pr: any) {
+  async mergePR(pr) {
     this.logger.info("Merging PR");
     const { data: merge } = await this.context.octokit.pulls.merge({
       owner: this.repo.owner.login,
