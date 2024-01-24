@@ -103,7 +103,7 @@ describe("Forward Merger", () => {
     await forwardMerger.mergeForward();
 
     expect(mockOpenPR).toBeCalledWith(nextBranch);
-  })
+  }, 11000)
 
   test("mergeForward should not open PR on invalid next branch", async () => {
     const context = makePushContext({
@@ -143,7 +143,7 @@ describe("Forward Merger", () => {
     await forwardMerger.mergeForward();
 
     expect(mockMergePR).toBeCalledWith(pr);
-  })
+  }, 11000)
 
   test("should not merge PR if there is no PR", async () => {
     const context = makePushContext({
@@ -163,7 +163,7 @@ describe("Forward Merger", () => {
       await forwardMerger.mergeForward();
 
       expect(mockMergePR).not.toBeCalled();
-  })
+  }, 11000)
 
   test("should comment failure on PR if merge is successful", async () => {
     const context = makePushContext({
@@ -187,7 +187,7 @@ describe("Forward Merger", () => {
       await forwardMerger.mergeForward();
 
       expect(mockIssueComment).toBeCalledWith(pr.number, "**SUCCESS** - forward-merge complete.");
-  })
+  }, 11000)
 
   test("should comment failure on PR if merge is unsuccessful", async () => {
     const context = makePushContext({
@@ -211,7 +211,7 @@ describe("Forward Merger", () => {
     await forwardMerger.mergeForward();
 
     expect(mockIssueComment).toBeCalledWith(pr.number, "**FAILURE** - Unable to forward-merge due to an error, **manual** merge is necessary. Do not use the `Resolve conflicts` option in this PR, follow these instructions https://docs.rapids.ai/maintainers/forward-merger/ \n **IMPORTANT**: When merging this PR, do not use the [auto-merger](https://docs.rapids.ai/resources/auto-merger/) (i.e. the `/merge` comment). Instead, an admin must manually merge by changing the merging strategy to `Create a Merge Commit`. Otherwise, history will be lost and the branches become incompatible.");
-  })
+  }, 11000)
 
   test("mergeForward should obtain the correct next branch from a given list of unsorted branches", async () => {
     const context = makePushContext({
@@ -238,7 +238,7 @@ describe("Forward Merger", () => {
     await forwardMerger.mergeForward();
 
     expect(mockOpenPR.mock.calls[0][0]).toMatchObject({name: "branch-22.04"});
-  })
+  }, 11000)
 
   test("getBranches should return versioned branches", async () => {
       const context = makePushContext({
@@ -365,7 +365,7 @@ describe("Forward Merger", () => {
           head: forwardMerger.branchName,
           base: nextBranch.name,
           maintainer_can_modify: true,
-          body: `Forward-merge triggered by push to ${forwardMerger.branchName} that creates a PR to keep ${nextBranch.name} up-to-date. If this PR is unable to be immediately merged due to conflicts, it will remain open for the team to manually merge.`,
+          body: `Forward-merge triggered by push to ${forwardMerger.branchName} that creates a PR to keep ${nextBranch.name} up-to-date. If this PR is unable to be immediately merged due to conflicts, it will remain open for the team to manually merge. See [forward-merger docs](https://docs.rapids.ai/maintainers/forward-merger/) for more info.`,
       });
   })
 

@@ -56,6 +56,7 @@ export class ForwardMerger extends OpsBotPlugin {
 
     if (nextBranch) {
       const pr = await this.openPR(nextBranch);
+      await new Promise(resolve => setTimeout(resolve, 10000));
 
       if (pr) {
         const merge = await this.mergePR(pr);
@@ -107,7 +108,7 @@ export class ForwardMerger extends OpsBotPlugin {
       title: "Forward-merge " + this.branchName + " into " + nextBranch.name,
       head: this.branchName,
       base: nextBranch.name,
-      maintainer_can_modify: false,
+      maintainer_can_modify: true,
       body: `Forward-merge triggered by push to ${this.branchName} that creates a PR to keep ${nextBranch.name} up-to-date. If this PR is unable to be immediately merged due to conflicts, it will remain open for the team to manually merge. See [forward-merger docs](https://docs.rapids.ai/maintainers/forward-merger/) for more info.`,
     });
     return pr;
