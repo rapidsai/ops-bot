@@ -68,7 +68,7 @@ describe("Forward Merger", () => {
       },
       {
         name: "branch-21.10",
-    }]
+      }]
       // mock getBranches, sortBranches, and getNextBranch
       const mockGetBranches = jest.fn().mockName("getBranches").mockResolvedValue(branches);
       forwardMerger.getBranches = mockGetBranches;
@@ -299,6 +299,34 @@ describe("Forward Merger", () => {
           expect(result[2].name).toEqual("branch-21.12");
           expect(result[3].name).toEqual("branch-22.02");
   })
+
+  test("sortBranches should sort 0.9/0.10-type branches", async () => {
+    const context = makePushContext({
+        ref: "refs/heads/branch-21.12",
+    });
+    const forwardMerger = new ForwardMerger(context, context.payload);
+    const branches: any[] = [
+        {
+            name: "branch-0.12",
+        },
+        {
+            name: "branch-0.10",
+        },
+        {
+            name: "branch-2.10",
+        },
+        {
+            name: "branch-1.02",
+        }]
+
+        const result = forwardMerger.sortBranches(branches);
+
+        expect(result.length).toEqual(4);
+        expect(result[0].name).toEqual("branch-0.10");
+        expect(result[1].name).toEqual("branch-0.12");
+        expect(result[2].name).toEqual("branch-1.02");
+        expect(result[3].name).toEqual("branch-2.10");
+})
 
   test("getNextBranch should return next branch", async () => {
       const context = makePushContext({
