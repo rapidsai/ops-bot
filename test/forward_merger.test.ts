@@ -16,7 +16,7 @@
 
 import { ForwardMerger } from "../src/plugins/ForwardMerger/forward_merger";
 import { makePushContext } from "./fixtures/contexts/push";
-import { mockConfigGet, mockContextRepo, mockCreatePR, mockListBranches, mockMerge, mockPaginate } from "./mocks";
+import { mockConfigGet, mockContextRepo, mockCreateComment, mockCreatePR, mockListBranches, mockMerge, mockPaginate } from "./mocks";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
 import { makeConfigReponse } from "./fixtures/responses/get_config";
 
@@ -26,6 +26,7 @@ describe("Forward Merger", () => {
     mockMerge.mockReset();
     mockListBranches.mockReset();
     mockPaginate.mockReset();
+    mockCreateComment.mockReset();
   });
 
   beforeAll(() => {
@@ -82,7 +83,7 @@ describe("Forward Merger", () => {
       .fn()
       .mockName("sortBranches")
       .mockReturnValue(null);
-    const nextBranch = null;
+    const nextBranch = undefined;
     const mockGetNextBranch = jest
       .fn()
       .mockName("getNextBranch")
@@ -96,7 +97,7 @@ describe("Forward Merger", () => {
   });
 
 
-  test("should comment failure on PR if merge is successful", async () => {
+  test("should comment success on PR if merge is successful", async () => {
     const context = makePushContext({
       ref: "refs/heads/branch-21.12",
     });
@@ -119,9 +120,7 @@ describe("Forward Merger", () => {
     const pr = { data: { number: 1, head: { sha: 123456 } } };
     mockCreatePR.mockResolvedValue(pr)
     
-    forwardMerger.context.octokit.pulls.merge = <any>(
-      jest.fn().mockName("mergePR").mockResolvedValue({ merged: true })
-    );
+    mockMerge.mockResolvedValue({ merged: true })
     const mockIssueComment = jest
       .fn()
       .mockName("issueComment")
@@ -158,7 +157,6 @@ describe("Forward Merger", () => {
       .mockReturnValue(nextBranch);
     const pr = { data: { number: 1, head: { sha: 123456 } } };
     mockCreatePR.mockResolvedValue(pr)
-    mockMerge.mockResolvedValue({ merged: false });
     mockMerge.mockRejectedValueOnce(new Error("error"));
     const mockIssueComment = jest
       .fn()
@@ -214,7 +212,6 @@ describe("Forward Merger", () => {
     ];
     mockPaginate.mockResolvedValue(branches);
     mockListBranches.mockResolvedValue("something");
-    forwardMerger.context.octokit.repos.listBranches = mockListBranches as any;
 
     const result = await forwardMerger.getBranches();
 
@@ -265,7 +262,7 @@ describe("Forward Merger", () => {
     expect(result).toEqual("branch-22.02");
   });
 
-  test("getNextBranch should return null if there is no next branch", async () => {
+  test("getNextBranch should return undefined if there is no next branch", async () => {
     const context = makePushContext({
       ref: "refs/heads/branch-22.02",
     });
@@ -274,7 +271,7 @@ describe("Forward Merger", () => {
     const sortedBranches = forwardMerger.sortBranches(branches);
     const result = await forwardMerger.getNextBranch(sortedBranches);
 
-    expect(result).toBeFalsy();
+    expect(result).toBeUndefined();
   });
 
   test("issueComment should create comment", async () => {
@@ -282,12 +279,7 @@ describe("Forward Merger", () => {
       ref: "refs/heads/branch-22.02",
     });
     const forwardMerger = new ForwardMerger(context, context.payload);
-    const mockCreateComment = jest
-      .fn()
-      .mockName("createComment")
-      .mockResolvedValue(null);
-    forwardMerger.context.octokit.issues.createComment =
-      mockCreateComment as any;
+    mockCreateComment.mockResolvedValue(null);
     await forwardMerger.issueComment(1, "comment");
 
     expect(mockCreateComment.mock.calls[0][0]).toMatchObject({
