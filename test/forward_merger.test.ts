@@ -92,9 +92,7 @@ describe("Forward Merger", () => {
     const forwardMerger = new ForwardMerger(context, context.payload);
     forwardMerger.getBranches = jest.fn().mockName("getBranches").mockResolvedValue(null);
     forwardMerger.sortBranches = jest.fn().mockName("sortBranches").mockReturnValue(null);
-    const nextBranch = {
-      name: "branch-21.10",
-    }
+    const nextBranch = "branch-21.10"
     const mockGetNextBranch = jest.fn().mockName("getNextBranch").mockReturnValue(nextBranch);
     forwardMerger.getNextBranch = mockGetNextBranch;
     const mockCreatePR = jest.fn().mockName("openPR").mockResolvedValue({data: {}});
@@ -105,11 +103,11 @@ describe("Forward Merger", () => {
     expect(mockCreatePR.mock.calls[0][0]).toMatchObject({
       owner: context.payload.repository.owner.login,
       repo: context.payload.repository.name,
-      title: "Forward-merge " + forwardMerger.currentBranch + " into " + nextBranch.name,
+      title: "Forward-merge " + forwardMerger.currentBranch + " into " + nextBranch,
       head: forwardMerger.currentBranch,
-      base: nextBranch.name,
+      base: nextBranch,
       maintainer_can_modify: true,
-      body: `Forward-merge triggered by push to ${forwardMerger.currentBranch} that creates a PR to keep ${nextBranch.name} up-to-date. If this PR is unable to be immediately merged due to conflicts, it will remain open for the team to manually merge. See [forward-merger docs](https://docs.rapids.ai/maintainers/forward-merger/) for more info.`,
+      body: `Forward-merge triggered by push to ${forwardMerger.currentBranch} that creates a PR to keep ${nextBranch} up-to-date. If this PR is unable to be immediately merged due to conflicts, it will remain open for the team to manually merge. See [forward-merger docs](https://docs.rapids.ai/maintainers/forward-merger/) for more info.`,
     });
   }, 11000)
 
@@ -229,19 +227,7 @@ describe("Forward Merger", () => {
       ref: "refs/heads/branch-22.02",
     });
     const forwardMerger = new ForwardMerger(context, context.payload);
-    const branches = [
-      {
-        name: "branch-22.04"
-      },
-      {
-        name: "branch-21.12",
-      },
-      {
-        name: "branch-21.10",
-      },
-      {
-        name: "branch-22.02",
-    }]
+    const branches = ["branch-22.04", "branch-21.12", "branch-21.10", "branch-22.02"]
     const mockGetBranches = jest.fn().mockName("getBranches").mockResolvedValue(branches);
     const mockCreatePR = jest.fn().mockName("openPR").mockResolvedValue({data: {}})
     forwardMerger.getBranches = mockGetBranches
@@ -274,8 +260,8 @@ describe("Forward Merger", () => {
       const result = await forwardMerger.getBranches();
 
       expect(result.length).toEqual(2);
-      expect(result[0].name).toEqual("branch-21.12");
-      expect(result[1].name).toEqual("branch-21.10");
+      expect(result[0]).toEqual("branch-21.12");
+      expect(result[1]).toEqual("branch-21.10");
       expect(mockListBranchesPaginate.mock.calls[0][0]).toBe(mockListBranches)
       expect(mockListBranchesPaginate.mock.calls[0][1]).toMatchObject({
           owner: context.payload.repository.owner.login,
@@ -288,27 +274,15 @@ describe("Forward Merger", () => {
           ref: "refs/heads/branch-21.12",
       });
       const forwardMerger = new ForwardMerger(context, context.payload);
-      const branches: any[] = [
-          {
-              name: "branch-21.12",
-          },
-          {
-              name: "branch-21.10",
-          },
-          {
-              name: "branch-19.10",
-          },
-          {
-              name: "branch-22.02",
-          }]
+      const branches = ["branch-21.12", "branch-21.10", "branch-19.10", "branch-22.02"]
 
-          const result = forwardMerger.sortBranches(branches);
+      const result = forwardMerger.sortBranches(branches);
 
-          expect(result.length).toEqual(4);
-          expect(result[0].name).toEqual("branch-19.10");
-          expect(result[1].name).toEqual("branch-21.10");
-          expect(result[2].name).toEqual("branch-21.12");
-          expect(result[3].name).toEqual("branch-22.02");
+      expect(result.length).toEqual(4);
+      expect(result[0]).toEqual("branch-19.10");
+      expect(result[1]).toEqual("branch-21.10");
+      expect(result[2]).toEqual("branch-21.12");
+      expect(result[3]).toEqual("branch-22.02");
   })
 
   test("sortBranches should sort 0.9/0.10-type branches", async () => {
@@ -316,27 +290,15 @@ describe("Forward Merger", () => {
         ref: "refs/heads/branch-21.12",
     });
     const forwardMerger = new ForwardMerger(context, context.payload);
-    const branches: any[] = [
-        {
-            name: "branch-0.12",
-        },
-        {
-            name: "branch-0.10",
-        },
-        {
-            name: "branch-2.10",
-        },
-        {
-            name: "branch-1.02",
-        }]
+    const branches = ["branch-0.12", "branch-0.10", "branch-2.10", "branch-1.02"]
 
         const result = forwardMerger.sortBranches(branches);
 
         expect(result.length).toEqual(4);
-        expect(result[0].name).toEqual("branch-0.10");
-        expect(result[1].name).toEqual("branch-0.12");
-        expect(result[2].name).toEqual("branch-1.02");
-        expect(result[3].name).toEqual("branch-2.10");
+        expect(result[0]).toEqual("branch-0.10");
+        expect(result[1]).toEqual("branch-0.12");
+        expect(result[2]).toEqual("branch-1.02");
+        expect(result[3]).toEqual("branch-2.10");
 })
 
   test("getNextBranch should return next branch", async () => {
@@ -344,23 +306,11 @@ describe("Forward Merger", () => {
           ref: "refs/heads/branch-21.12",
       });
       const forwardMerger = new ForwardMerger(context, context.payload);
-      const branches: any[] = [
-          {
-              name: "branch-21.12",
-          },
-          {
-              name: "branch-21.10",
-          },
-          {
-              name: "branch-21.10",
-          },
-          {
-              name: "branch-22.02",
-          }]
+      const branches = ["branch-21.12", "branch-21.10", "branch-22.02"]
       const sortedBranches = forwardMerger.sortBranches(branches)
       const result = await forwardMerger.getNextBranch(sortedBranches);
 
-      expect(result.name).toEqual("branch-22.02");
+      expect(result).toEqual("branch-22.02");
   })
 
   test("getNextBranch should return null if there is no next branch", async () => {
@@ -368,16 +318,7 @@ describe("Forward Merger", () => {
           ref: "refs/heads/branch-22.02",
       });
       const forwardMerger = new ForwardMerger(context, context.payload);
-      const branches: any[] = [
-          {
-              name: "branch-21.12",
-          },
-          {
-              name: "branch-21.10",
-          },
-          {
-              name: "branch-22.02",
-          }]
+      const branches = ["branch-21.12", "branch-21.10", "branch-22.02"]
       const sortedBranches = forwardMerger.sortBranches(branches)
       const result = await forwardMerger.getNextBranch(sortedBranches);
 

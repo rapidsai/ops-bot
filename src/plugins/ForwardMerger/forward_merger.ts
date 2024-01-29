@@ -23,7 +23,6 @@ import {
 import { basename } from "path";
 import { Context } from "probot";
 import { PushEventsType } from ".";
-type Branches = Awaited<ReturnType<typeof ForwardMerger.prototype.getBranches>>;
 
 
 export class ForwardMerger extends OpsBotPlugin {
@@ -55,11 +54,11 @@ export class ForwardMerger extends OpsBotPlugin {
     const { data: pr } = await this.context.octokit.pulls.create({
       owner: this.repo.owner.login,
       repo: this.repo.name,
-      title: "Forward-merge " + this.currentBranch + " into " + nextBranch.name,
+      title: "Forward-merge " + this.currentBranch + " into " + nextBranch,
       head: this.currentBranch,
-      base: nextBranch.name,
+      base: nextBranch,
       maintainer_can_modify: true,
-      body: `Forward-merge triggered by push to ${this.currentBranch} that creates a PR to keep ${nextBranch.name} up-to-date. If this PR is unable to be immediately merged due to conflicts, it will remain open for the team to manually merge. See [forward-merger docs](https://docs.rapids.ai/maintainers/forward-merger/) for more info.`,
+      body: `Forward-merge triggered by push to ${this.currentBranch} that creates a PR to keep ${nextBranch} up-to-date. If this PR is unable to be immediately merged due to conflicts, it will remain open for the team to manually merge. See [forward-merger docs](https://docs.rapids.ai/maintainers/forward-merger/) for more info.`,
     });
 
     await new Promise(resolve => setTimeout(resolve, 10000));
@@ -83,13 +82,13 @@ export class ForwardMerger extends OpsBotPlugin {
       owner: this.repo.owner.login,
       repo: this.repo.name,
     });
-    return branches.filter((branch) => isVersionedBranch(branch.name));
+    return branches.filter((branch) => isVersionedBranch(branch.name)).map((branch) => branch.name);
   }
 
-  sortBranches(branches: Branches) {
+  sortBranches(branches: string[]) {
     return branches.sort((a, b) => {
-      const [yearA, monthA] = getVersionFromBranch(a.name).split('.').map(Number)
-      const [yearB, monthB] = getVersionFromBranch(b.name).split('.').map(Number)
+      const [yearA, monthA] = getVersionFromBranch(a).split('.').map(Number)
+      const [yearB, monthB] = getVersionFromBranch(b).split('.').map(Number)
       if (yearA !== yearB) {
         return yearA - yearB;
       } else {
@@ -98,9 +97,9 @@ export class ForwardMerger extends OpsBotPlugin {
     });
   }
 
-  getNextBranch(sortedBranches: Branches) {
+  getNextBranch(sortedBranches: string[]) {
     const currentBranchIndex = sortedBranches.findIndex(
-      (branch) => branch.name === this.currentBranch
+      (branch) => branch === this.currentBranch
     );
     const nextBranch = sortedBranches[currentBranchIndex + 1];
     return nextBranch;
