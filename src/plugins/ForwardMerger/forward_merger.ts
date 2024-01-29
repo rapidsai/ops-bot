@@ -37,7 +37,7 @@ export class ForwardMerger extends OpsBotPlugin {
     this.repo = payload.repository;
   }
 
-  async mergeForward() {
+  async mergeForward(): Promise<void> {
     if (await this.pluginIsDisabled()) return;
 
     if (!isVersionedBranch(this.currentBranch)) {
@@ -77,7 +77,7 @@ export class ForwardMerger extends OpsBotPlugin {
     }
   }
 
-  async getBranches() {
+  async getBranches(): Promise<string[]> {
     const branches = await this.context.octokit.paginate(this.context.octokit.repos.listBranches, {
       owner: this.repo.owner.login,
       repo: this.repo.name,
@@ -85,7 +85,7 @@ export class ForwardMerger extends OpsBotPlugin {
     return branches.filter((branch) => isVersionedBranch(branch.name)).map((branch) => branch.name);
   }
 
-  sortBranches(branches: string[]) {
+  sortBranches(branches: string[]): string[] {
     return branches.sort((a, b) => {
       const [yearA, monthA] = getVersionFromBranch(a).split('.').map(Number)
       const [yearB, monthB] = getVersionFromBranch(b).split('.').map(Number)
@@ -97,7 +97,7 @@ export class ForwardMerger extends OpsBotPlugin {
     });
   }
 
-  getNextBranch(sortedBranches: string[]) {
+  getNextBranch(sortedBranches: string[]): string | undefined {
     const currentBranchIndex = sortedBranches.findIndex(
       (branch) => branch === this.currentBranch
     );
@@ -105,7 +105,7 @@ export class ForwardMerger extends OpsBotPlugin {
     return nextBranch;
   }
 
-  async issueComment(id, comment) {
+  async issueComment(id, comment): Promise<void> {
     await this.context.octokit.issues.createComment({
       owner: this.repo.owner.login,
       repo: this.repo.name,
