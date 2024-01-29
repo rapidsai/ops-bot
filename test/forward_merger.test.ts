@@ -16,12 +16,20 @@
 
 import { ForwardMerger } from "../src/plugins/ForwardMerger/forward_merger";
 import { makePushContext } from "./fixtures/contexts/push";
-import { mockConfigGet, mockContextRepo } from "./mocks";
+import { mockConfigGet, mockContextRepo, mockCreatePR, mockListBranches, mockMerge, mockPaginate } from "./mocks";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
 import { makeConfigReponse } from "./fixtures/responses/get_config";
 
 describe("Forward Merger", () => {
+  beforeEach(() => {
+    mockCreatePR.mockReset();
+    mockMerge.mockReset();
+    mockListBranches.mockReset();
+    mockPaginate.mockReset();
+  });
+
   beforeAll(() => {
+    mockContextRepo.mockReset();
     mockContextRepo.mockReturnValue(repoResp);
     mockConfigGet.mockResolvedValue(
       makeConfigReponse({
@@ -80,8 +88,7 @@ describe("Forward Merger", () => {
       .mockName("getNextBranch")
       .mockReturnValue(nextBranch);
     forwardMerger.getNextBranch = mockGetNextBranch;
-    const mockCreatePR = jest.fn().mockName("openPR").mockResolvedValue(null);
-    forwardMerger.context.octokit.pulls.create = mockCreatePR as any;
+    mockCreatePR.mockResolvedValue(null);
 
     await forwardMerger.mergeForward();
 
@@ -110,9 +117,8 @@ describe("Forward Merger", () => {
       .mockName("getNextBranch")
       .mockResolvedValue(nextBranch);
     const pr = { data: { number: 1, head: { sha: 123456 } } };
-    forwardMerger.context.octokit.pulls.create = <any>(
-      jest.fn().mockName("openPR").mockResolvedValue(pr)
-    );
+    mockCreatePR.mockResolvedValue(pr)
+    
     forwardMerger.context.octokit.pulls.merge = <any>(
       jest.fn().mockName("mergePR").mockResolvedValue({ merged: true })
     );
@@ -151,15 +157,9 @@ describe("Forward Merger", () => {
       .mockName("getNextBranch")
       .mockReturnValue(nextBranch);
     const pr = { data: { number: 1, head: { sha: 123456 } } };
-    forwardMerger.context.octokit.pulls.create = <any>(
-      jest.fn().mockName("openPR").mockResolvedValue(pr)
-    );
-    const mockMergePR = jest
-      .fn()
-      .mockName("mergePR")
-      .mockResolvedValue({ merged: false });
-    forwardMerger.context.octokit.pulls.merge = <any>mockMergePR;
-    mockMergePR.mockRejectedValueOnce(new Error("error"));
+    mockCreatePR.mockResolvedValue(pr)
+    mockMerge.mockResolvedValue({ merged: false });
+    mockMerge.mockRejectedValueOnce(new Error("error"));
     const mockIssueComment = jest
       .fn()
       .mockName("issueComment")
@@ -189,12 +189,8 @@ describe("Forward Merger", () => {
       .fn()
       .mockName("getBranches")
       .mockResolvedValue(branches);
-    const mockCreatePR = jest
-      .fn()
-      .mockName("openPR")
-      .mockResolvedValue({ data: {} });
+    mockCreatePR.mockResolvedValue({ data: {} });
     forwardMerger.getBranches = mockGetBranches;
-    forwardMerger.context.octokit.pulls.create = mockCreatePR as any;
     await forwardMerger.mergeForward();
 
     expect(mockCreatePR.mock.calls[0][0].base).toBe("branch-22.04");
@@ -216,15 +212,8 @@ describe("Forward Merger", () => {
         name: "branch-21.10",
       },
     ];
-    const mockListBranchesPaginate = jest
-      .fn()
-      .mockName("listBranches")
-      .mockResolvedValue(branches);
-    forwardMerger.context.octokit.paginate = mockListBranchesPaginate as any;
-    const mockListBranches = jest
-      .fn()
-      .mockName("listBranches")
-      .mockResolvedValue("something");
+    mockPaginate.mockResolvedValue(branches);
+    mockListBranches.mockResolvedValue("something");
     forwardMerger.context.octokit.repos.listBranches = mockListBranches as any;
 
     const result = await forwardMerger.getBranches();
@@ -232,8 +221,8 @@ describe("Forward Merger", () => {
     expect(result.length).toEqual(2);
     expect(result[0]).toEqual("branch-21.12");
     expect(result[1]).toEqual("branch-21.10");
-    expect(mockListBranchesPaginate.mock.calls[0][0]).toBe(mockListBranches);
-    expect(mockListBranchesPaginate.mock.calls[0][1]).toMatchObject({
+    expect(mockPaginate.mock.calls[0][0]).toBe(mockListBranches);
+    expect(mockPaginate.mock.calls[0][1]).toMatchObject({
       owner: context.payload.repository.owner.login,
       repo: context.payload.repository.name,
     });

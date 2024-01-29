@@ -49,3 +49,5 @@ export const mockSearchIssuesAndPullRequests = jest
   .fn()
   .mockName("mockSearchIssuesAndPullRequests");
 export const mockUpdateRelease = jest.fn().mockName("mockUpdateRelease");
+export const mockCreatePR = jest.fn().mockName("mockCreatePR");
+export const mockListBranches = jest.fn().mockName("mockListBranches");
