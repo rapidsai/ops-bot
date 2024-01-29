@@ -19,7 +19,6 @@ import { PayloadRepository } from "../../types";
 import { isVersionedBranch, getVersionFromBranch } from "../../shared";
 import { basename } from "path";
 import { Context } from "probot";
-import { PushEventsType } from ".";
 
 export class ForwardMerger extends OpsBotPlugin {
   context: Context;
@@ -28,7 +27,7 @@ export class ForwardMerger extends OpsBotPlugin {
 
   constructor(
     context: Context,
-    private payload: Context<PushEventsType>["payload"]
+    private payload: Context<"push">["payload"]
   ) {
     super("forward_merger", context);
     this.context = context;
@@ -60,8 +59,6 @@ export class ForwardMerger extends OpsBotPlugin {
       body: `Forward-merge triggered by push to ${this.currentBranch} that creates a PR to keep ${nextBranch} up-to-date. If this PR is unable to be immediately merged due to conflicts, it will remain open for the team to manually merge. See [forward-merger docs](https://docs.rapids.ai/maintainers/forward-merger/) for more info.`,
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 10000));
-
     try {
       this.logger.info("Merging PR");
       await this.context.octokit.pulls.merge({
@@ -70,16 +67,18 @@ export class ForwardMerger extends OpsBotPlugin {
         pull_number: pr.number,
         sha: pr.head.sha,
       });
-      await this.issueComment(
-        pr.number,
-        "**SUCCESS** - forward-merge complete."
-      );
     } catch (error) {
       await this.issueComment(
         pr.number,
         "**FAILURE** - Unable to forward-merge due to an error, **manual** merge is necessary. Do not use the `Resolve conflicts` option in this PR, follow these instructions https://docs.rapids.ai/maintainers/forward-merger/ \n **IMPORTANT**: When merging this PR, do not use the [auto-merger](https://docs.rapids.ai/resources/auto-merger/) (i.e. the `/merge` comment). Instead, an admin must manually merge by changing the merging strategy to `Create a Merge Commit`. Otherwise, history will be lost and the branches become incompatible."
       );
+      return;
     }
+
+    await this.issueComment(
+      pr.number,
+      "**SUCCESS** - forward-merge complete."
+    );
   }
 
   async getBranches(): Promise<string[]> {

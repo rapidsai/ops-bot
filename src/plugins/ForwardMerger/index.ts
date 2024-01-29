@@ -16,10 +16,6 @@
 
 import { Probot } from "probot";
 import { ForwardMerger } from "./forward_merger";
-import { EmitterWebhookEventName as WebhookEvents } from "@octokit/webhooks/dist-types/types";
-
-export const pushEvents = ["push"] satisfies WebhookEvents[]
-export type PushEventsType = (typeof pushEvents)[number]
 
 export const initForwardMerger = (app: Probot) => {
   app.on(["push"], async (context) => {
