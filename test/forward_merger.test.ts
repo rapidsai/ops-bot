@@ -128,7 +128,7 @@ describe("Forward Merger", () => {
       pr.data.number,
       "**SUCCESS** - forward-merge complete."
     );
-  }, 11000);
+  });
 
   test("should comment failure on PR if merge is unsuccessful", async () => {
     const context = makePushContext({
@@ -172,7 +172,7 @@ describe("Forward Merger", () => {
       pr.data.number,
       "**FAILURE** - Unable to forward-merge due to an error, **manual** merge is necessary. Do not use the `Resolve conflicts` option in this PR, follow these instructions https://docs.rapids.ai/maintainers/forward-merger/ \n **IMPORTANT**: When merging this PR, do not use the [auto-merger](https://docs.rapids.ai/resources/auto-merger/) (i.e. the `/merge` comment). Instead, an admin must manually merge by changing the merging strategy to `Create a Merge Commit`. Otherwise, history will be lost and the branches become incompatible."
     );
-  }, 11000);
+  });
 
   test("mergeForward should obtain the correct next branch from a given list of unsorted branches", async () => {
     const context = makePushContext({
@@ -198,7 +198,7 @@ describe("Forward Merger", () => {
     await forwardMerger.mergeForward();
 
     expect(mockCreatePR.mock.calls[0][0].base).toBe("branch-22.04");
-  }, 11000);
+  });
 
   test("getBranches should return versioned branches", async () => {
     const context = makePushContext({
@@ -239,46 +239,29 @@ describe("Forward Merger", () => {
     });
   });
 
-  test("sortBranches should sort branches by version", async () => {
+  test("sortBranches should sort branches", async () => {
     const context = makePushContext({
       ref: "refs/heads/branch-21.12",
     });
     const forwardMerger = new ForwardMerger(context, context.payload);
     const branches = [
+      "branch-0.10",
       "branch-21.12",
       "branch-21.10",
       "branch-19.10",
       "branch-22.02",
+      "branch-0.9",
     ];
 
     const result = forwardMerger.sortBranches(branches);
 
-    expect(result.length).toEqual(4);
-    expect(result[0]).toEqual("branch-19.10");
-    expect(result[1]).toEqual("branch-21.10");
-    expect(result[2]).toEqual("branch-21.12");
-    expect(result[3]).toEqual("branch-22.02");
-  });
-
-  test("sortBranches should sort 0.9/0.10-type branches", async () => {
-    const context = makePushContext({
-      ref: "refs/heads/branch-21.12",
-    });
-    const forwardMerger = new ForwardMerger(context, context.payload);
-    const branches = [
-      "branch-0.12",
-      "branch-0.10",
-      "branch-2.10",
-      "branch-1.02",
-    ];
-
-    const result = forwardMerger.sortBranches(branches);
-
-    expect(result.length).toEqual(4);
-    expect(result[0]).toEqual("branch-0.10");
-    expect(result[1]).toEqual("branch-0.12");
-    expect(result[2]).toEqual("branch-1.02");
-    expect(result[3]).toEqual("branch-2.10");
+    expect(result.length).toEqual(6);
+    expect(result[0]).toEqual("branch-0.9");
+    expect(result[1]).toEqual("branch-0.10");
+    expect(result[2]).toEqual("branch-19.10");
+    expect(result[3]).toEqual("branch-21.10");
+    expect(result[4]).toEqual("branch-21.12");
+    expect(result[5]).toEqual("branch-22.02");
   });
 
   test("getNextBranch should return next branch", async () => {
