@@ -56,7 +56,7 @@ export class ForwardMerger extends OpsBotPlugin {
       title: "Forward-merge " + this.currentBranch + " into " + nextBranch,
       head: this.currentBranch,
       base: nextBranch,
-      maintainer_can_modify: true,
+      maintainer_can_modify: false,
       body: `Forward-merge triggered by push to ${this.currentBranch} that creates a PR to keep ${nextBranch} up-to-date. If this PR is unable to be immediately merged due to conflicts, it will remain open for the team to manually merge. See [forward-merger docs](https://docs.rapids.ai/maintainers/forward-merger/) for more info.`,
     });
 
