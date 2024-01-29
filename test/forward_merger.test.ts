@@ -97,12 +97,20 @@ describe("Forward Merger", () => {
     }
     const mockGetNextBranch = jest.fn().mockName("getNextBranch").mockReturnValue(nextBranch);
     forwardMerger.getNextBranch = mockGetNextBranch;
-    const mockOpenPR = jest.fn().mockName("openPR").mockResolvedValue(null);
-    forwardMerger.openPR = mockOpenPR;
+    const mockCreatePR = jest.fn().mockName("openPR").mockResolvedValue({data: {}});
+    forwardMerger.context.octokit.pulls.create = mockCreatePR as any;
 
     await forwardMerger.mergeForward();
 
-    expect(mockOpenPR).toBeCalledWith(nextBranch);
+    expect(mockCreatePR.mock.calls[0][0]).toMatchObject({
+      owner: context.payload.repository.owner.login,
+      repo: context.payload.repository.name,
+      title: "Forward-merge " + forwardMerger.currentBranch + " into " + nextBranch.name,
+      head: forwardMerger.currentBranch,
+      base: nextBranch.name,
+      maintainer_can_modify: true,
+      body: `Forward-merge triggered by push to ${forwardMerger.currentBranch} that creates a PR to keep ${nextBranch.name} up-to-date. If this PR is unable to be immediately merged due to conflicts, it will remain open for the team to manually merge. See [forward-merger docs](https://docs.rapids.ai/maintainers/forward-merger/) for more info.`,
+    });
   }, 11000)
 
   test("mergeForward should not open PR on invalid next branch", async () => {
@@ -115,12 +123,12 @@ describe("Forward Merger", () => {
     const nextBranch = null
     const mockGetNextBranch = jest.fn().mockName("getNextBranch").mockReturnValue(nextBranch);
     forwardMerger.getNextBranch = mockGetNextBranch;
-    const mockOpenPR = jest.fn().mockName("openPR").mockResolvedValue(null);
-    forwardMerger.openPR = mockOpenPR;
+    const mockCreatePR = jest.fn().mockName("openPR").mockResolvedValue(null);
+    forwardMerger.context.octokit.pulls.create = mockCreatePR as any;
 
     await forwardMerger.mergeForward();
 
-    expect(mockOpenPR).not.toBeCalled();
+    expect(mockCreatePR).not.toBeCalled();
   })
 
   test("mergeForward should merge PR after opening PR", async () => {
@@ -134,15 +142,20 @@ describe("Forward Merger", () => {
       name: "branch-21.10",
     }
     forwardMerger.getNextBranch = jest.fn().mockName("getNextBranch").mockReturnValue(nextBranch);
-    const pr = {}
-    forwardMerger.openPR = jest.fn().mockName("openPR").mockResolvedValue(pr);
+    const pr = {data: {number: 1, head: {sha: 123456}}}
+    forwardMerger.context.octokit.pulls.create = <any>jest.fn().mockName("openPR").mockResolvedValue(pr);
     const mockMergePR = jest.fn().mockName("mergePR").mockResolvedValue({merged:true});
-    forwardMerger.mergePR = mockMergePR;
+    forwardMerger.context.octokit.pulls.merge = <any>mockMergePR;
     forwardMerger.issueComment = jest.fn().mockName("issueComment").mockResolvedValue(null);
 
     await forwardMerger.mergeForward();
 
-    expect(mockMergePR).toBeCalledWith(pr);
+    expect(mockMergePR.mock.calls[0][0]).toMatchObject({
+      owner: context.payload.repository.owner.login,
+      repo: context.payload.repository.name,
+      pull_number: pr.data.number,
+      sha: pr.data.head.sha,
+    });
   }, 11000)
 
   test("should not merge PR if there is no PR", async () => {
@@ -156,9 +169,9 @@ describe("Forward Merger", () => {
         name: "branch-21.10",
       }
       forwardMerger.getNextBranch = jest.fn().mockName("getNextBranch").mockReturnValue(nextBranch);
-      forwardMerger.openPR = jest.fn().mockName("openPR").mockResolvedValue(null);
+      forwardMerger.context.octokit.pulls.create = <any>jest.fn().mockName("openPR").mockResolvedValue({data: {}});
       const mockMergePR = jest.fn().mockName("mergePR").mockResolvedValue(null);
-      forwardMerger.mergePR = mockMergePR;
+      forwardMerger.context.octokit.pulls.merge = <any>mockMergePR;
 
       await forwardMerger.mergeForward();
 
@@ -175,18 +188,16 @@ describe("Forward Merger", () => {
       const nextBranch = {
         name: "branch-21.10",
       }
-      forwardMerger.getNextBranch = jest.fn().mockName("getNextBranch").mockReturnValue(nextBranch);
-      const pr = {
-        number: 1,
-      }
-      forwardMerger.openPR = jest.fn().mockName("openPR").mockResolvedValue(pr);
-      forwardMerger.mergePR = jest.fn().mockName("mergePR").mockResolvedValue({merged: true});
+      forwardMerger.getNextBranch = jest.fn().mockName("getNextBranch").mockResolvedValue(nextBranch);
+      const pr = {data: {number: 1, head: {sha: 123456}}}
+      forwardMerger.context.octokit.pulls.create = <any>jest.fn().mockName("openPR").mockResolvedValue(pr);
+      forwardMerger.context.octokit.pulls.merge = <any>jest.fn().mockName("mergePR").mockResolvedValue({merged: true});
       const mockIssueComment = jest.fn().mockName("issueComment").mockResolvedValue(null);
       forwardMerger.issueComment = mockIssueComment;
 
       await forwardMerger.mergeForward();
 
-      expect(mockIssueComment).toBeCalledWith(pr.number, "**SUCCESS** - forward-merge complete.");
+      expect(mockIssueComment).toBeCalledWith(pr.data.number, "**SUCCESS** - forward-merge complete.");
   }, 11000)
 
   test("should comment failure on PR if merge is unsuccessful", async () => {
@@ -195,22 +206,22 @@ describe("Forward Merger", () => {
     });
     const forwardMerger = new ForwardMerger(context, context.payload);
     forwardMerger.getBranches = jest.fn().mockName("getBranches").mockResolvedValue(null);
-    forwardMerger.sortBranches = jest.fn().mockName("sortBranches").mockReturnValue(null);
+    forwardMerger.sortBranches = jest.fn().mockName("sortBranches").mockResolvedValue(null);
     const nextBranch = {
       name: "branch-21.10",
     }
     forwardMerger.getNextBranch = jest.fn().mockName("getNextBranch").mockReturnValue(nextBranch);
-    const pr = {
-      number: 1,
-    }
-    forwardMerger.openPR = jest.fn().mockName("openPR").mockResolvedValue(pr);
-    forwardMerger.mergePR = jest.fn().mockName("mergePR").mockResolvedValue({merged: false});
+    const pr = {data: {number: 1, head: {sha: 123456}}}
+    forwardMerger.context.octokit.pulls.create = <any>jest.fn().mockName("openPR").mockResolvedValue(pr);
+    const mockMergePR = jest.fn().mockName("mergePR").mockResolvedValue({merged: false});
+    forwardMerger.context.octokit.pulls.merge = <any>mockMergePR;
+    mockMergePR.mockRejectedValueOnce(new Error("error"));
     const mockIssueComment = jest.fn().mockName("issueComment").mockResolvedValue(null);
     forwardMerger.issueComment = mockIssueComment;
 
     await forwardMerger.mergeForward();
 
-    expect(mockIssueComment).toBeCalledWith(pr.number, "**FAILURE** - Unable to forward-merge due to an error, **manual** merge is necessary. Do not use the `Resolve conflicts` option in this PR, follow these instructions https://docs.rapids.ai/maintainers/forward-merger/ \n **IMPORTANT**: When merging this PR, do not use the [auto-merger](https://docs.rapids.ai/resources/auto-merger/) (i.e. the `/merge` comment). Instead, an admin must manually merge by changing the merging strategy to `Create a Merge Commit`. Otherwise, history will be lost and the branches become incompatible.");
+    expect(mockIssueComment).toBeCalledWith(pr.data.number, "**FAILURE** - Unable to forward-merge due to an error, **manual** merge is necessary. Do not use the `Resolve conflicts` option in this PR, follow these instructions https://docs.rapids.ai/maintainers/forward-merger/ \n **IMPORTANT**: When merging this PR, do not use the [auto-merger](https://docs.rapids.ai/resources/auto-merger/) (i.e. the `/merge` comment). Instead, an admin must manually merge by changing the merging strategy to `Create a Merge Commit`. Otherwise, history will be lost and the branches become incompatible.");
   }, 11000)
 
   test("mergeForward should obtain the correct next branch from a given list of unsorted branches", async () => {
@@ -232,12 +243,12 @@ describe("Forward Merger", () => {
         name: "branch-22.02",
     }]
     const mockGetBranches = jest.fn().mockName("getBranches").mockResolvedValue(branches);
-    const mockOpenPR = jest.fn().mockName("openPR").mockResolvedValue(null)
+    const mockCreatePR = jest.fn().mockName("openPR").mockResolvedValue({data: {}})
     forwardMerger.getBranches = mockGetBranches
-    forwardMerger.openPR = mockOpenPR
+    forwardMerger.context.octokit.pulls.create = mockCreatePR as any;
     await forwardMerger.mergeForward();
 
-    expect(mockOpenPR.mock.calls[0][0]).toMatchObject({name: "branch-22.04"});
+    expect(mockCreatePR.mock.calls[0][0].base).toBe("branch-22.04");
   }, 11000)
 
   test("getBranches should return versioned branches", async () => {
@@ -371,68 +382,6 @@ describe("Forward Merger", () => {
       const result = await forwardMerger.getNextBranch(sortedBranches);
 
       expect(result).toBeFalsy();
-  })
-
-  test("openPR should create PR when there is a valid next branch", async () => {
-      const context = makePushContext({
-          ref: "refs/heads/branch-22.02",
-      });
-      const forwardMerger = new ForwardMerger(context, context.payload);
-      const nextBranch = {
-          name: "branch-22.04",
-      }
-      const mockCreatePR = jest.fn().mockName("createPR").mockResolvedValue({data: {number: 1}});
-      forwardMerger.context.octokit.pulls.create = mockCreatePR as any;
-      const result = await forwardMerger.openPR(nextBranch as any);
-
-      expect(result!.number).toEqual(1);
-      expect(mockCreatePR.mock.calls[0][0]).toMatchObject({
-          owner: context.payload.repository.owner.login,
-          repo: context.payload.repository.name,
-          title: "Forward-merge " + forwardMerger.branchName + " into " + nextBranch.name,
-          head: forwardMerger.branchName,
-          base: nextBranch.name,
-          maintainer_can_modify: true,
-          body: `Forward-merge triggered by push to ${forwardMerger.branchName} that creates a PR to keep ${nextBranch.name} up-to-date. If this PR is unable to be immediately merged due to conflicts, it will remain open for the team to manually merge. See [forward-merger docs](https://docs.rapids.ai/maintainers/forward-merger/) for more info.`,
-      });
-  })
-
-  test("openPR should return null when there is no next branch", async () => {
-      const context = makePushContext({
-          ref: "refs/heads/branch-22.02",
-      });
-      const forwardMerger = new ForwardMerger(context, context.payload);
-      const nextBranch = null
-      const mockCreatePR = jest.fn().mockName("createPR").mockResolvedValue({data: {number: 1}});
-      forwardMerger.context.octokit.pulls.create = mockCreatePR as any;
-      const result = await forwardMerger.openPR(nextBranch as any);
-
-      expect(result).toBeFalsy();
-      expect(mockCreatePR).not.toBeCalled();
-  })
-
-  test("mergePR should merge PR", async () => {
-      const context = makePushContext({
-          ref: "refs/heads/branch-22.02",
-      });
-      const forwardMerger = new ForwardMerger(context, context.payload);
-      const pr = {
-          number: 1,
-          head: {
-              sha: "sha",
-          }
-      }
-      const mockMergePR = jest.fn().mockName("mergePR").mockResolvedValue({data: {merged: true}});
-      forwardMerger.context.octokit.pulls.merge = mockMergePR as any;
-      const result = await forwardMerger.mergePR(pr);
-
-      expect(result!.merged).toEqual(true);
-      expect(mockMergePR.mock.calls[0][0]).toMatchObject({
-          owner: context.payload.repository.owner.login,
-          repo: context.payload.repository.name,
-          pull_number: pr.number,
-          sha: pr.head.sha,
-      });
   })
 
   test("issueComment should create comment", async () => {
