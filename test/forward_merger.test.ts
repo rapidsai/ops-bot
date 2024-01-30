@@ -16,7 +16,15 @@
 
 import { ForwardMerger } from "../src/plugins/ForwardMerger/forward_merger";
 import { makePushContext } from "./fixtures/contexts/push";
-import { mockConfigGet, mockContextRepo, mockCreateComment, mockCreatePR, mockListBranches, mockMerge, mockPaginate } from "./mocks";
+import {
+  mockConfigGet,
+  mockContextRepo,
+  mockCreateComment,
+  mockCreatePR,
+  mockListBranches,
+  mockMerge,
+  mockPaginate,
+} from "./mocks";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
 import { makeConfigReponse } from "./fixtures/responses/get_config";
 
@@ -69,7 +77,6 @@ describe("Forward Merger", () => {
     expect(mockGetBranches).not.toBeCalled();
   });
 
-
   test("mergeForward should not open PR on invalid next branch", async () => {
     const context = makePushContext({
       ref: "refs/heads/branch-22.02",
@@ -95,7 +102,6 @@ describe("Forward Merger", () => {
     expect(mockCreatePR).not.toBeCalled();
   });
 
-
   test("should comment success on PR if merge is successful", async () => {
     const context = makePushContext({
       ref: "refs/heads/branch-21.12",
@@ -117,9 +123,9 @@ describe("Forward Merger", () => {
       .mockName("getNextBranch")
       .mockResolvedValue(nextBranch);
     const pr = { data: { number: 1, head: { sha: 123456 } } };
-    mockCreatePR.mockResolvedValue(pr)
-    
-    mockMerge.mockResolvedValue(true)
+    mockCreatePR.mockResolvedValue(pr);
+
+    mockMerge.mockResolvedValue(true);
     const mockIssueComment = jest
       .fn()
       .mockName("issueComment")
@@ -155,7 +161,7 @@ describe("Forward Merger", () => {
       .mockName("getNextBranch")
       .mockReturnValue(nextBranch);
     const pr = { data: { number: 1, head: { sha: 123456 } } };
-    mockCreatePR.mockResolvedValue(pr)
+    mockCreatePR.mockResolvedValue(pr);
     mockMerge.mockRejectedValueOnce(new Error("error"));
     const mockIssueComment = jest
       .fn()
