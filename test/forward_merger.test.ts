@@ -89,7 +89,6 @@ describe("Forward Merger", () => {
       .mockName("getNextBranch")
       .mockReturnValue(nextBranch);
     forwardMerger.getNextBranch = mockGetNextBranch;
-    mockCreatePR.mockResolvedValue(null);
 
     await forwardMerger.mergeForward();
 
@@ -120,7 +119,7 @@ describe("Forward Merger", () => {
     const pr = { data: { number: 1, head: { sha: 123456 } } };
     mockCreatePR.mockResolvedValue(pr)
     
-    mockMerge.mockResolvedValue({ merged: true })
+    mockMerge.mockResolvedValue(true)
     const mockIssueComment = jest
       .fn()
       .mockName("issueComment")
