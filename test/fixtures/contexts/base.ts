@@ -35,6 +35,8 @@ import {
   mockPaginate,
   mockPullsGet,
   mockUpdateRelease,
+  mockCreatePR,
+  mockListBranches,
 } from "../../mocks";
 import type { EmitterWebhookEventName } from "@octokit/webhooks/dist-types/types";
 
@@ -57,6 +59,7 @@ export const makeContext = (payload, name: EmitterWebhookEventName) => {
         list: mockListPulls,
         listReviews: mockListReviews,
         merge: mockMerge,
+        create: mockCreatePR,
       },
       repos: {
         createCommitStatus: mockCreateCommitStatus,
@@ -66,6 +69,7 @@ export const makeContext = (payload, name: EmitterWebhookEventName) => {
         getReleaseByTag: mockGetReleaseByTag,
         updateRelease: mockUpdateRelease,
         compareCommitsWithBasehead: mockCompareCommitsWithBasehead,
+        listBranches: mockListBranches,
       },
       users: {
         getByUsername: mockGetByUsername,

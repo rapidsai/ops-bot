@@ -24,6 +24,7 @@ export type OpsBotConfigFeatureNames = {
   label_checker: boolean;
   release_drafter: boolean;
   recently_updated: boolean;
+  forward_merger: boolean;
 };
 
 /**
@@ -49,6 +50,7 @@ export const DefaultOpsBotConfig: OpsBotConfig = {
   release_drafter: false,
   recently_updated: false,
   recently_updated_threshold: 5,
+  forward_merger: false,
 };
 
 /**
