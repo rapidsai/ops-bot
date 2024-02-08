@@ -52,7 +52,7 @@ export class ForwardMerger extends OpsBotPlugin {
     const { data: pr } = await this.context.octokit.pulls.create({
       owner: this.repo.owner.login,
       repo: this.repo.name,
-      title: "Forward-merge " + this.currentBranch + " into " + nextBranch,
+      title: `Forward-merge ${this.currentBranch} into ${nextBranch} [skip ci]`,
       head: this.currentBranch,
       base: nextBranch,
       maintainer_can_modify: false,
@@ -70,7 +70,7 @@ export class ForwardMerger extends OpsBotPlugin {
     } catch (error) {
       await this.issueComment(
         pr.number,
-        "**FAILURE** - Unable to forward-merge due to an error, **manual** merge is necessary. Do not use the `Resolve conflicts` option in this PR, follow these instructions https://docs.rapids.ai/maintainers/forward-merger/ \n **IMPORTANT**: When merging this PR, do not use the [auto-merger](https://docs.rapids.ai/resources/auto-merger/) (i.e. the `/merge` comment). Instead, an admin must manually merge by changing the merging strategy to `Create a Merge Commit`. Otherwise, history will be lost and the branches become incompatible."
+        "**FAILURE** - Unable to forward-merge due to an error, **manual** merge is necessary. Do not use the `Resolve conflicts` option in this PR, follow these instructions https://docs.rapids.ai/maintainers/forward-merger/ \n\n**IMPORTANT**: When merging this PR, do not use the [auto-merger](https://docs.rapids.ai/resources/auto-merger/) (i.e. the `/merge` comment). Instead, an admin must manually merge by changing the merging strategy to `Create a Merge Commit`. Otherwise, history will be lost and the branches become incompatible."
       );
       return;
     }

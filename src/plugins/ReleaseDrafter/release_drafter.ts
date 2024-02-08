@@ -119,7 +119,8 @@ export class ReleaseDrafter extends OpsBotPlugin {
     return prs
       .filter(
         (pr) =>
-          !pr.title.toLowerCase().startsWith("[gpuci] forward-merge branch-")
+          !pr.user?.login.toLowerCase().startsWith("rapids-bot") &&
+          !pr.user?.login.toLowerCase().startsWith("GPUtester")
       )
       .filter((pr) => pr.merged_at); // merged_at === null for PRs that were closed, but not merged
   }
