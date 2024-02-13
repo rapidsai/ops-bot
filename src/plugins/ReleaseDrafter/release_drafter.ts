@@ -119,8 +119,8 @@ export class ReleaseDrafter extends OpsBotPlugin {
     return prs
       .filter(
         (pr) =>
-          !pr.user?.login.toLowerCase().startsWith("rapids-bot") &&
-          !pr.user?.login.toLowerCase().startsWith("GPUtester")
+          pr.user?.login.toLowerCase() !== "rapids-bot" &&
+          pr.user?.login.toLowerCase() !== "gputester"
       )
       .filter((pr) => pr.merged_at); // merged_at === null for PRs that were closed, but not merged
   }
