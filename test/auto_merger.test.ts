@@ -67,6 +67,7 @@ describe("Auto Merger", () => {
     mockGetByUsername.mockRejectedValueOnce(null);
     mockPaginate.mockResolvedValueOnce(list_reviews); // listReviews in getApprovers
     mockGetByUsername.mockResolvedValueOnce(user);
+    mockGetByUsername.mockRejectedValueOnce(null);
 
     await new AutoMerger(statusContext.successStatus).maybeMergePR();
 
@@ -119,6 +120,7 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
     mockGetByUsername.mockRejectedValueOnce(null);
     mockPaginate.mockResolvedValueOnce(list_reviews); // listReviews in getApprovers
     mockGetByUsername.mockResolvedValueOnce(user);
+    mockGetByUsername.mockRejectedValueOnce(null);
 
     await new AutoMerger(statusContext.successStatus).maybeMergePR();
 
