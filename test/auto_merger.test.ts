@@ -73,6 +73,7 @@ describe("Auto Merger", () => {
 
     expect(mockPullsGet).toBeCalledTimes(1);
     expect(mockPullsGet.mock.calls[0][0].pull_number).toBe(1234);
+    expect(mockGetByUsername).toBeCalledTimes(4);
 
     expect(mockMerge.mock.calls[0][0]).toMatchObject({
       owner: "rapidsai",
@@ -126,6 +127,7 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
 
     expect(mockPullsGet).toBeCalledTimes(1);
     expect(mockPullsGet.mock.calls[0][0].pull_number).toBe(1234);
+    expect(mockGetByUsername).toBeCalledTimes(4);
 
     expect(mockMerge.mock.calls[0][0]).toMatchObject({
       owner: "rapidsai",
