@@ -64,6 +64,7 @@ describe("Auto Merger", () => {
     mockGetUserPermissionLevel.mockResolvedValueOnce(user_permission);
     mockPaginate.mockResolvedValueOnce(list_commits); // listCommits in getAuthors
     mockGetByUsername.mockResolvedValueOnce(userNoName);
+    mockGetByUsername.mockRejectedValueOnce(null);
     mockPaginate.mockResolvedValueOnce(list_reviews); // listReviews in getApprovers
     mockGetByUsername.mockResolvedValueOnce(user);
 
@@ -99,11 +100,6 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
       "Sample body text",
     ],
     [
-      "description only for bad user",
-      "This text {bad user returned} is skipped\n ## Description\nSample body text\n",
-      "Sample body text",
-    ],
-    [
       "description and checklist",
       "This text is skipped\n ## description\nSample body text\n ## checklist\n- [ ] Checklist item skipped 1\n- [ ] Checklist item skipped 2\n",
       "Sample body text",
@@ -119,11 +115,8 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
     mockPaginate.mockResolvedValueOnce(list_comments); // listComments in checkForValidMergeComment
     mockGetUserPermissionLevel.mockResolvedValueOnce(user_permission);
     mockPaginate.mockResolvedValueOnce(list_commits); // listCommits in getAuthors
-    if (PR_body.includes("{bad user returned}")) {
-      mockGetByUsername.mockRejectedValueOnce(null)
-    } else {
-      mockGetByUsername.mockResolvedValueOnce(userNoName);
-    }
+    mockGetByUsername.mockResolvedValueOnce(userNoName);
+    mockGetByUsername.mockRejectedValueOnce(null);
     mockPaginate.mockResolvedValueOnce(list_reviews); // listReviews in getApprovers
     mockGetByUsername.mockResolvedValueOnce(user);
 
@@ -142,7 +135,8 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
         expected_body +
         `
 
-Authors:${PR_body.includes("{bad user returned}") ? "":"\n  - https://github.com/VibhuJawa"}
+Authors:
+  - https://github.com/VibhuJawa
 
 Approvers:
   - Keith Kraus (https://github.com/kkraus14)
