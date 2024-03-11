@@ -141,7 +141,7 @@ export class AutoMerger extends OpsBotPlugin {
       preserveNewlines: false,
     }).trim();
 
-    const authors = await this.getAuthors(pr);
+    const authors = (await this.getAuthors(pr)).filter(author => !!author);
     const approvers = await this.getApprovers(pr);
     const formatUserName = (user: UsersGetByUsernameResponseData): string => {
       if (user.name) {
@@ -200,10 +200,13 @@ export class AutoMerger extends OpsBotPlugin {
     }
 
     return Promise.all(
-      uniqueAuthors.map(
-        async (author) =>
-          (await octokit.users.getByUsername({ username: author })).data
-      )
+      uniqueAuthors.map(async (author) => {
+        try {
+          return (await octokit.users.getByUsername({ username: author })).data;
+        } catch (error) {
+          return null as any;
+        }
+      })
     );
   }
 
