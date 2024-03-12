@@ -16,5 +16,11 @@
       "login": "VibhuJawa"
     },
     "state": "APPROVED"
+  },
+  {
+    "user": {
+      "login": "another_user"
+    },
+    "state": "APPROVED"
   }
 ]

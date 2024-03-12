@@ -64,13 +64,16 @@ describe("Auto Merger", () => {
     mockGetUserPermissionLevel.mockResolvedValueOnce(user_permission);
     mockPaginate.mockResolvedValueOnce(list_commits); // listCommits in getAuthors
     mockGetByUsername.mockResolvedValueOnce(userNoName);
+    mockGetByUsername.mockRejectedValueOnce(null);
     mockPaginate.mockResolvedValueOnce(list_reviews); // listReviews in getApprovers
     mockGetByUsername.mockResolvedValueOnce(user);
+    mockGetByUsername.mockRejectedValueOnce(null);
 
     await new AutoMerger(statusContext.successStatus).maybeMergePR();
 
     expect(mockPullsGet).toBeCalledTimes(1);
     expect(mockPullsGet.mock.calls[0][0].pull_number).toBe(1234);
+    expect(mockGetByUsername).toBeCalledTimes(4);
 
     expect(mockMerge.mock.calls[0][0]).toMatchObject({
       owner: "rapidsai",
@@ -115,13 +118,16 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
     mockGetUserPermissionLevel.mockResolvedValueOnce(user_permission);
     mockPaginate.mockResolvedValueOnce(list_commits); // listCommits in getAuthors
     mockGetByUsername.mockResolvedValueOnce(userNoName);
+    mockGetByUsername.mockRejectedValueOnce(null);
     mockPaginate.mockResolvedValueOnce(list_reviews); // listReviews in getApprovers
     mockGetByUsername.mockResolvedValueOnce(user);
+    mockGetByUsername.mockRejectedValueOnce(null);
 
     await new AutoMerger(statusContext.successStatus).maybeMergePR();
 
     expect(mockPullsGet).toBeCalledTimes(1);
     expect(mockPullsGet.mock.calls[0][0].pull_number).toBe(1234);
+    expect(mockGetByUsername).toBeCalledTimes(4);
 
     expect(mockMerge.mock.calls[0][0]).toMatchObject({
       owner: "rapidsai",

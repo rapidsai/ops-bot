@@ -199,12 +199,18 @@ export class AutoMerger extends OpsBotPlugin {
       uniqueAuthors.push(commitAuthor);
     }
 
-    return Promise.all(
-      uniqueAuthors.map(
-        async (author) =>
-          (await octokit.users.getByUsername({ username: author })).data
+    return (
+      await Promise.all(
+        uniqueAuthors.map(async (author) => {
+          try {
+            return (await octokit.users.getByUsername({ username: author }))
+              .data;
+          } catch (error) {
+            return null;
+          }
+        })
       )
-    );
+    ).filter((x): x is UsersGetByUsernameResponseData => Boolean(x));
   }
 
   /**
@@ -232,15 +238,17 @@ export class AutoMerger extends OpsBotPlugin {
       uniqueApprovers.push(approvalAuthor);
     }
 
-    return Promise.all(
-      uniqueApprovers.map(
-        async (approver) =>
-          (
-            await octokit.users.getByUsername({
-              username: approver,
-            })
-          ).data
+    return (
+      await Promise.all(
+        uniqueApprovers.map(async (approver) => {
+          try {
+            return (await octokit.users.getByUsername({ username: approver }))
+              .data;
+          } catch (error) {
+            return null;
+          }
+        })
       )
-    );
+    ).filter((x): x is UsersGetByUsernameResponseData => Boolean(x));
   }
 }
