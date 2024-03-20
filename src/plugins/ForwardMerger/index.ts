@@ -19,6 +19,7 @@ import { ForwardMerger } from "./forward_merger";
 
 export const initForwardMerger = (app: Probot) => {
   app.on(["push"], async (context) => {
+    return
     await new ForwardMerger(context, context.payload).mergeForward();
   });
 };
