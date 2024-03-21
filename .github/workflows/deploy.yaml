@@ -47,3 +47,4 @@ jobs:
           APP_ID: ${{ secrets.APP_ID }}
           WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          GPUTESTER_PAT: ${{ secrets.GPUTESTER_PAT }}

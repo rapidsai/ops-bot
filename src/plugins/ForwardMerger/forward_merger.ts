@@ -19,6 +19,8 @@ import { PayloadRepository } from "../../types";
 import { isVersionedBranch, getVersionFromBranch } from "../../shared";
 import { basename } from "path";
 import { Context } from "probot";
+import { Octokit } from "@octokit/rest"
+
 
 export class ForwardMerger extends OpsBotPlugin {
   context: Context;
@@ -61,7 +63,8 @@ export class ForwardMerger extends OpsBotPlugin {
 
     try {
       this.logger.info("Merging PR");
-      await this.context.octokit.pulls.merge({
+      const gpuTesterClient = this.initNewClient(); // see https://github.com/rapidsai/ops/issues/3159#issue-2198146626 for why we're initializing a new client.
+      await gpuTesterClient.pulls.merge({
         owner: this.repo.owner.login,
         repo: this.repo.name,
         pull_number: pr.number,
@@ -80,6 +83,10 @@ export class ForwardMerger extends OpsBotPlugin {
       pr.number,
       "**SUCCESS** - forward-merge complete."
     );
+  }
+
+  initNewClient(): InstanceType<typeof Octokit> {
+    return new Octokit({ auth: process.env.GPUTESTER_PAT });
   }
 
   async getBranches(): Promise<string[]> {

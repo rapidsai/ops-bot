@@ -126,6 +126,9 @@ describe("Forward Merger", () => {
     mockCreatePR.mockResolvedValue(pr);
 
     mockMerge.mockResolvedValue(true);
+    const mockNewClient = jest.fn().mockName("initNewClient");
+    mockNewClient.mockReturnValue({ pulls: { merge: mockMerge } });
+    forwardMerger.initNewClient = mockNewClient;
     const mockIssueComment = jest
       .fn()
       .mockName("issueComment")
@@ -162,7 +165,11 @@ describe("Forward Merger", () => {
       .mockReturnValue(nextBranch);
     const pr = { data: { number: 1, head: { sha: 123456 } } };
     mockCreatePR.mockResolvedValue(pr);
+
     mockMerge.mockRejectedValueOnce(new Error("error"));
+    const mockNewClient = jest.fn().mockName("initNewClient");
+    mockNewClient.mockReturnValue({ pulls: { merge: mockMerge } });
+    forwardMerger.initNewClient = mockNewClient;
     const mockIssueComment = jest
       .fn()
       .mockName("issueComment")
