@@ -20,7 +20,7 @@ import { initBranchChecker } from "./plugins/BranchChecker";
 import { initLabelChecker } from "./plugins/LabelChecker";
 import { initRecentlyUpdated } from "./plugins/RecentlyUpdated";
 import { initReleaseDrafter } from "./plugins/ReleaseDrafter";
-// import { initForwardMerger } from "./plugins/ForwardMerger";
+import { initForwardMerger } from "./plugins/ForwardMerger";
 
 export = (app: Probot) => {
   initBranchChecker(app);
@@ -28,6 +28,5 @@ export = (app: Probot) => {
   initReleaseDrafter(app);
   initAutoMerger(app);
   initRecentlyUpdated(app);
-  // TODO: Re-enable ForwardMerger once branch protection blocker is resolved
-  // initForwardMerger(app);
+  initForwardMerger(app);
 };

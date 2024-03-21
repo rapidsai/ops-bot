@@ -18,6 +18,7 @@ provider:
     APP_ID: ${env:APP_ID}
     WEBHOOK_SECRET: ${env:WEBHOOK_SECRET}
     PRIVATE_KEY: ${env:PRIVATE_KEY}
+    GPUTESTER_PAT: ${env:GPUTESTER_PAT}
   iam:
     role:
       statements:
