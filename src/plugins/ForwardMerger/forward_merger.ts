@@ -54,7 +54,7 @@ export class ForwardMerger extends OpsBotPlugin {
     const { data: pr } = await this.context.octokit.pulls.create({
       owner: this.repo.owner.login,
       repo: this.repo.name,
-      title: `Forward-merge ${this.currentBranch} into ${nextBranch} [skip ci]`,
+      title: `Forward-merge ${this.currentBranch} into ${nextBranch}`,
       head: this.currentBranch,
       base: nextBranch,
       maintainer_can_modify: false,
