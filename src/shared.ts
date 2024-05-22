@@ -97,6 +97,12 @@ export const isGPUTesterPR = (
   return pullRequest.user?.login.toLowerCase() === "gputester";
 };
 
+export const isRapidsBotPR = (
+  pullRequest: Pick<PullsGetResponseData, "user">
+): boolean => {
+  return pullRequest.user?.login.toLowerCase() === "rapids-bot";
+};
+
 /**
  * Returns true if the payload associated with the provided context
  * is from a GitHub Pull Request (as opposed to a GitHub Issue).

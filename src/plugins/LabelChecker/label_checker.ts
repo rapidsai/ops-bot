@@ -15,7 +15,7 @@
  */
 
 import { OpsBotPlugin } from "../../plugin";
-import { createSetCommitStatus, isGPUTesterPR } from "../../shared";
+import { createSetCommitStatus, isRapidsBotPR } from "../../shared";
 import { PRContext } from "../../types";
 
 export class LabelChecker extends OpsBotPlugin {
@@ -51,9 +51,9 @@ export class LabelChecker extends OpsBotPlugin {
       await new Promise((res) => setTimeout(res, 2000));
     }
 
-    if (isGPUTesterPR(context.payload.pull_request)) {
+    if (isRapidsBotPR(context.payload.pull_request)) {
       return await setCommitStatus(
-        "No labels necessary for GPUTester PRs",
+        "No labels necessary for rapids-bot PRs",
         "success"
       );
     }

@@ -216,10 +216,10 @@ describe("Label Checker", () => {
     );
   });
 
-  test("correct labels - GPUTester PR", async () => {
+  test("correct labels - rapids-bot PR", async () => {
     const context = makePRContext({
       title: "[gpuCI] Forward-merge branch-0.18 to branch-0.19 [skip ci]",
-      user: "GPUtester",
+      user: "rapids-bot",
     });
     await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);
@@ -232,7 +232,7 @@ describe("Label Checker", () => {
     );
     expect(mockCreateCommitStatus.mock.calls[1][0].state).toBe("success");
     expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
-      "No labels necessary for GPUTester PRs"
+      "No labels necessary for rapids-bot PRs"
     );
     expect(mockCreateCommitStatus.mock.calls[1][0].target_url).toBe(
       "https://docs.rapids.ai/resources/label-checker/"
