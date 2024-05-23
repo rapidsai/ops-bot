@@ -34,7 +34,7 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
       - name: Install serverless framework
-        run: npm install -g serverless
+        run: npm install -g serverless@3
       - name: Test Probot
         run: npm run test
       - name: Build Probot
