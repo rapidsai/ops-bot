@@ -219,7 +219,7 @@ describe("Label Checker", () => {
   test("correct labels - rapids-bot PR", async () => {
     const context = makePRContext({
       title: "[gpuCI] Forward-merge branch-0.18 to branch-0.19 [skip ci]",
-      user: "rapids-bot",
+      user: "rapids-bot[bot]",
     });
     await new LabelChecker(context).checkLabels();
     expect(mockCreateCommitStatus).toBeCalledTimes(2);

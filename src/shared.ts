@@ -100,7 +100,7 @@ export const isGPUTesterPR = (
 export const isRapidsBotPR = (
   pullRequest: Pick<PullsGetResponseData, "user">
 ): boolean => {
-  return pullRequest.user?.login.toLowerCase() === "rapids-bot";
+  return pullRequest.user?.login.toLowerCase() === "rapids-bot[bot]";
 };
 
 /**
