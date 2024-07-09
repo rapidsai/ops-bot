@@ -56,7 +56,7 @@ export class AutoMerger extends OpsBotPlugin {
       });
 
       // Check if PR is mergeable (all green)
-      if (!this.isPrMergeable(pr)) {
+      if (!this.isPrMergeable(pr, repo.default_branch)) {
         this.logger.info({ pr }, "PR not mergeable");
         return;
       }
@@ -97,14 +97,14 @@ export class AutoMerger extends OpsBotPlugin {
    *
    * @param pr
    */
-  isPrMergeable(pr: PullsGetResponseData): boolean {
+  isPrMergeable(pr: PullsGetResponseData, default_branch: string): boolean {
     const mergeable_state = pr.mergeable_state;
     const mergeable = pr.mergeable;
     const baseRef = pr.base.ref;
     return (
       (mergeable_state === "clean" || mergeable_state === "unstable") &&
       mergeable === true &&
-      baseRef !== "main"
+      (baseRef !== "main" || default_branch === "main")
     );
   }
 
