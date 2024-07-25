@@ -38,9 +38,9 @@ export const Command = {
 
 /**
  * RegEx representing RAPIDS branch name patterns
- * (i.e. "branch-21.06", "branch-22.08", etc.)
+ * (i.e. "branch-21.06", "branch-22.08", "branch-0.39", etc.)
  */
-export const versionedBranchExp = /^branch-\d\d\.\d\d$/;
+export const versionedBranchExp = /^branch-\d{1,2}\.\d\d$/;
 
 /**
  * Returns true if the provided string is a versioned branch
