@@ -38,9 +38,9 @@ export const Command = {
 
 /**
  * RegEx representing RAPIDS branch name patterns
- * (i.e. "branch-21.06", "branch-22.08", "branch-0.39", etc.)
+ * (i.e. "branch-21.06", "branch-22.08", etc.)
  */
-export const versionedBranchExp = /^branch-\d{1,2}\.\d\d$/;
+export const versionedBranchExp = /^branch-\d\d\.\d\d$/;
 
 /**
  * Returns true if the provided string is a versioned branch
@@ -49,6 +49,16 @@ export const versionedBranchExp = /^branch-\d{1,2}\.\d\d$/;
  */
 export const isVersionedBranch = (branchName: string): boolean => {
   return Boolean(branchName.match(versionedBranchExp));
+};
+
+/**
+ * Returns true if the provided string is a versioned branch that follows the ucxx/py versioning scheme
+ * (i.e. "branch-0.36", "branch-0.40", etc.)
+ * @param branchName
+ */
+export const isVersionedUCXBranch = (branchName: string): boolean => {
+  const regex = "/^branch-\d{1,2}\.\d\d$/";
+  return Boolean(branchName.match(regex));
 };
 
 /**

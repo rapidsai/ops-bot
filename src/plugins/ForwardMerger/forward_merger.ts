@@ -16,7 +16,7 @@
 
 import { OpsBotPlugin } from "../../plugin";
 import { PayloadRepository } from "../../types";
-import { isVersionedBranch, getVersionFromBranch } from "../../shared";
+import { isVersionedBranch, getVersionFromBranch, isVersionedUCXBranch } from "../../shared";
 import { basename } from "path";
 import { Context } from "probot";
 import { Octokit } from "@octokit/rest"
@@ -40,7 +40,7 @@ export class ForwardMerger extends OpsBotPlugin {
   async mergeForward(): Promise<void> {
     if (await this.pluginIsDisabled()) return;
 
-    if (!isVersionedBranch(this.currentBranch)) {
+    if (!isVersionedBranch(this.currentBranch) && !isVersionedUCXBranch(this.currentBranch)) {
       this.logger.info("Will not merge forward on non-versioned branch");
       return;
     }
