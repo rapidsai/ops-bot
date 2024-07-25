@@ -52,6 +52,16 @@ export const isVersionedBranch = (branchName: string): boolean => {
 };
 
 /**
+ * Returns true if the provided string is a versioned branch that follows the ucxx/py versioning scheme
+ * (i.e. "branch-0.36", "branch-0.40", etc.)
+ * @param branchName
+ */
+export const isVersionedUCXBranch = (branchName: string): boolean => {
+  const regex = "/^branch-\d{1,2}\.\d\d$/";
+  return Boolean(branchName.match(regex));
+};
+
+/**
  * Returns the RAPIDS version from a versioned branch name
  */
 export const getVersionFromBranch = (branchName: string): string => {
