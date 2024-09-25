@@ -57,7 +57,7 @@ export const isVersionedBranch = (branchName: string): boolean => {
  * @param branchName
  */
 export const isVersionedUCXBranch = (branchName: string): boolean => {
-  const regex = "/^branch-\d{1,2}\.\d\d$/";
+  const regex = /^branch-\d{1,2}\.\d\d$/;
   return Boolean(branchName.match(regex));
 };
 
