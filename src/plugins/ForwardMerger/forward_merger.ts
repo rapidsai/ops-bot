@@ -98,7 +98,7 @@ export class ForwardMerger extends OpsBotPlugin {
       }
     );
     return branches
-      .filter((branch) => isVersionedBranch(branch.name))
+      .filter((branch) => isVersionedBranch(branch.name) || isVersionedUCXBranch(branch.name))
       .map((branch) => branch.name);
   }
 
