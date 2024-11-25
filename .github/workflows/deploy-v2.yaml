@@ -1,4 +1,4 @@
-name: deploy-probot
+name: deploy-probot-terraform
 
 on:
   pull_request:
