@@ -50,15 +50,15 @@ jobs:
         run: |
           echo "DEPLOY_VERSION=$(date +%Y%m%d-%H%M%S)-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
+      - name: Copy release draft template
+        run: cp src/plugins/ReleaseDrafter/draft_template.njk dist/plugins/ReleaseDrafter
+
       - name: Package Lambda functions
         run: |
           cd dist
           zip -r ../probot-${{ env.DEPLOY_VERSION }}.zip .
           cd ..
           zip -r authorizer-${{ env.DEPLOY_VERSION }}.zip dist/authorizer.js
-
-      - name: Copy release draft template
-        run: cp src/plugins/ReleaseDrafter/draft_template.njk dist/plugins/ReleaseDrafter
 
       - name: Upload to S3
         if: github.ref == 'refs/heads/main'
