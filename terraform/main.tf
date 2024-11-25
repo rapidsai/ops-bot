@@ -7,7 +7,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "rapidsai-tf-state"
+    bucket = "rapidsai-serverless-deployments"
     key    = "ops-bot/terraform.tfstate"
     region = "us-east-2"
   }
