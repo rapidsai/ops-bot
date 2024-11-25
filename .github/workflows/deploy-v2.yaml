@@ -88,7 +88,8 @@ jobs:
         run: |
           terraform plan -out=tfplan -var="deployment_version=${{ env.DEPLOY_VERSION }}"
           terraform show -no-color tfplan > plan.txt
-          echo "PLAN=$(cat plan.txt)" >> $GITHUB_ENV
+          PLAN_ENCODED=$(base64 -w 0 plan.txt)
+          echo "PLAN_ENCODED=$PLAN_ENCODED" >> $GITHUB_ENV
         env:
           TF_VAR_app_id: ${{ secrets.APP_ID }}
           TF_VAR_webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
@@ -101,9 +102,10 @@ jobs:
         with:
           github-token: ${{ secrets.GPUTESTER_PAT }}
           script: |
+            const planDecoded = Buffer.from(process.env.PLAN_ENCODED, 'base64').toString('utf-8');
             const output = `#### Terraform Plan 📝
-            \`\`\`hcl\n
-            ${process.env.PLAN}
+            \`\`\`hcl
+            ${planDecoded}
             \`\`\`
             `;
             github.rest.issues.createComment({
