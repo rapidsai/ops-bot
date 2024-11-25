@@ -6,3 +6,5 @@ npm-debug.log
 coverage
 dist
 .serverless
+*.tfvars
+.terraform*
