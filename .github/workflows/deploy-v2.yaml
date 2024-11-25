@@ -85,7 +85,10 @@ jobs:
 
       - name: Terraform Plan
         working-directory: terraform
-        run: terraform plan -out=tfplan -var="deployment_version=${{ env.DEPLOY_VERSION }}"
+        run: |
+          terraform plan -out=tfplan -var="deployment_version=${{ env.DEPLOY_VERSION }}"
+          terraform show -no-color tfplan > plan.txt
+          echo "PLAN=$(cat plan.txt)" >> $GITHUB_ENV
         env:
           TF_VAR_app_id: ${{ secrets.APP_ID }}
           TF_VAR_webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
@@ -96,9 +99,10 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GPUTESTER_PAT }}
           script: |
             const output = `#### Terraform Plan 📝
-            \`\`\`\n
+            \`\`\`hcl\n
             ${process.env.PLAN}
             \`\`\`
             `;
