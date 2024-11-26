@@ -86,7 +86,7 @@ jobs:
       - name: Terraform Plan
         working-directory: terraform
         run: |
-          terraform plan -out=tfplan -var="deployment_version=${{ env.DEPLOY_VERSION }}"
+          terraform plan -out=tfplan
           terraform show -no-color tfplan > plan.txt
           PLAN_ENCODED=$(base64 -w 0 plan.txt)
           echo "PLAN_ENCODED=$PLAN_ENCODED" >> $GITHUB_ENV
@@ -95,6 +95,7 @@ jobs:
           TF_VAR_webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
           TF_VAR_private_key: ${{ secrets.PRIVATE_KEY }}
           TF_VAR_gputester_pat: ${{ secrets.GPUTESTER_PAT }}
+          TF_VAR_deployment_version: ${{ env.DEPLOY_VERSION }}
 
       - name: Update PR with Plan
         if: github.event_name == 'pull_request'
