@@ -14,9 +14,55 @@ The plugins are listed in the [src/plugins](./src/plugins) folder.
 - **Branch Checker** - Set a status on PRs that checks whether they are targeting either the repo's _default branch_ or _default branch + 1_
 - **Recently Updated** - Sets a status on PRs based on whether a PR is `X` commits out-of-date compared to the based branch. `X` defaults to `5`, but is configurable via the `recently_updated_threshold` option in the `.github/ops-bot.yaml` configuration file.
 
-## Deployment
+## Infrastructure
 
-The _Serverless_ framework is used to deploy the Probot application to an AWS Lambda instance. The deployment configuration can be seen in the [serverless.yaml](./serverless.yaml) file. A deployment will happen automatically anytime a change is merged to the `main` branch affecting any of the following files: source code files, `package.json` file, or `serverless.yaml` file. See the [deploy.yaml](/.github/workflows/deploy.yaml) GitHub Action for more details.
+The project's infrastructure is managed using Terraform. Key components include:
+
+- AWS Lambda functions for the Probot handler and authorizer
+- API Gateway with custom authorizer
+- IAM roles and policies
+- CloudWatch log groups
+- S3 bucket for deployment artifacts
+
+### Prerequisites
+
+- Terraform v1.9.2 or later
+- AWS CLI configured with appropriate credentials
+- Node.js 18.x
+
+### Deployment
+
+The deployment is automated via GitHub Actions. For manual deployment:
+
+1. Build the application:
+```bash
+npm install
+npm run build
+```
+2. Package Lambda functions:
+```bash
+zip -r probot-{version}.zip dist
+zip -r authorizer-{version}.zip dist/authorizer.js
+```
+3. Upload to S3:
+```bash
+aws s3 cp probot-{version}.zip s3://rapidsai-serverless-deployments/serverless/ops-bot/prod/
+aws s3 cp authorizer-{version}.zip s3://rapidsai-serverless-deployments/serverless/ops-bot/prod/
+```
+4. Deploy infrastructure:
+```bash
+cd terraform
+terraform init
+terraform plan
+terraform apply
+```
+
+### Required Environment Variables
+
+- `APP_ID`: GitHub App ID
+- `WEBHOOK_SECRET`: GitHub Webhook Secret
+- `PRIVATE_KEY`: GitHub App Private Key
+- `GPUTESTER_PAT`: GPU Tester Personal Access Token
 
 ## npm Scripts
 
@@ -30,7 +76,3 @@ npm run test
 # Deploy
 npm run deploy
 ```
-
-## Contributing
-
-Any new functionality should be introduced as a new plugin in the [src/plugins](./src/plugins) directory. New plugins should make use of the shared `featureIsDisabled` function so that repositories can disable the feature if they desire. New plugins should also have an entry added in [config.ts](./src/config.ts)
