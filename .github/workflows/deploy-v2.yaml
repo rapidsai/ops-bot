@@ -55,9 +55,7 @@ jobs:
 
       - name: Package Lambda functions
         run: |
-          cd dist
-          zip -r ../probot-${{ env.DEPLOY_VERSION }}.zip .
-          cd ..
+          zip -r probot-${{ env.DEPLOY_VERSION }}.zip dist
           zip -r authorizer-${{ env.DEPLOY_VERSION }}.zip dist/authorizer.js
 
       - name: Upload to S3
