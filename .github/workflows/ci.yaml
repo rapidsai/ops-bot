@@ -82,7 +82,9 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
+        id: plan
         working-directory: terraform
+        continue-on-error: true
         run: |
           terraform plan -out=tfplan
           terraform show -no-color tfplan > plan.txt
