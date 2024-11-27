@@ -48,10 +48,10 @@ describe("Recently Updated", () => {
       );
     });
 
-    test("release PR", async () => {
+    test("Forward Merge PR", async () => {
       const context = makePRContext({
-        title: "[RELEASE] cuml v0.18",
-        user: "GPUtester",
+        title: "Forward-merge branch-0.17 to branch-0.18 [skip ci]",
+        user: "rapids-bot[bot]",
       });
       await new PRRecentlyUpdated(context).checkPR();
       expect(mockCreateCommitStatus).toBeCalledTimes(2);
@@ -61,7 +61,7 @@ describe("Recently Updated", () => {
         "https://docs.rapids.ai/resources/recently-updated/"
       );
       expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
-        "Automated GPUTester PR detected"
+        "Automated rapids-bot PR detected"
       );
     });
 
@@ -124,7 +124,7 @@ describe("Recently Updated", () => {
         "https://docs.rapids.ai/resources/recently-updated/"
       );
       expect(mockCreateCommitStatus.mock.calls[1][0].description).toBe(
-        "Automated GPUTester PR detected"
+        "Automated rapids-bot PR detected"
       );
     });
 

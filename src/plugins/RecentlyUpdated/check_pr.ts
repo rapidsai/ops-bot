@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { createSetCommitStatus, isGPUTesterPR } from "../../shared";
+import { createSetCommitStatus, isRapidsBotPR } from "../../shared";
 import { PRContext, PullsListResponseData } from "../../types";
 import { Context } from "probot";
 import { OpsBotPlugin } from "../../plugin";
@@ -40,8 +40,8 @@ export const checkPR = async function (
 
   await setCommitStatus("Checking if PR has recent updates...", "pending");
 
-  if (isGPUTesterPR(pr)) {
-    await setCommitStatus("Automated GPUTester PR detected", "success");
+  if (isRapidsBotPR(pr)) {
+    await setCommitStatus("Automated rapids-bot PR detected", "success");
     return;
   }
 
