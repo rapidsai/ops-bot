@@ -1,7 +1,6 @@
 resource "aws_lambda_function" "probot_handler" {
   depends_on    = [aws_cloudwatch_log_group.probot_handler]
-  s3_bucket     = data.aws_s3_bucket.deployment.id
-  s3_key        = "probot-${var.deployment_version}.zip"
+  filename      = "dist/probot-${var.deployment_version}.zip"
   function_name = "ops-bot-${var.environment}-handleProbot"
   role          = aws_iam_role.lambda_role.arn
   handler       = "dist/probot.handler"
@@ -29,8 +28,7 @@ resource "aws_lambda_function" "probot_handler" {
 
 resource "aws_lambda_function" "authorizer" {
   depends_on    = [aws_cloudwatch_log_group.authorizer]
-  s3_bucket     = data.aws_s3_bucket.deployment.id
-  s3_key        = "authorizer-${var.deployment_version}.zip"
+  filename      = "dist/authorizer-${var.deployment_version}.zip"
   function_name = "ops-bot-${var.environment}-authorizerFn"
   role          = aws_iam_role.lambda_role.arn
   handler       = "dist/authorizer.handler"
