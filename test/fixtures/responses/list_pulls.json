@@ -25,9 +25,9 @@
   "recently_updated": [
     {
       "number": 1234,
-      "title": "[RELEASE] cuml v0.18",
+      "title": "Forward-merge branch-0.17 to branch-0.18 [skip ci]",
       "user": {
-        "login": "GPUtester"
+        "login": "rapids-bot[bot]"
       },
       "labels": [{ "name": "breaking" }, { "name": "bug" }],
       "merged_at": "2021-01-27T13:38:56Z",
