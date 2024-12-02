@@ -4,12 +4,6 @@ variable "aws_region" {
   default     = "us-east-2"
 }
 
-variable "environment" {
-  description = "Environment name"
-  type        = string
-  default     = "prod"
-}
-
 variable "app_id" {
   description = "GitHub App ID"
   type        = string

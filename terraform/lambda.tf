@@ -1,7 +1,7 @@
 resource "aws_lambda_function" "probot_handler" {
   depends_on    = [aws_cloudwatch_log_group.probot_handler]
   filename      = "dist/probot-${var.deployment_version}.zip"
-  function_name = "ops-bot-${var.environment}-handleProbot"
+  function_name = "ops-bot-handleProbot"
   role          = aws_iam_role.lambda_role.arn
   handler       = "dist/probot.handler"
   runtime       = "nodejs18.x"
@@ -10,7 +10,7 @@ resource "aws_lambda_function" "probot_handler" {
 
   environment {
     variables = {
-      NODE_ENV       = var.environment
+      NODE_ENV       = "prod"
       LOG_FORMAT     = "json"
       LOG_LEVEL      = "debug"
       APP_ID         = var.app_id
@@ -29,7 +29,7 @@ resource "aws_lambda_function" "probot_handler" {
 resource "aws_lambda_function" "authorizer" {
   depends_on    = [aws_cloudwatch_log_group.authorizer]
   filename      = "dist/authorizer-${var.deployment_version}.zip"
-  function_name = "ops-bot-${var.environment}-authorizerFn"
+  function_name = "ops-bot-authorizerFn"
   role          = aws_iam_role.lambda_role.arn
   handler       = "dist/authorizer.handler"
   runtime       = "nodejs18.x"

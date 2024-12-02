@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_role" {
-  name = "ops-bot-${var.environment}-lambda-role"
+  name = "ops-bot-lambda-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -14,7 +14,7 @@ resource "aws_iam_role" "lambda_role" {
 }
 
 resource "aws_iam_role_policy" "lambda_policy" {
-  name = "ops-bot-${var.environment}-lambda-policy"
+  name = "ops-bot-lambda-policy"
   role = aws_iam_role.lambda_role.id
 
   policy = jsonencode({
@@ -41,7 +41,7 @@ resource "aws_iam_role_policy" "lambda_policy" {
 }
 
 resource "aws_iam_role" "api_gateway_authorizer" {
-  name = "ops-bot-${var.environment}-api-gateway-authorizer"
+  name = "ops-bot-api-gateway-authorizer"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -56,7 +56,7 @@ resource "aws_iam_role" "api_gateway_authorizer" {
 }
 
 resource "aws_iam_role_policy" "api_gateway_authorizer" {
-  name = "ops-bot-${var.environment}-api-gateway-authorizer"
+  name = "ops-bot-api-gateway-authorizer"
   role = aws_iam_role.api_gateway_authorizer.id
 
   policy = jsonencode({

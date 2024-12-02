@@ -1,5 +1,5 @@
 resource "aws_api_gateway_rest_api" "ops_bot" {
-  name = "ops-bot-${var.environment}"
+  name = "ops-bot"
 }
 
 resource "aws_api_gateway_resource" "proxy" {
@@ -52,5 +52,5 @@ resource "aws_api_gateway_deployment" "ops_bot" {
 resource "aws_api_gateway_stage" "ops_bot" {
   deployment_id = aws_api_gateway_deployment.ops_bot.id
   rest_api_id   = aws_api_gateway_rest_api.ops_bot.id
-  stage_name    = var.environment
+  stage_name    = "prod"
 }
