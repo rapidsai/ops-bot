@@ -64,7 +64,10 @@ resource "aws_iam_role_policy" "api_gateway_authorizer" {
     Statement = [{
       Effect   = "Allow"
       Action   = ["lambda:InvokeFunction"]
-      Resource = [aws_lambda_function.authorizer.arn]
+      Resource = [
+        aws_lambda_function.authorizer.arn,
+        aws_lambda_function.probot_handler.arn
+      ]
     }]
   })
 }

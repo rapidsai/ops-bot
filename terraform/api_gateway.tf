@@ -28,6 +28,7 @@ resource "aws_api_gateway_integration" "lambda" {
   rest_api_id = aws_api_gateway_rest_api.ops_bot.id
   resource_id = aws_api_gateway_resource.proxy.id
   http_method = aws_api_gateway_method.proxy.http_method
+  credentials = aws_iam_role.api_gateway_authorizer.arn
 
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
