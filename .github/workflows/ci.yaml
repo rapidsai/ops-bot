@@ -84,7 +84,6 @@ jobs:
       - name: Terraform Plan
         id: plan
         working-directory: terraform
-        continue-on-error: true
         run: |
           terraform plan -out=tfplan
           terraform show -no-color tfplan > plan.txt
@@ -96,34 +95,6 @@ jobs:
           TF_VAR_private_key: ${{ secrets.PRIVATE_KEY }}
           TF_VAR_gputester_pat: ${{ secrets.GPUTESTER_PAT }}
           TF_VAR_deployment_version: ${{ env.DEPLOY_VERSION }}
-
-      - name: Update PR with Plan
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GPUTESTER_PAT }}
-          script: |
-            const planDecoded = Buffer.from(process.env.PLAN_ENCODED, 'base64').toString('utf-8');
-            const output = `#### Terraform Plan 📝
-            <details>
-              <summary>Show Plan</summary>
-
-            \`\`\`hcl
-            ${planDecoded}
-            \`\`\`
-
-            </details>
-            `;
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
-
-      - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
