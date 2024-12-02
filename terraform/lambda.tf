@@ -1,6 +1,6 @@
 resource "aws_lambda_function" "probot_handler" {
   depends_on    = [aws_cloudwatch_log_group.probot_handler]
-  filename      = "dist/probot-${var.deployment_version}.zip"
+  filename      = "dist/probot.zip"
   function_name = "ops-bot-handleProbot"
   role          = aws_iam_role.lambda_role.arn
   handler       = "dist/probot.handler"
@@ -28,7 +28,7 @@ resource "aws_lambda_function" "probot_handler" {
 
 resource "aws_lambda_function" "authorizer" {
   depends_on    = [aws_cloudwatch_log_group.authorizer]
-  filename      = "dist/authorizer-${var.deployment_version}.zip"
+  filename      = "dist/authorizer.zip"
   function_name = "ops-bot-authorizerFn"
   role          = aws_iam_role.lambda_role.arn
   handler       = "dist/authorizer.handler"

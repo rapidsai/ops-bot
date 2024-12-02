@@ -27,8 +27,3 @@ variable "gputester_pat" {
   type        = string
   sensitive   = true
 }
-
-variable "deployment_version" {
-  description = "Version identifier for Lambda deployment packages"
-  type        = string
-}

@@ -45,24 +45,13 @@ jobs:
       - name: Build Probot
         run: npm run build
 
-      - name: Set deployment version
-        if: github.ref == 'refs/heads/main'
-        run: |
-          echo "DEPLOY_VERSION=$(date +%Y%m%d-%H%M%S)-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-
       - name: Copy release draft template
         run: cp src/plugins/ReleaseDrafter/draft_template.njk dist/plugins/ReleaseDrafter
 
       - name: Package Lambda functions
         run: |
-          zip -r probot-${{ env.DEPLOY_VERSION }}.zip dist
-          zip -r authorizer-${{ env.DEPLOY_VERSION }}.zip dist/authorizer.js
-
-      - name: Upload to S3
-        if: github.ref == 'refs/heads/main'
-        run: |
-          aws s3 cp probot-${{ env.DEPLOY_VERSION }}.zip s3://rapidsai-serverless-deployments/serverless/ops-bot/prod/
-          aws s3 cp authorizer-${{ env.DEPLOY_VERSION }}.zip s3://rapidsai-serverless-deployments/serverless/ops-bot/prod/
+          zip -r probot.zip dist
+          zip -r authorizer.zip dist/authorizer.js
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -94,7 +83,6 @@ jobs:
           TF_VAR_webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
           TF_VAR_private_key: ${{ secrets.PRIVATE_KEY }}
           TF_VAR_gputester_pat: ${{ secrets.GPUTESTER_PAT }}
-          TF_VAR_deployment_version: ${{ env.DEPLOY_VERSION }}
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
