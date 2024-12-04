@@ -1,12 +1,13 @@
 resource "aws_lambda_function" "probot_handler" {
-  depends_on    = [aws_cloudwatch_log_group.probot_handler]
-  filename      = "dist/probot.zip"
-  function_name = "ops-bot-handleProbot"
-  role          = aws_iam_role.lambda_role.arn
-  handler       = "dist/probot.handler"
-  runtime       = "nodejs18.x"
-  timeout       = 900
-  memory_size   = 1024
+  depends_on       = [aws_cloudwatch_log_group.probot_handler]
+  filename         = "../probot.zip"
+  source_code_hash = filebase64sha256("../probot.zip")
+  function_name    = "ops-bot-handleProbot"
+  role             = aws_iam_role.lambda_role.arn
+  handler          = "dist/probot.handler"
+  runtime          = "nodejs18.x"
+  timeout          = 900
+  memory_size      = 1024
 
   environment {
     variables = {
@@ -27,13 +28,14 @@ resource "aws_lambda_function" "probot_handler" {
 }
 
 resource "aws_lambda_function" "authorizer" {
-  depends_on    = [aws_cloudwatch_log_group.authorizer]
-  filename      = "dist/authorizer.zip"
-  function_name = "ops-bot-authorizerFn"
-  role          = aws_iam_role.lambda_role.arn
-  handler       = "dist/authorizer.handler"
-  runtime       = "nodejs18.x"
-  memory_size   = 1024
+  depends_on       = [aws_cloudwatch_log_group.authorizer]
+  filename         = "../authorizer.zip"
+  source_code_hash = filebase64sha256("../authorizer.zip")
+  function_name    = "ops-bot-authorizerFn"
+  role             = aws_iam_role.lambda_role.arn
+  handler          = "dist/authorizer.handler"
+  runtime          = "nodejs18.x"
+  memory_size      = 1024
 
   environment {
     variables = {
