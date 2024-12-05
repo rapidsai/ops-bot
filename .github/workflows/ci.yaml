@@ -73,11 +73,7 @@ jobs:
       - name: Terraform Plan
         id: plan
         working-directory: terraform
-        run: |
-          terraform plan -out=tfplan
-          terraform show -no-color tfplan > plan.txt
-          PLAN_ENCODED=$(base64 -w 0 plan.txt)
-          echo "PLAN_ENCODED=$PLAN_ENCODED" >> $GITHUB_ENV
+        run: terraform plan -out=tfplan
         env:
           TF_VAR_app_id: ${{ secrets.APP_ID }}
           TF_VAR_webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
