@@ -27,7 +27,7 @@
     "nunjucks": "^3.2.4",
     "probot": "^12.3.1",
     "strip-comments": "^2.0.1",
-    "webhook-authorizer": "github:nv-gha-runners/webhook-authorizer#9c0ca21ff4517d712e1ab3e25f7ff807d0f519da"
+    "webhook-authorizer": "github:nv-gha-runners/webhook-authorizer#0592401cf0453acdca82c87db652f62119c61726"
   },
   "devDependencies": {
     "@types/jest": "^29.5.4",
