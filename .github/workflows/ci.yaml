@@ -50,8 +50,8 @@ jobs:
 
       - name: Package Lambda functions
         run: |
-          zip -r probot.zip dist
-          zip -r authorizer.zip dist/authorizer.js
+          zip -r probot.zip .
+          zip -r authorizer.zip . -x "probot.zip"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -73,7 +73,7 @@ jobs:
       - name: Terraform Plan
         id: plan
         working-directory: terraform
-        run: terraform plan -out=tfplan
+        run: terraform plan -out tfplan
         env:
           TF_VAR_app_id: ${{ secrets.APP_ID }}
           TF_VAR_webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
