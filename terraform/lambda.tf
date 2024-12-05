@@ -23,7 +23,6 @@ resource "aws_lambda_function" "probot_handler" {
 
   lifecycle {
     create_before_destroy = true
-    prevent_destroy       = true
   }
 }
 
@@ -45,10 +44,8 @@ resource "aws_lambda_function" "authorizer" {
 
   lifecycle {
     create_before_destroy = true
-    prevent_destroy       = true
   }
 }
-
 
 resource "aws_lambda_permission" "api_gw_resource_policy" {
   statement_id  = "AllowAPIGatewayInvoke"
