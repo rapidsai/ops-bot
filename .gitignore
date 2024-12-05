@@ -6,3 +6,9 @@ npm-debug.log
 coverage
 dist
 .serverless
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+.terraform.lock.hcl
+*.tfvars
