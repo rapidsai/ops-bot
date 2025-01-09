@@ -57,13 +57,6 @@ terraform plan
 terraform apply
 ```
 
-### Required Environment Variables
-
-- `APP_ID`: GitHub App ID
-- `WEBHOOK_SECRET`: GitHub Webhook Secret
-- `PRIVATE_KEY`: GitHub App Private Key
-- `GPUTESTER_PAT`: GPU Tester Personal Access Token
-
 ## npm Scripts
 
 ```sh
