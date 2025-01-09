@@ -22,7 +22,7 @@ import { initRecentlyUpdated } from "./plugins/RecentlyUpdated";
 import { initReleaseDrafter } from "./plugins/ReleaseDrafter";
 import { initForwardMerger } from "./plugins/ForwardMerger";
 
-export = (app: Probot) => {
+export default (app: Probot) => {
   initBranchChecker(app);
   initLabelChecker(app);
   initReleaseDrafter(app);

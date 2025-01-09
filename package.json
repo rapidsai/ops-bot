@@ -2,6 +2,7 @@
   "name": "ops-bot",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "RAPIDS Probot App",
   "author": "AJ Schmidt <aschmidt@nvidia.com>",
   "license": "ISC",
@@ -23,6 +24,7 @@
   "dependencies": {
     "@aws-sdk/client-lambda": "^3.398.0",
     "@probot/adapter-aws-lambda-serverless": "^3.0.3",
+    "@aws-sdk/client-secrets-manager": "^3.712.0",
     "axios": "^1.5.0",
     "nunjucks": "^3.2.4",
     "probot": "^12.3.1",
