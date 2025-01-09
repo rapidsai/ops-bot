@@ -11,9 +11,9 @@ resource "aws_lambda_function" "probot_handler" {
 
   environment {
     variables = {
-      NODE_ENV       = "production"
-      LOG_FORMAT     = "json"
-      LOG_LEVEL      = "debug"
+      NODE_ENV   = "production"
+      LOG_FORMAT = "json"
+      LOG_LEVEL  = "debug"
     }
   }
 
