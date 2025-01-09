@@ -14,10 +14,6 @@ resource "aws_lambda_function" "probot_handler" {
       NODE_ENV       = "production"
       LOG_FORMAT     = "json"
       LOG_LEVEL      = "debug"
-      APP_ID         = var.app_id
-      WEBHOOK_SECRET = var.webhook_secret
-      PRIVATE_KEY    = var.private_key
-      GPUTESTER_PAT  = var.gputester_pat
     }
   }
 

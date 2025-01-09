@@ -74,11 +74,6 @@ jobs:
         id: plan
         working-directory: terraform
         run: terraform plan -out tfplan
-        env:
-          TF_VAR_app_id: ${{ secrets.APP_ID }}
-          TF_VAR_webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
-          TF_VAR_private_key: ${{ secrets.PRIVATE_KEY }}
-          TF_VAR_gputester_pat: ${{ secrets.GPUTESTER_PAT }}
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
