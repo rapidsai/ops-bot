@@ -14,6 +14,7 @@ resource "aws_lambda_function" "probot_handler" {
       NODE_ENV   = "production"
       LOG_FORMAT = "json"
       LOG_LEVEL  = "debug"
+      NODE_OPTIONS = "--enable-source-maps"
     }
   }
 
@@ -35,6 +36,7 @@ resource "aws_lambda_function" "authorizer" {
   environment {
     variables = {
       probotFnName = aws_lambda_function.probot_handler.function_name
+      NODE_OPTIONS = "--enable-source-maps"
     }
   }
 
