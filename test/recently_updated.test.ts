@@ -24,7 +24,7 @@ import {
   mockCreateCommitStatus,
   mockListPulls,
   mockPaginate,
-} from "./mocks";
+} from "./mocks.ts";
 import { recently_updated as listPullsResp } from "./fixtures/responses/list_pulls.json";
 import { makeConfigReponse } from "./fixtures/responses/get_config.ts";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";

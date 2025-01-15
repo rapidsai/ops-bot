@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-import { OpsBotConfig } from "../../../src/config";
+import { OpsBotConfig } from "../../../src/config.ts";
 
 export const makeConfigReponse = <E extends Partial<OpsBotConfig>>(
   opsBotConfig: E

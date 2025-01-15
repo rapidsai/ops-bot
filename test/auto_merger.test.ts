@@ -36,7 +36,7 @@ import {
   mockMerge,
   mockPaginate,
   mockPullsGet,
-} from "./mocks";
+} from "./mocks.ts";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
 import { makeConfigReponse } from "./fixtures/responses/get_config.ts";
 

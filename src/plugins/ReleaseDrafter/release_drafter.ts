@@ -18,7 +18,7 @@ import {
   PushContext,
   PayloadRepository,
   PullsListResponseData,
-} from "../../types";
+} from "../../types.ts";
 import { basename } from "path";
 import { resolve } from "path";
 import { readFileSync } from "fs";

@@ -5,7 +5,7 @@ resource "aws_lambda_function" "probot_handler" {
   function_name    = "ops-bot-handleProbot"
   role             = aws_iam_role.lambda_role.arn
   handler          = "dist/probot.handler"
-  runtime          = "nodejs18.x"
+  runtime          = "nodejs20.x"
   timeout          = 900
   memory_size      = 1024
 
@@ -30,7 +30,7 @@ resource "aws_lambda_function" "authorizer" {
   function_name    = "ops-bot-authorizerFn"
   role             = aws_iam_role.lambda_role.arn
   handler          = "dist/authorizer.handler"
-  runtime          = "nodejs18.x"
+  runtime          = "nodejs20.x"
   memory_size      = 1024
 
   environment {
