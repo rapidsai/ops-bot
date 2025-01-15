@@ -18,7 +18,7 @@ import {
   createLambdaFunction,
   createProbot,
 } from "@probot/adapter-aws-lambda-serverless";
-import app from "./index";
+import app from "./index.ts";
 import {
   GetSecretValueCommand,
   SecretsManagerClient,

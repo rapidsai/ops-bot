@@ -37,8 +37,8 @@ import {
   mockUpdateRelease,
   mockCreatePR,
   mockListBranches,
-} from "../../mocks";
-import type { EmitterWebhookEventName } from "@octokit/webhooks/dist-types/types";
+} from "../../mocks.ts";
+import type { EmitterWebhookEventName } from "@octokit/webhooks/dist-types/types.ts";
 
 export const makeContext = (payload, name: EmitterWebhookEventName) => {
   return {

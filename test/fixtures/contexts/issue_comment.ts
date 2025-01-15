@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { makeContext } from "./base";
-import { IssueCommentContext } from "../../../src/types";
+import { makeContext } from "./base.ts";
+import { IssueCommentContext } from "../../../src/types.ts";
 type RespParams = {
   is_pr?: boolean;
   is_private?: boolean;

@@ -15,7 +15,7 @@
  */
 
 import { Probot } from "probot";
-import { AutoMerger } from "./auto_merger";
+import { AutoMerger } from "./auto_merger.ts";
 
 export const initAutoMerger = (app: Probot) => {
   app.on(

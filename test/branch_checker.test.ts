@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-import { PRBranchChecker } from "../src/plugins/BranchChecker/pull_request";
-import { RepositoryBranchChecker } from "../src/plugins/BranchChecker/repository";
-import { makePRContext } from "./fixtures/contexts/pull_request";
-import { makeRepositoryContext } from "./fixtures/contexts/repository";
+import { PRBranchChecker } from "../src/plugins/BranchChecker/pull_request.ts";
+import { RepositoryBranchChecker } from "../src/plugins/BranchChecker/repository.ts";
+import { makePRContext } from "./fixtures/contexts/pull_request.ts";
+import { makeRepositoryContext } from "./fixtures/contexts/repository.ts";
 import {
   mockConfigGet,
   mockContextRepo,
   mockCreateCommitStatus,
   mockListPulls,
   mockPaginate,
-} from "./mocks";
+} from "./mocks.ts";
 import { branch_checker as listPullsResp } from "./fixtures/responses/list_pulls.json";
 import { default as releasesJson } from "./fixtures/responses/releases.json";
 import axios from "axios";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
-import { makeConfigReponse } from "./fixtures/responses/get_config";
+import { makeConfigReponse } from "./fixtures/responses/get_config.ts";
 
 jest.mock("axios");
 const mockedAxios = axios as jest.Mocked<typeof axios>;

@@ -22,7 +22,7 @@ import {
   PRContext,
   ProbotOctokit,
   PullsGetResponseData,
-} from "./types";
+} from "./types.ts";
 
 export const Permission = {
   admin: "admin",

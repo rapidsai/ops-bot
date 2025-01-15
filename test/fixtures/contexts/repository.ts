@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-import { makeContext } from "./base";
-import { RepositoryContext } from "../../../src/types";
+import { makeContext } from "./base.ts";
+import { RepositoryContext } from "../../../src/types.ts";
 
 export const makeRepositoryContext = (): RepositoryContext => {
   const payload = {

@@ -15,7 +15,7 @@
 */
 
 import { Probot } from "probot";
-import { ForwardMerger } from "./forward_merger";
+import { ForwardMerger } from "./forward_merger.ts";
 
 export const initForwardMerger = (app: Probot) => {
   app.on(["push"], async (context) => {

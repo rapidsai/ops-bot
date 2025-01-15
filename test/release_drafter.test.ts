@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ReleaseDrafter } from "../src/plugins/ReleaseDrafter/release_drafter";
+import { ReleaseDrafter } from "../src/plugins/ReleaseDrafter/release_drafter.ts";
 import { release_drafter as listPullsResp } from "./fixtures/responses/list_pulls.json";
 import { default as getReleaseByTagResp } from "./fixtures/responses/get_release_by_tag.json";
 import {
@@ -25,12 +25,12 @@ import {
   mockListPulls,
   mockContextRepo,
   mockConfigGet,
-} from "./mocks";
+} from "./mocks.ts";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
-import { makeConfigReponse } from "./fixtures/responses/get_config";
+import { makeConfigReponse } from "./fixtures/responses/get_config.ts";
 import axios from "axios";
-import { getVersionFromBranch } from "../src/shared";
-import { makePushContext } from "./fixtures/contexts/push";
+import { getVersionFromBranch } from "../src/shared.ts";
+import { makePushContext } from "./fixtures/contexts/push.ts";
 jest.mock("axios");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 

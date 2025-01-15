@@ -15,7 +15,7 @@
 */
 
 import { Probot } from "probot";
-import { LabelChecker } from "./label_checker";
+import { LabelChecker } from "./label_checker.ts";
 
 export const initLabelChecker = (app: Probot) => {
   app.on(

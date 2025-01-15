@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { OpsBotPlugin } from "../../plugin";
-import { createSetCommitStatus, isRapidsBotPR } from "../../shared";
-import { PRContext } from "../../types";
+import { OpsBotPlugin } from "../../plugin.ts";
+import { createSetCommitStatus, isRapidsBotPR } from "../../shared.ts";
+import { PRContext } from "../../types.ts";
 
 export class LabelChecker extends OpsBotPlugin {
   public context: PRContext;

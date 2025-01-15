@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { OpsBotPlugin } from "../../plugin";
-import { RepositoryContext } from "../../types";
-import { checkPR } from "./check_pr";
+import { OpsBotPlugin } from "../../plugin.ts";
+import { RepositoryContext } from "../../types.ts";
+import { checkPR } from "./check_pr.ts";
 
 export class RepositoryBranchChecker extends OpsBotPlugin {
   context: RepositoryContext;

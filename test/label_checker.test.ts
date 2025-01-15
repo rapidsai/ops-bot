@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import { LabelChecker } from "../src/plugins/LabelChecker/label_checker";
-import { makePRContext } from "./fixtures/contexts/pull_request";
-import { makeConfigReponse } from "./fixtures/responses/get_config";
+import { LabelChecker } from "../src/plugins/LabelChecker/label_checker.ts";
+import { makePRContext } from "./fixtures/contexts/pull_request.ts";
+import { makeConfigReponse } from "./fixtures/responses/get_config.ts";
 import {
   mockConfigGet,
   mockContextRepo,
   mockCreateCommitStatus,
-} from "./mocks";
+} from "./mocks.ts";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
 
 describe("Label Checker", () => {

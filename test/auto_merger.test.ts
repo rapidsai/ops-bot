@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import { AutoMerger } from "../src/plugins/AutoMerger/auto_merger";
-import * as statusContext from "./fixtures/contexts/status";
-import * as issueContext from "./fixtures/contexts/issue_comment";
-import * as prReviewContext from "./fixtures/contexts/pull_request_review";
+import { AutoMerger } from "../src/plugins/AutoMerger/auto_merger.ts";
+import * as statusContext from "./fixtures/contexts/status.ts";
+import * as issueContext from "./fixtures/contexts/issue_comment.ts";
+import * as prReviewContext from "./fixtures/contexts/pull_request_review.ts";
 import { default as list_comments } from "./fixtures/responses/list_comments.json";
 import { data as list_commits } from "./fixtures/responses/list_commits.json";
 import { default as list_reviews } from "./fixtures/responses/list_reviews.json";
-import { makeResponse as makePullResponse } from "./fixtures/responses/pulls_get";
+import { makeResponse as makePullResponse } from "./fixtures/responses/pulls_get.ts";
 import { default as user_permission } from "./fixtures/responses/get_collaborator_permission_level.json";
 import { default as commitPRs } from "./fixtures/responses/search_issues_and_pull_requests.json";
-import { user, userNoName } from "./fixtures/responses/get_by_username";
+import { user, userNoName } from "./fixtures/responses/get_by_username.ts";
 import {
   mockConfigGet,
   mockContextRepo,
@@ -38,7 +38,7 @@ import {
   mockPullsGet,
 } from "./mocks";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
-import { makeConfigReponse } from "./fixtures/responses/get_config";
+import { makeConfigReponse } from "./fixtures/responses/get_config.ts";
 
 describe("Auto Merger", () => {
   beforeEach(() => {

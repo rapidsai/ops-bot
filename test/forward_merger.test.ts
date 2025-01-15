@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { ForwardMerger } from "../src/plugins/ForwardMerger/forward_merger";
-import { makePushContext } from "./fixtures/contexts/push";
+import { ForwardMerger } from "../src/plugins/ForwardMerger/forward_merger.ts";
+import { makePushContext } from "./fixtures/contexts/push.ts";
 import {
   mockConfigGet,
   mockContextRepo,
@@ -24,9 +24,9 @@ import {
   mockListBranches,
   mockMerge,
   mockPaginate,
-} from "./mocks";
+} from "./mocks.ts";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
-import { makeConfigReponse } from "./fixtures/responses/get_config";
+import { makeConfigReponse } from "./fixtures/responses/get_config.ts";
 
 describe("Forward Merger", () => {
   beforeEach(() => {

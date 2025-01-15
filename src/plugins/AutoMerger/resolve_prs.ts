@@ -1,12 +1,12 @@
 import { Logger } from "probot";
-import { issueIsPR, isMergeComment, isOldMergeComment } from "../../shared";
+import { issueIsPR, isMergeComment, isOldMergeComment } from "../../shared.ts";
 import {
   AutoMergerContext,
   CheckSuiteContext,
   IssueCommentContext,
   PRReviewContext,
   StatusContext,
-} from "../../types";
+} from "../../types.ts";
 
 export class PRNumberResolver {
   public context: AutoMergerContext;
