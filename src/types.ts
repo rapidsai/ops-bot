@@ -55,3 +55,5 @@ export type CommitStatus = {
   sha: string;
   target_url?: string;
 };
+
+export type PullRequestLike = Pick<PullsGetResponseData, "user"> | PRContext["payload"]["pull_request"] | PullsListResponseData[0];
