@@ -1,3 +1,7 @@
+locals {
+  nvmrc = format("nodejs%s.x", chomp(file("../.nvmrc")))
+}
+
 resource "aws_lambda_function" "probot_handler" {
   depends_on       = [aws_cloudwatch_log_group.probot_handler]
   filename         = "../probot.zip"
@@ -5,7 +9,7 @@ resource "aws_lambda_function" "probot_handler" {
   function_name    = "ops-bot-handleProbot"
   role             = aws_iam_role.lambda_role.arn
   handler          = "dist/probot.handler"
-  runtime          = "nodejs20.x"
+  runtime          = local.nvmrc
   timeout          = 900
   memory_size      = 1024
 
@@ -30,7 +34,7 @@ resource "aws_lambda_function" "authorizer" {
   function_name    = "ops-bot-authorizerFn"
   role             = aws_iam_role.lambda_role.arn
   handler          = "dist/authorizer.handler"
-  runtime          = "nodejs20.x"
+  runtime          = local.nvmrc
   memory_size      = 1024
 
   environment {
