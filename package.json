@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "main": "index.js",
   "description": "RAPIDS Probot App",
   "author": "AJ Schmidt <aschmidt@nvidia.com>",
   "license": "ISC",
@@ -17,16 +18,15 @@
   "scripts": {
     "build": "npm run clean && node build.mjs",
     "clean": "rm -rf dist",
-    "start": "probot run ./dist/index.js",
     "test": "jest --coverage --silent"
   },
   "dependencies": {
     "@aws-sdk/client-lambda": "^3.398.0",
-    "@probot/adapter-aws-lambda-serverless": "^3.0.3",
+    "@probot/adapter-aws-lambda-serverless": "^4.0.0",
     "@aws-sdk/client-secrets-manager": "^3.712.0",
     "axios": "^1.5.0",
     "nunjucks": "^3.2.4",
-    "probot": "^12.3.1",
+    "probot": "^13.4.1",
     "strip-comments": "^2.0.1",
     "webhook-authorizer": "github:nv-gha-runners/webhook-authorizer#9c0ca21ff4517d712e1ab3e25f7ff807d0f519da"
   },
