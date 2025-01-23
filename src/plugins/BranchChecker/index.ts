@@ -15,8 +15,8 @@
 */
 
 import { Probot } from "probot";
-import { PRBranchChecker } from "./pull_request";
-import { RepositoryBranchChecker } from "./repository";
+import { PRBranchChecker } from "./pull_request.ts";
+import { RepositoryBranchChecker } from "./repository.ts";
 
 export const initBranchChecker = (app: Probot) => {
   app.on(

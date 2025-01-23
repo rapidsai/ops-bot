@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { PRRecentlyUpdated } from "../src/plugins/RecentlyUpdated/pull_request";
-import { PushRecentlyUpdated } from "../src/plugins/RecentlyUpdated/push";
-import { makePRContext } from "./fixtures/contexts/pull_request";
+import { PRRecentlyUpdated } from "../src/plugins/RecentlyUpdated/pull_request.ts";
+import { PushRecentlyUpdated } from "../src/plugins/RecentlyUpdated/push.ts";
+import { makePRContext } from "./fixtures/contexts/pull_request.ts";
 import {
   mockCompareCommitsWithBasehead,
   mockConfigGet,
@@ -24,12 +24,12 @@ import {
   mockCreateCommitStatus,
   mockListPulls,
   mockPaginate,
-} from "./mocks";
+} from "./mocks.ts";
 import { recently_updated as listPullsResp } from "./fixtures/responses/list_pulls.json";
-import { makeConfigReponse } from "./fixtures/responses/get_config";
+import { makeConfigReponse } from "./fixtures/responses/get_config.ts";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
-import { makePushContext } from "./fixtures/contexts/push";
-import { makeResponse } from "./fixtures/responses/compare_commits_with_basehead";
+import { makePushContext } from "./fixtures/contexts/push.ts";
+import { makeResponse } from "./fixtures/responses/compare_commits_with_basehead.ts";
 
 describe("Recently Updated", () => {
   describe("Pull Request Event", () => {

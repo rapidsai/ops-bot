@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-import { makeContext } from "./base";
-import { StatusContext } from "../../../src/types";
+import { makeContext } from "./base.ts";
+import { StatusContext } from "../../../src/types.ts";
 
 const makeStatusContext = (state: string = "success"): StatusContext => {
   const payload = {

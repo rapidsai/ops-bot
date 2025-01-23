@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { OpsBotPlugin } from "../../plugin";
-import { PayloadRepository } from "../../types";
-import { isVersionedBranch, getVersionFromBranch, isVersionedUCXBranch } from "../../shared";
+import { OpsBotPlugin } from "../../plugin.ts";
+import { PayloadRepository } from "../../types.ts";
+import { isVersionedBranch, getVersionFromBranch, isVersionedUCXBranch } from "../../shared.ts";
 import { basename } from "path";
 import { Context } from "probot";
 import { Octokit } from "@octokit/rest"

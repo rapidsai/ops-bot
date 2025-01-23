@@ -15,7 +15,7 @@
 */
 
 import { Probot } from "probot";
-import { ReleaseDrafter } from "./release_drafter";
+import { ReleaseDrafter } from "./release_drafter.ts";
 
 export const initReleaseDrafter = (app: Probot) => {
   app.on(["push"], async (context) => {

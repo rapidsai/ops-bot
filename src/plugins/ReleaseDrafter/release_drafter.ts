@@ -18,14 +18,14 @@ import {
   PushContext,
   PayloadRepository,
   PullsListResponseData,
-} from "../../types";
+} from "../../types.ts";
 import { basename } from "path";
 import { resolve } from "path";
 import { readFileSync } from "fs";
 import nunjucks from "nunjucks";
-import { getVersionFromBranch, isVersionedBranch } from "../../shared";
+import { getVersionFromBranch, isVersionedBranch } from "../../shared.ts";
 import axios from "axios";
-import { OpsBotPlugin } from "../../plugin";
+import { OpsBotPlugin } from "../../plugin.ts";
 
 export class ReleaseDrafter extends OpsBotPlugin {
   context: PushContext;

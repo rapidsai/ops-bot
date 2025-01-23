@@ -18,15 +18,15 @@ import {
   AutoMergerContext,
   PullsGetResponseData,
   UsersGetByUsernameResponseData,
-} from "../../types";
+} from "../../types.ts";
 import strip from "strip-comments";
 import {
   isMergeComment,
   Permission,
   validCommentsExistByPredicate,
-} from "../../shared";
-import { OpsBotPlugin } from "../../plugin";
-import { PRNumberResolver } from "./resolve_prs";
+} from "../../shared.ts";
+import { OpsBotPlugin } from "../../plugin.ts";
+import { PRNumberResolver } from "./resolve_prs.ts";
 
 export class AutoMerger extends OpsBotPlugin {
   public context: AutoMergerContext;

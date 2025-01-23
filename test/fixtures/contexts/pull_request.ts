@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { makeContext } from "./base";
-import { PRContext } from "../../../src/types";
+import { makeContext } from "./base.ts";
+import { PRContext } from "../../../src/types.ts";
 
 type RespParams = {
   labels?: string[];

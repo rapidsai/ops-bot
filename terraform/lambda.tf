@@ -1,3 +1,7 @@
+locals {
+  nvmrc = format("nodejs%s.x", chomp(file("../.nvmrc")))
+}
+
 resource "aws_lambda_function" "probot_handler" {
   depends_on       = [aws_cloudwatch_log_group.probot_handler]
   filename         = "../probot.zip"
@@ -5,19 +9,16 @@ resource "aws_lambda_function" "probot_handler" {
   function_name    = "ops-bot-handleProbot"
   role             = aws_iam_role.lambda_role.arn
   handler          = "dist/probot.handler"
-  runtime          = "nodejs18.x"
+  runtime          = local.nvmrc
   timeout          = 900
   memory_size      = 1024
 
   environment {
     variables = {
-      NODE_ENV       = "production"
-      LOG_FORMAT     = "json"
-      LOG_LEVEL      = "debug"
-      APP_ID         = var.app_id
-      WEBHOOK_SECRET = var.webhook_secret
-      PRIVATE_KEY    = var.private_key
-      GPUTESTER_PAT  = var.gputester_pat
+      NODE_ENV     = "production"
+      LOG_FORMAT   = "json"
+      LOG_LEVEL    = "debug"
+      NODE_OPTIONS = "--enable-source-maps"
     }
   }
 
@@ -33,12 +34,13 @@ resource "aws_lambda_function" "authorizer" {
   function_name    = "ops-bot-authorizerFn"
   role             = aws_iam_role.lambda_role.arn
   handler          = "dist/authorizer.handler"
-  runtime          = "nodejs18.x"
+  runtime          = local.nvmrc
   memory_size      = 1024
 
   environment {
     variables = {
       probotFnName = aws_lambda_function.probot_handler.function_name
+      NODE_OPTIONS = "--enable-source-maps"
     }
   }
 

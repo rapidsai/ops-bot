@@ -15,14 +15,14 @@
  */
 
 import { Probot } from "probot";
-import { initAutoMerger } from "./plugins/AutoMerger";
-import { initBranchChecker } from "./plugins/BranchChecker";
-import { initLabelChecker } from "./plugins/LabelChecker";
-import { initRecentlyUpdated } from "./plugins/RecentlyUpdated";
-import { initReleaseDrafter } from "./plugins/ReleaseDrafter";
-import { initForwardMerger } from "./plugins/ForwardMerger";
+import { initAutoMerger } from "./plugins/AutoMerger/index.ts";
+import { initBranchChecker } from "./plugins/BranchChecker/index.ts";
+import { initLabelChecker } from "./plugins/LabelChecker/index.ts";
+import { initRecentlyUpdated } from "./plugins/RecentlyUpdated/index.ts";
+import { initReleaseDrafter } from "./plugins/ReleaseDrafter/index.ts";
+import { initForwardMerger } from "./plugins/ForwardMerger/index.ts";
 
-export = (app: Probot) => {
+export default (app: Probot) => {
   initBranchChecker(app);
   initLabelChecker(app);
   initReleaseDrafter(app);

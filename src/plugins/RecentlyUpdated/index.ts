@@ -15,8 +15,8 @@
  */
 
 import { Probot } from "probot";
-import { PRRecentlyUpdated } from "./pull_request";
-import { PushRecentlyUpdated } from "./push";
+import { PRRecentlyUpdated } from "./pull_request.ts";
+import { PushRecentlyUpdated } from "./push.ts";
 
 export const initRecentlyUpdated = (app: Probot) => {
   app.on(

@@ -21,8 +21,8 @@ import {
   IssuesCommentsResponseData,
   PRContext,
   ProbotOctokit,
-  PullsGetResponseData,
-} from "./types";
+  PullRequestLike,
+} from "./types.ts";
 
 export const Permission = {
   admin: "admin",
@@ -102,13 +102,13 @@ export const createSetCommitStatus = (
 };
 
 export const isGPUTesterPR = (
-  pullRequest: Pick<PullsGetResponseData, "user">
+  pullRequest: PullRequestLike
 ): boolean => {
   return pullRequest.user?.login.toLowerCase() === "gputester";
 };
 
 export const isRapidsBotPR = (
-  pullRequest: Pick<PullsGetResponseData, "user">
+  pullRequest: PullRequestLike
 ): boolean => {
   return pullRequest.user?.login.toLowerCase() === "rapids-bot[bot]";
 };

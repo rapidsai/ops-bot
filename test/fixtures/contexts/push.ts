@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { makeContext } from "./base";
-import { PushContext } from "../../../src/types";
+import { makeContext } from "./base.ts";
+import { PushContext } from "../../../src/types.ts";
 
 type PushPayload = {
   ref?: string;

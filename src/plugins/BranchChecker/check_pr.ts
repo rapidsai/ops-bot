@@ -19,11 +19,11 @@ import {
   isGPUTesterPR,
   isVersionedBranch,
   getVersionFromBranch,
-} from "../../shared";
-import { PRContext, PullsListResponseData } from "../../types";
+} from "../../shared.ts";
+import { PRContext, PullsListResponseData } from "../../types.ts";
 import { Context } from "probot";
 import axios from "axios";
-import { OpsBotPlugin } from "../../plugin";
+import { OpsBotPlugin } from "../../plugin.ts";
 
 export const checkPR = async function (
   this: OpsBotPlugin,

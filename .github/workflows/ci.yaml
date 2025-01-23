@@ -16,6 +16,10 @@ permissions:
   id-token: write
   contents: read
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   deploy:
     name: Deploy Probot Application
@@ -34,10 +38,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version-file: ".nvmrc"
+
 
       - name: Install npm dependencies
         run: npm ci
+
+      - name: Run type checking
+        run: npx tsc --project tsconfig.prod.json
+
+      - name: Run linter
+        run: npx eslint
 
       - name: Test Probot
         run: npm run test
@@ -46,12 +57,12 @@ jobs:
         run: npm run build
 
       - name: Copy release draft template
-        run: cp src/plugins/ReleaseDrafter/draft_template.njk dist/plugins/ReleaseDrafter
+        run: cp src/plugins/ReleaseDrafter/draft_template.njk dist/
 
       - name: Package Lambda functions
         run: |
-          zip -r probot.zip .
-          zip -r authorizer.zip . -x "probot.zip"
+          zip -r probot.zip dist/
+          zip -r authorizer.zip dist/
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -74,11 +85,6 @@ jobs:
         id: plan
         working-directory: terraform
         run: terraform plan -out tfplan
-        env:
-          TF_VAR_app_id: ${{ secrets.APP_ID }}
-          TF_VAR_webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
-          TF_VAR_private_key: ${{ secrets.PRIVATE_KEY }}
-          TF_VAR_gputester_pat: ${{ secrets.GPUTESTER_PAT }}
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { makePRContext } from "./fixtures/contexts/pull_request";
-import { mockConfigGet, mockContextRepo } from "./mocks";
+import { makePRContext } from "./fixtures/contexts/pull_request.ts";
+import { mockConfigGet, mockContextRepo } from "./mocks.ts";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
-import { makeConfigReponse } from "./fixtures/responses/get_config";
-import { OpsBotPlugin } from "../src/plugin";
+import { makeConfigReponse } from "./fixtures/responses/get_config.ts";
+import { OpsBotPlugin } from "../src/plugin.ts";
 
 const context = makePRContext();
 mockContextRepo.mockReturnValue(repoResp);

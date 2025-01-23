@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { OpsBotPlugin } from "../../plugin";
-import { PushContext } from "../../types";
-import { checkPR } from "./check_pr";
+import { OpsBotPlugin } from "../../plugin.ts";
+import { PushContext } from "../../types.ts";
+import { checkPR } from "./check_pr.ts";
 
 export class PushRecentlyUpdated extends OpsBotPlugin {
   public context: PushContext;

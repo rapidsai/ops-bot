@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { createSetCommitStatus, isRapidsBotPR } from "../../shared";
-import { PRContext, PullsListResponseData } from "../../types";
+import { createSetCommitStatus, isRapidsBotPR } from "../../shared.ts";
+import { PRContext, PullsListResponseData } from "../../types.ts";
 import { Context } from "probot";
-import { OpsBotPlugin } from "../../plugin";
+import { OpsBotPlugin } from "../../plugin.ts";
 
 export const checkPR = async function (
   this: OpsBotPlugin,

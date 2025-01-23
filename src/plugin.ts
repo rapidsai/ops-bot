@@ -5,7 +5,7 @@ import {
   OpsBotConfigFeatureNames,
   OpsBotConfigFeatureValues,
   OpsBotConfigPath,
-} from "./config";
+} from "./config.ts";
 
 // Abstract Base Class
 export class OpsBotPlugin {
