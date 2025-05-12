@@ -18,7 +18,7 @@
   "scripts": {
     "build": "npm run clean && node build.mjs",
     "clean": "rm -rf dist",
-    "test": "jest --coverage --silent"
+    "test": "jest --coverage"
   },
   "dependencies": {
     "@aws-sdk/client-lambda": "^3.398.0",
