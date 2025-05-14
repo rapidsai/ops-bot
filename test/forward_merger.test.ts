@@ -388,7 +388,7 @@ describe("Forward Merger", () => {
     test("should return true when a non-alpha tag exists for the release branch version", async () => {
       const context = makePushContext({ ref: "refs/heads/release/25.02" });
       forwardMerger = new ForwardMerger(context, context.payload);
-      mockListTags.mockResolvedValue([{ name: "v25.02.00" }, { name: "v25.02.00a1" }]);
+      mockListTags.mockResolvedValue([{ name: "v25.02.01" }, { name: "v25.02.00a1" }]);
 
       const result = await forwardMerger.hasNonAlphaTag()
       expect(result).toBe(true);
