@@ -1,5 +1,11 @@
 import { Logger } from "probot";
-import { issueIsPR, isMergeComment, isOldMergeComment } from "../../shared.ts";
+import { 
+  issueIsPR, 
+  isMergeComment, 
+  isOldMergeComment,
+  // getMergeMethod,
+  isNoSquashMergeComment
+} from "../../shared.ts";
 import {
   AutoMergerContext,
   CheckSuiteContext,
@@ -62,10 +68,14 @@ export class PRNumberResolver {
     if (isOldMergeComment(comment)) {
       this.logger.info("old merge comment");
       const author = context.payload.comment.user.login;
+      
+      // Handle old nosquash merge command correctly
+      const commandToSuggest = isNoSquashMergeComment(comment) ? "`/merge nosquash`" : "`/merge`";
+      
       const params = context.issue({
         body: [
-          `@${author}, the \`@gpucibot merge\` command has been replaced with \`/merge\`.`,
-          `Please re-comment this PR with \`/merge\` and use this new command in the future.`,
+          `@${author}, the \`@gpucibot merge\` command has been replaced with ${commandToSuggest}.`,
+          `Please re-comment this PR with ${commandToSuggest} and use this new command in the future.`,
         ].join("\n\n"),
       });
       await context.octokit.issues.createComment(params);
