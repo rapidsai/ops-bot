@@ -76,6 +76,7 @@ export class AutoMerger extends OpsBotPlugin {
       }
 
       const { mergeMethod, commentBody } = mergeCommentResult;
+      this.logger.info("mergeCommentResult is" + mergeMethod + " " + commentBody)
 
       // Additional validation for bot PRs and manual forward-merge PRs
       if (!await this.validateMergeRequest(pr, mergeMethod, commentBody)) {
@@ -175,6 +176,7 @@ export class AutoMerger extends OpsBotPlugin {
 
   /**
    * Get a valid merge comment from the PR and determine the merge method
+   * Processes comments from newest to oldest so the most recent command takes precedence
    */
   async getValidMergeComment(pr: PullsGetResponseData): Promise<{ mergeMethod: "squash" | "merge", commentBody: string } | null> {
     const { repository: repo } = this.context.payload;
@@ -189,13 +191,19 @@ export class AutoMerger extends OpsBotPlugin {
       }
     );
 
-    // Filter for merge comments by authorized users
+    // Filter for merge comments
     const mergeComments = allComments.filter(comment => 
       isMergeComment(comment.body || "")
     );
+    
+    // Sort comments by creation time, newest first
+    const sortedMergeComments = [...mergeComments].sort((a, b) => 
+      new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+    );
 
     // Check if there are any valid merge comments by users with appropriate permissions
-    for (const comment of mergeComments) {
+    // Processing from newest to oldest
+    for (const comment of sortedMergeComments) {
       const userPermission = await this.context.octokit.repos.getCollaboratorPermissionLevel({
         owner: repo.owner.login,
         repo: repo.name,
@@ -207,6 +215,7 @@ export class AutoMerger extends OpsBotPlugin {
         // Valid comment found, determine merge method
         const commentBody = comment.body || "";
         const mergeMethod = getMergeMethod(commentBody);
+        this.logger.info(`Using merge command from comment created at ${comment.created_at}: ${commentBody} (method: ${mergeMethod})`);
         return { mergeMethod, commentBody };
       }
     }
@@ -224,6 +233,7 @@ export class AutoMerger extends OpsBotPlugin {
     message: string; 
     isCommitHistoryFailure?: boolean;
   }> {
+    this.logger.info("Validating no squash merge PR:", pr)
     const { repository: repo } = this.context.payload;
     
     // Check if this PR has already failed non-commit validation by looking for our failure comment
@@ -240,7 +250,8 @@ export class AutoMerger extends OpsBotPlugin {
     if (this.hasPermanentNosquashValidationFailure(allComments)) {
       return { 
         success: false, 
-        message: "This PR has previously failed nosquash validation checks. Please contact @rapids-devops on Slack for assistance." 
+        message: "This PR has previously failed nosquash validation checks. Please contact @rapids-devops on Slack for assistance.",
+        isCommitHistoryFailure: true
       };
     }
 
@@ -262,7 +273,7 @@ export class AutoMerger extends OpsBotPlugin {
     const targetBranch = parsedBranch.target;
     
     const { data: searchResults } = await this.context.octokit.search.issuesAndPullRequests({
-      q: `repo:${encodeURIComponent(repo.full_name)} is:pr is:open head:${encodeURIComponent(sourceBranch)} base:${encodeURIComponent(targetBranch)} author:app/rapids-bot`,
+      q: encodeURIComponent(`repo:${repo.full_name} is:pr is:open head:${sourceBranch} base:${targetBranch} author:app/rapids-bot author:app/ops-bot-testing`),
     });
     
     if (searchResults.items.length === 0) {
@@ -367,11 +378,9 @@ export class AutoMerger extends OpsBotPlugin {
    */
   private hasPermanentNosquashValidationFailure(comments: IssuesCommentsResponseData): boolean {
     return comments.some(comment => {
-      const isFromBot = comment.user?.login === "rapids-bot[bot]";
-
       const isPermanentFailureFormat = (comment.body || "").includes("This PR has failed nosquash validation checks:");
       
-      return isFromBot && isPermanentFailureFormat;
+      return isPermanentFailureFormat;
     });
   }
 
