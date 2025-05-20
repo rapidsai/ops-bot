@@ -369,6 +369,23 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
       expect(mockPaginate).toHaveBeenCalledTimes(1);
       expect(mockGetUserPermissionLevel).toHaveBeenCalledTimes(1);
     });
+
+    test("should handle command with leading/trailing whitespace", async () => {
+      const pr = makePullResponse().data as unknown as PullsGetResponseData;
+      const comments = [
+        { 
+          body: "  /merge  ",
+          user: { login: "authorized-user" },
+          created_at: "2023-01-01T12:00:00Z"
+        }
+      ];
+      mockPaginate.mockResolvedValueOnce(comments);
+      mockGetUserPermissionLevel.mockResolvedValueOnce({ data: { permission: "write" } });
+
+      const result = await autoMerger.getValidMergeComment(pr);
+      
+      expect(result).toEqual({ mergeMethod: "squash", commentBody: "  /merge  " });
+    });
   });
 
   describe("validateNoSquashMerge", () => {
@@ -583,6 +600,145 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
       
       expect(result.success).toBe(true);
       expect(result.message).toContain("Validation successful");
+    });
+
+    test("should implement lock-out after non-fixable validation failure", async () => {
+      // First validation - will fail with non-fixable error
+      const pr = {
+        ...makePullResponse().data,
+        head: { ref: "branch-25.06-merge-branch-25.04" },
+        base: { ref: "branch-25.06" },
+        number: 5678
+      } as unknown as PullsGetResponseData;
+      
+      // Initial check has empty comments - no previous failures
+      mockPaginate.mockResolvedValueOnce([]);
+      
+      // Search returns multiple PRs - causing a non-fixable validation failure
+      mockSearchIssuesAndPullRequests.mockResolvedValueOnce({
+        data: {
+          items: [{ number: 1234 }, { number: 5678 }]
+        }
+      });
+      
+      const firstResult = await autoMerger.validateNoSquashMerge(pr);
+      expect(firstResult.success).toBe(false);
+      expect(firstResult.message).toContain("Found multiple");
+      
+      // Reset mocks for second validation attempt
+      mockPaginate.mockReset();
+      mockSearchIssuesAndPullRequests.mockReset();
+      
+      // Second validation - comments now include the previous failure
+      mockPaginate.mockResolvedValueOnce([{
+        body: "This PR has failed nosquash validation checks: Found multiple (2) open bot-authored PRs",
+        user: { login: "ops-bot" }
+      }]);
+      
+      // Even if search would now return valid result, it should be locked out
+      mockSearchIssuesAndPullRequests.mockResolvedValueOnce({
+        data: {
+          items: [{ number: 1234 }]
+        }
+      });
+      
+      const secondResult = await autoMerger.validateNoSquashMerge(pr);
+      expect(secondResult.success).toBe(false);
+      expect(secondResult.message).toContain("This PR has previously failed nosquash validation checks");
+      expect(secondResult.isFixableError).toBe(false);
+      
+      // Verify search wasn't even called on second attempt due to lock-out
+      expect(mockSearchIssuesAndPullRequests).not.toHaveBeenCalled();
+    });
+    
+    test("should allow retry after fixable validation failure", async () => {
+      // First validation - will fail with fixable error (commit history)
+      const pr = {
+        ...makePullResponse().data,
+        head: { ref: "branch-25.06-merge-branch-25.04" },
+        base: { ref: "branch-25.06" },
+        number: 5678
+      } as unknown as PullsGetResponseData;
+      
+      // Initial check has empty comments - no previous failures
+      mockPaginate.mockResolvedValueOnce([]);
+      
+      // Search returns a valid PR
+      mockSearchIssuesAndPullRequests.mockResolvedValueOnce({
+        data: {
+          items: [{ number: 1234 }]
+        }
+      });
+      
+      // Get the original PR
+      mockPullsGet.mockResolvedValueOnce({
+        data: {
+          ...makePullResponse().data,
+          user: { login: "rapids-bot[bot]" },
+          base: { ref: "branch-25.06" }
+        }
+      });
+      
+      // Original PR commits
+      mockPaginate.mockResolvedValueOnce([
+        { sha: "commit1" },
+        { sha: "commit2" }
+      ]);
+      
+      // Current PR commits - missing one of the original commits
+      mockPaginate.mockResolvedValueOnce([
+        { sha: "commit1" }
+        // commit2 is missing - causing fixable validation failure
+      ]);
+      
+      const firstResult = await autoMerger.validateNoSquashMerge(pr);
+      expect(firstResult.success).toBe(false);
+      expect(firstResult.message).toContain("Commit history integrity check failed");
+      expect(firstResult.isFixableError).toBe(true);
+      
+      // Reset mocks for second validation attempt
+      mockPaginate.mockReset();
+      mockSearchIssuesAndPullRequests.mockReset();
+      mockPullsGet.mockReset();
+      
+      // Second validation - comments don't include a permanent failure marker
+      // for fixable errors we don't use the failure prefix that triggers lock-out
+      mockPaginate.mockResolvedValueOnce([{
+        body: "Commit history integrity check failed. This PR is missing some commits from the original PR #1234.",
+        user: { login: "ops-bot" }
+      }]);
+      
+      // Search returns the same valid PR
+      mockSearchIssuesAndPullRequests.mockResolvedValueOnce({
+        data: {
+          items: [{ number: 1234 }]
+        }
+      });
+      
+      // Get the original PR again
+      mockPullsGet.mockResolvedValueOnce({
+        data: {
+          ...makePullResponse().data,
+          user: { login: "rapids-bot[bot]" },
+          base: { ref: "branch-25.06" }
+        }
+      });
+      
+      // Original PR commits still the same
+      mockPaginate.mockResolvedValueOnce([
+        { sha: "commit1" },
+        { sha: "commit2" }
+      ]);
+      
+      // Current PR commits - now has all the commits (fixed)
+      mockPaginate.mockResolvedValueOnce([
+        { sha: "commit1" },
+        { sha: "commit2" }
+      ]);
+      
+      const secondResult = await autoMerger.validateNoSquashMerge(pr);
+      expect(secondResult.success).toBe(true);
+      expect(secondResult.message).toContain("Validation successful");
     });
   });
 
@@ -814,51 +970,180 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
     });
   });
 
-  describe("extractDescription", () => {
-    let autoMerger: AutoMerger;
-
+  describe("Merge Parameter Selection", () => {
     beforeEach(() => {
-      autoMerger = new AutoMerger(statusContext.successStatus);
+      mockMerge.mockReset();
+      mockPaginate.mockReset();
+      mockGetByUsername.mockReset();
+      mockPullsGet.mockReset();
+      mockGetUserPermissionLevel.mockReset();
+      mockCreateComment.mockReset();
+      mockSearchIssuesAndPullRequests.mockReset();
     });
 
-    test("should extract text between description and checklist", () => {
-      const prBody = "Some intro\n## Description\nThis is the description\n## Checklist\n- [ ] Item 1";
+    test("should set squash parameters for default /merge command", async () => {
+      // Setup
+      mockSearchIssuesAndPullRequests.mockResolvedValueOnce(commitPRs);
+      mockPullsGet.mockResolvedValueOnce(makePullResponse());
       
-      const result = autoMerger.extractDescription(prBody);
+      // Mock a valid /merge comment
+      mockPaginate.mockResolvedValueOnce([
+        { 
+          body: "/merge",
+          user: { login: "authorized-user" },
+          created_at: "2023-01-01T12:00:00Z"
+        }
+      ]);
+      mockGetUserPermissionLevel.mockResolvedValueOnce({ data: { permission: "write" } });
       
-      expect(result).toBe("\nThis is the description\n");
+      // Mock author/approver data
+      mockPaginate.mockResolvedValueOnce(list_commits); // For getAuthors
+      mockGetByUsername.mockResolvedValueOnce(userNoName);
+      mockGetByUsername.mockRejectedValueOnce(null);
+      mockPaginate.mockResolvedValueOnce(list_reviews); // For getApprovers
+      mockGetByUsername.mockResolvedValueOnce(user);
+      mockGetByUsername.mockRejectedValueOnce(null);
+      
+      // Execute
+      await new AutoMerger(statusContext.successStatus).maybeMergePR();
+      
+      // Verify
+      expect(mockMerge).toHaveBeenCalledTimes(1);
+      expect(mockMerge.mock.calls[0][0]).toMatchObject({
+        owner: "rapidsai",
+        repo: "cudf",
+        pull_number: 1234,
+        merge_method: "squash",
+        commit_title: expect.any(String),
+        commit_message: expect.any(String)
+      });
+      
+      // Verify commit_title and commit_message are set correctly for squash
+      const callParams = mockMerge.mock.calls[0][0];
+      expect(callParams.commit_title).toContain("[REVIEW]");
+      expect(callParams.commit_message).toContain("Authors:");
+      expect(callParams.commit_message).toContain("Approvers:");
     });
 
-    test("should handle case insensitive headers", () => {
-      const prBody = "Some intro\n## description\nThis is the description\n## CHECKLIST\n- [ ] Item 1";
+    test("should set merge parameters for /merge nosquash command", async () => {
+      // Setup
+      mockSearchIssuesAndPullRequests.mockResolvedValueOnce(commitPRs);
       
-      const result = autoMerger.extractDescription(prBody);
+      // Create a PR object with a forward-merge branch name pattern
+      const prData = {
+        ...makePullResponse().data,
+        head: { ref: "branch-25.06-merge-branch-25.04" },
+        number: 5678,
+        base: { ref: "branch-25.06" },
+        mergeable: true,
+        mergeable_state: "clean"
+      };
+      mockPullsGet.mockResolvedValueOnce({
+        data: prData
+      });
       
-      expect(result).toBe("\nThis is the description\n");
+      // Mock a valid /merge nosquash comment with exact format
+      mockPaginate.mockResolvedValueOnce([
+        { 
+          body: "/merge nosquash",
+          user: { login: "authorized-user" },
+          created_at: "2023-01-01T12:00:00Z"
+        }
+      ]);
+      mockGetUserPermissionLevel.mockResolvedValueOnce({ data: { permission: "write" } });
+      
+      // Mock validateNoSquashMerge requirements
+      mockPaginate.mockResolvedValueOnce([]); // No previous failure comments
+      mockSearchIssuesAndPullRequests.mockResolvedValueOnce({
+        data: {
+          items: [{ number: 1234 }]
+        }
+      });
+      mockPullsGet.mockResolvedValueOnce({
+        data: {
+          ...makePullResponse().data,
+          user: { login: "rapids-bot[bot]" },
+          base: { ref: "branch-25.06" }
+        }
+      });
+      
+      // Original PR commits
+      mockPaginate.mockResolvedValueOnce([
+        { sha: "commit1" },
+        { sha: "commit2" }
+      ]);
+      
+      // Current PR commits - include all original commits
+      mockPaginate.mockResolvedValueOnce([
+        { sha: "commit1" },
+        { sha: "commit2" },
+        { sha: "commit3" } // Extra commit is fine
+      ]);
+      
+      // Mock the merge success
+      mockMerge.mockResolvedValueOnce({});
+      
+      // Execute
+      await new AutoMerger(statusContext.successStatus).maybeMergePR();
+      
+      // Verify
+      expect(mockMerge).toHaveBeenCalledTimes(1);
+      expect(mockMerge.mock.calls[0][0]).toMatchObject({
+        owner: "rapidsai",
+        repo: "cudf",
+        pull_number: 5678,
+        merge_method: "merge"
+      });
+      
+      // Verify commit_title and commit_message are undefined for merge
+      const callParams = mockMerge.mock.calls[0][0];
+      expect(callParams.commit_title).toBeUndefined();
+      expect(callParams.commit_message).toBeUndefined();
     });
-
-    test("should handle missing description section", () => {
-      const prBody = "This is the whole description\n## Checklist\n- [ ] Item 1";
+    
+    test("should handle merge failure by posting comment", async () => {
+      // Setup
+      mockSearchIssuesAndPullRequests.mockResolvedValueOnce(commitPRs);
+      mockPullsGet.mockResolvedValueOnce({
+        data: {
+          ...makePullResponse().data,
+          number: 5678
+        }
+      });
       
-      const result = autoMerger.extractDescription(prBody);
+      // Mock a valid /merge comment
+      mockPaginate.mockResolvedValueOnce([
+        { 
+          body: "/merge",
+          user: { login: "authorized-user" },
+          created_at: "2023-01-01T12:00:00Z"
+        }
+      ]);
+      mockGetUserPermissionLevel.mockResolvedValueOnce({ data: { permission: "write" } });
       
-      expect(result).toBe("This is the whole description\n");
-    });
-
-    test("should handle missing checklist section", () => {
-      const prBody = "Some intro\n## Description\nThis is the description without checklist";
+      // Mock author/approver data
+      mockPaginate.mockResolvedValueOnce(list_commits); // For getAuthors
+      mockGetByUsername.mockResolvedValueOnce(userNoName);
+      mockGetByUsername.mockRejectedValueOnce(null);
+      mockPaginate.mockResolvedValueOnce(list_reviews); // For getApprovers
+      mockGetByUsername.mockResolvedValueOnce(user);
+      mockGetByUsername.mockRejectedValueOnce(null);
       
-      const result = autoMerger.extractDescription(prBody);
+      // Mock a merge failure
+      mockMerge.mockRejectedValueOnce(new Error("Merge conflict detected"));
+      mockCreateComment.mockResolvedValueOnce({});
       
-      expect(result).toBe("\nThis is the description without checklist");
-    });
-
-    test("should handle empty body", () => {
-      const prBody = "";
+      // Execute
+      await new AutoMerger(statusContext.successStatus).maybeMergePR();
       
-      const result = autoMerger.extractDescription(prBody);
-      
-      expect(result).toBe("");
+      // Verify that an error comment was posted
+      expect(mockCreateComment).toHaveBeenCalledTimes(1);
+      expect(mockCreateComment.mock.calls[0][0]).toMatchObject({
+        owner: "rapidsai",
+        repo: "cudf",
+        issue_number: 5678,
+        body: expect.stringContaining("Failed to merge")
+      });
     });
   });
 });
