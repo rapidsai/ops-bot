@@ -265,8 +265,9 @@ export class AutoMerger extends OpsBotPlugin {
       return { 
         success: false, 
         message: "Could not determine original ForwardMerger PR from branch name. The branch name should follow the pattern " + 
-                "`<target_branch>-merge-<source_branch>` (e.g., `branch-25.06-merge-branch-25.04` or `main-merge-release/25.02`). " +
-                "Please contact @rapids-devops on Slack for assistance." 
+        "`<target_branch>-merge-<source_branch>` (e.g., `branch-25.06-merge-branch-25.04` or `main-merge-release/25.06`). " +
+        "Please contact @rapids-devops on Slack for assistance.",
+        isFixableError: true
       };
     }
     
