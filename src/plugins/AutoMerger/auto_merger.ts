@@ -89,13 +89,14 @@ export class AutoMerger extends OpsBotPlugin {
         try {
           const validationResult = await this.validateNoSquashMerge(pr);
           if (!validationResult.success) {
-            // Add a specific message prefix for non-commit history failures to enable lockout detection
-            if (!validationResult.isCommitHistoryFailure) {
+            // Add a specific message prefix for non-fixable failures to enable lockout detection
+            if (!validationResult.isFixableError) {
               await this.issueComment(
                 pr.number, 
                 `This PR has failed nosquash validation checks: ${validationResult.message}`
               );
             } else {
+              // For fixable errors, just post the message without the prefix that triggers lockout
               await this.issueComment(pr.number, validationResult.message);
             }
             
@@ -232,7 +233,7 @@ export class AutoMerger extends OpsBotPlugin {
   async validateNoSquashMerge(pr: PullsGetResponseData): Promise<{ 
     success: boolean; 
     message: string; 
-    isCommitHistoryFailure?: boolean;
+    isFixableError?: boolean;
   }> {
     this.logger.info("Validating no squash merge PR:", pr)
     const { repository: repo } = this.context.payload;
@@ -252,7 +253,7 @@ export class AutoMerger extends OpsBotPlugin {
       return { 
         success: false, 
         message: "This PR has previously failed nosquash validation checks. Please contact @rapids-devops on Slack for assistance.",
-        isCommitHistoryFailure: true
+        isFixableError: false
       };
     }
 
@@ -317,7 +318,8 @@ export class AutoMerger extends OpsBotPlugin {
       return { 
         success: false, 
         message: `Base branch of this PR (${pr.base.ref}) does not match the base branch of original PR #${originalPrNumber} (${originalPr.base.ref}). ` + 
-                "Please correct the base branch and try again." 
+                "Please correct the base branch and try again.",
+        isFixableError: true // Mark as fixable error that doesn't cause lockout
       };
     }
     
@@ -362,7 +364,7 @@ export class AutoMerger extends OpsBotPlugin {
                 "appear to be present individually in this PR's history. This usually happens if commits were squashed " + 
                 "during the manual resolution process. Please ensure all original commits are preserved individually. " + 
                 "You can fix this and try the `/merge nosquash` command again.",
-        isCommitHistoryFailure: true
+        isFixableError: true
       };
     }
     
@@ -376,6 +378,8 @@ export class AutoMerger extends OpsBotPlugin {
   /**
    * Checks if this PR has a previous permanent validation failure 
    * that should prevent further nosquash merge attempts.
+   * 
+   * Note: Fixable errors (like commit history or base branch issues) don't cause lockout
    */
   private hasPermanentNosquashValidationFailure(comments: IssuesCommentsResponseData): boolean {
     return comments.some(comment => {
