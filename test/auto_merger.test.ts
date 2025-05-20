@@ -28,6 +28,7 @@ import { user, userNoName } from "./fixtures/responses/get_by_username.ts";
 import {
   mockConfigGet,
   mockContextRepo,
+  mockCreateComment,
   mockGetByUsername,
   mockGetUserPermissionLevel,
   mockListComments,
@@ -39,6 +40,7 @@ import {
 } from "./mocks.ts";
 import { default as repoResp } from "./fixtures/responses/context_repo.json";
 import { makeConfigReponse } from "./fixtures/responses/get_config.ts";
+import { PullsGetResponseData } from "../src/types.ts";
 
 describe("Auto Merger", () => {
   beforeEach(() => {
@@ -50,6 +52,7 @@ describe("Auto Merger", () => {
     mockMerge.mockReset();
     mockPaginate.mockReset();
     mockPullsGet.mockReset();
+    mockCreateComment.mockReset();
   });
 
   beforeAll(() => {
@@ -176,5 +179,564 @@ URL: https://github.com/rapidsai/cudf/pull/6775`,
     expect(mockMerge).toBeCalledTimes(0);
     expect(mockPaginate).toBeCalledTimes(0);
     expect(mockPullsGet).toBeCalledTimes(0);
+  });
+
+  describe("validateMergeRequest", () => {
+    let autoMerger: AutoMerger;
+
+    beforeEach(() => {
+      autoMerger = new AutoMerger(statusContext.successStatus);
+      mockCreateComment.mockReset();
+    });
+
+    test("reject when PR is authored by rapids-bot", async () => {
+      const pr = {
+        number: 1234,
+        user: { login: "rapids-bot[bot]" }
+      } as unknown as PullsGetResponseData;
+
+      const result = await autoMerger.validateMergeRequest(pr, "squash", "/merge");
+      
+      expect(result).toBe(false);
+      expect(mockCreateComment).toHaveBeenCalledWith({
+        owner: "rapidsai",
+        repo: "cudf",
+        issue_number: 1234,
+        body: expect.stringContaining("AutoMerger commands (like `/merge` or `/merge nosquash`) cannot be used directly on PRs authored by bots.")
+      });
+    });
+
+    test("reject when PR is authored by GPUTester", async () => {
+      const pr = {
+        number: 1234,
+        user: { login: "GPUTester" }
+      } as unknown as PullsGetResponseData;
+
+      const result = await autoMerger.validateMergeRequest(pr, "squash", "/merge");
+      
+      expect(result).toBe(false);
+      expect(mockCreateComment).toHaveBeenCalledWith({
+        owner: "rapidsai",
+        repo: "cudf",
+        issue_number: 1234,
+        body: expect.stringContaining("AutoMerger commands (like `/merge` or `/merge nosquash`) cannot be used directly on PRs authored by bots.")
+      });
+    });
+
+    test("reject when squash merge on forward-merge branch", async () => {
+      const pr = {
+        number: 1234,
+        user: { login: "normal-user" },
+        head: { ref: "branch-25.06-merge-branch-25.04" }
+      } as unknown as PullsGetResponseData;
+
+      const result = await autoMerger.validateMergeRequest(pr, "squash", "/merge");
+      
+      expect(result).toBe(false);
+      expect(mockCreateComment).toHaveBeenCalledWith({
+        owner: "rapidsai",
+        repo: "cudf",
+        issue_number: 1234,
+        body: expect.stringContaining("This PR appears to be a manual resolution for a forward-merge.")
+      });
+    });
+
+    test("allow nosquash merge on forward-merge branch", async () => {
+      const pr = {
+        number: 1234,
+        user: { login: "normal-user" },
+        head: { ref: "branch-25.06-merge-branch-25.04" }
+      } as unknown as PullsGetResponseData;
+
+      const result = await autoMerger.validateMergeRequest(pr, "merge", "/merge nosquash");
+      
+      expect(result).toBe(true);
+      expect(mockCreateComment).not.toHaveBeenCalled();
+    });
+
+    test("allow regular merge for normal PR", async () => {
+      const pr = {
+        number: 1234,
+        user: { login: "normal-user" },
+        head: { ref: "feature-branch" }
+      } as unknown as PullsGetResponseData;
+
+      const result = await autoMerger.validateMergeRequest(pr, "squash", "/merge");
+      
+      expect(result).toBe(true);
+      expect(mockCreateComment).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getValidMergeComment", () => {
+    let autoMerger: AutoMerger;
+
+    beforeEach(() => {
+      autoMerger = new AutoMerger(statusContext.successStatus);
+      mockPaginate.mockReset();
+      mockGetUserPermissionLevel.mockReset();
+    });
+
+    test("should return null when no merge comments", async () => {
+      const pr = makePullResponse().data as unknown as PullsGetResponseData;
+      const comments: any[] = [];
+      mockPaginate.mockResolvedValueOnce(comments);
+
+      const result = await autoMerger.getValidMergeComment(pr);
+      
+      expect(result).toBeNull();
+      expect(mockPaginate).toHaveBeenCalledTimes(1);
+      expect(mockGetUserPermissionLevel).not.toHaveBeenCalled();
+    });
+
+    test("should return null when users don't have required permissions", async () => {
+      const pr = makePullResponse().data as unknown as PullsGetResponseData;
+      const comments = [
+        { 
+          body: "/merge",
+          user: { login: "unauthorized-user" },
+          created_at: "2023-01-01T12:00:00Z"
+        }
+      ];
+      mockPaginate.mockResolvedValueOnce(comments);
+      mockGetUserPermissionLevel.mockResolvedValueOnce({ data: { permission: "read" } });
+
+      const result = await autoMerger.getValidMergeComment(pr);
+      
+      expect(result).toBeNull();
+      expect(mockPaginate).toHaveBeenCalledTimes(1);
+      expect(mockGetUserPermissionLevel).toHaveBeenCalledTimes(1);
+    });
+
+    test("should return squash method for /merge comment with proper permissions", async () => {
+      const pr = makePullResponse().data as unknown as PullsGetResponseData;
+      const comments = [
+        { 
+          body: "/merge",
+          user: { login: "authorized-user" },
+          created_at: "2023-01-01T12:00:00Z"
+        }
+      ];
+      mockPaginate.mockResolvedValueOnce(comments);
+      mockGetUserPermissionLevel.mockResolvedValueOnce({ data: { permission: "write" } });
+
+      const result = await autoMerger.getValidMergeComment(pr);
+      
+      expect(result).toEqual({ mergeMethod: "squash", commentBody: "/merge" });
+      expect(mockPaginate).toHaveBeenCalledTimes(1);
+      expect(mockGetUserPermissionLevel).toHaveBeenCalledTimes(1);
+    });
+
+    test("should return merge method for /merge nosquash comment with proper permissions", async () => {
+      const pr = makePullResponse().data as unknown as PullsGetResponseData;
+      const comments = [
+        { 
+          body: "/merge nosquash",
+          user: { login: "authorized-user" },
+          created_at: "2023-01-01T12:00:00Z"
+        }
+      ];
+      mockPaginate.mockResolvedValueOnce(comments);
+      mockGetUserPermissionLevel.mockResolvedValueOnce({ data: { permission: "write" } });
+
+      const result = await autoMerger.getValidMergeComment(pr);
+      
+      expect(result).toEqual({ mergeMethod: "merge", commentBody: "/merge nosquash" });
+      expect(mockPaginate).toHaveBeenCalledTimes(1);
+      expect(mockGetUserPermissionLevel).toHaveBeenCalledTimes(1);
+    });
+
+    test("should process comments from newest to oldest", async () => {
+      const pr = makePullResponse().data as unknown as PullsGetResponseData;
+      const comments = [
+        { 
+          body: "/merge",
+          user: { login: "authorized-user1" },
+          created_at: "2023-01-01T10:00:00Z"
+        },
+        { 
+          body: "/merge nosquash",
+          user: { login: "authorized-user2" },
+          created_at: "2023-01-01T12:00:00Z"
+        }
+      ];
+      mockPaginate.mockResolvedValueOnce(comments);
+      mockGetUserPermissionLevel.mockResolvedValueOnce({ data: { permission: "write" } });
+
+      const result = await autoMerger.getValidMergeComment(pr);
+      
+      expect(result).toEqual({ mergeMethod: "merge", commentBody: "/merge nosquash" });
+      expect(mockPaginate).toHaveBeenCalledTimes(1);
+      expect(mockGetUserPermissionLevel).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("validateNoSquashMerge", () => {
+    let autoMerger: AutoMerger;
+
+    beforeEach(() => {
+      autoMerger = new AutoMerger(statusContext.successStatus);
+      mockPaginate.mockReset();
+      mockSearchIssuesAndPullRequests.mockReset();
+      mockPullsGet.mockReset();
+    });
+
+    test("should fail if permanent validation failure exists", async () => {
+      const pr = makePullResponse().data as unknown as PullsGetResponseData;
+      const comments = [
+        { 
+          body: "This PR has failed nosquash validation checks: Some failure message",
+          user: { login: "ops-bot" },
+          created_at: "2023-01-01T12:00:00Z"
+        }
+      ];
+      mockPaginate.mockResolvedValueOnce(comments);
+
+      const result = await autoMerger.validateNoSquashMerge(pr);
+      
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("This PR has previously failed nosquash validation checks");
+      expect(result.isFixableError).toBe(false);
+    });
+
+    test("should fail for invalid branch name", async () => {
+      const pr = {
+        ...makePullResponse().data,
+        head: { ref: "invalid-branch-name" }
+      } as unknown as PullsGetResponseData;
+      const comments: any[] = [];
+      mockPaginate.mockResolvedValueOnce(comments);
+
+      const result = await autoMerger.validateNoSquashMerge(pr);
+      
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("Could not determine original ForwardMerger PR from branch name");
+      expect(result.isFixableError).toBe(true);
+    });
+
+    test("should fail when no matching bot PRs found", async () => {
+      const pr = {
+        ...makePullResponse().data,
+        head: { ref: "branch-25.06-merge-branch-25.04" }
+      } as unknown as PullsGetResponseData;
+      const comments: any[] = [];
+      mockPaginate.mockResolvedValueOnce(comments);
+      mockSearchIssuesAndPullRequests.mockResolvedValueOnce({ data: { items: [] } });
+
+      const result = await autoMerger.validateNoSquashMerge(pr);
+      
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("Could not find any open bot-authored PRs");
+    });
+
+    test("should fail when multiple matching bot PRs found", async () => {
+      const pr = {
+        ...makePullResponse().data,
+        head: { ref: "branch-25.06-merge-branch-25.04" }
+      } as unknown as PullsGetResponseData;
+      const comments: any[] = [];
+      mockPaginate.mockResolvedValueOnce(comments);
+      mockSearchIssuesAndPullRequests.mockResolvedValueOnce({
+        data: {
+          items: [
+            { number: 1234 },
+            { number: 5678 }
+          ]
+        }
+      });
+
+      const result = await autoMerger.validateNoSquashMerge(pr);
+      
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("Found multiple (2) open bot-authored PRs");
+    });
+
+    test("should fail when original PR is not from a bot", async () => {
+      const pr = {
+        ...makePullResponse().data,
+        head: { ref: "branch-25.06-merge-branch-25.04" }
+      } as unknown as PullsGetResponseData;
+      const comments: any[] = [];
+      mockPaginate.mockResolvedValueOnce(comments);
+      mockSearchIssuesAndPullRequests.mockResolvedValueOnce({
+        data: {
+          items: [{ number: 1234 }]
+        }
+      });
+      mockPullsGet.mockResolvedValueOnce({
+        data: {
+          ...makePullResponse().data,
+          user: { login: "normal-user" }
+        }
+      });
+
+      const result = await autoMerger.validateNoSquashMerge(pr);
+      
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("Original PR #1234 was not authored by a known bot account");
+    });
+
+    test("should fail when base branches don't match", async () => {
+      const pr = {
+        ...makePullResponse().data,
+        head: { ref: "branch-25.06-merge-branch-25.04" },
+        base: { ref: "branch-25.06" }
+      } as unknown as PullsGetResponseData;
+      const comments: any[] = [];
+      mockPaginate.mockResolvedValueOnce(comments);
+      mockSearchIssuesAndPullRequests.mockResolvedValueOnce({
+        data: {
+          items: [{ number: 1234 }]
+        }
+      });
+      mockPullsGet.mockResolvedValueOnce({
+        data: {
+          ...makePullResponse().data,
+          user: { login: "rapids-bot[bot]" },
+          base: { ref: "different-branch" }
+        }
+      });
+
+      const result = await autoMerger.validateNoSquashMerge(pr);
+      
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("Base branch of this PR (branch-25.06) does not match the base branch of original PR");
+      expect(result.isFixableError).toBe(true);
+    });
+
+    test("should fail when commit history doesn't match", async () => {
+      const pr = {
+        ...makePullResponse().data,
+        head: { ref: "branch-25.06-merge-branch-25.04" },
+        base: { ref: "branch-25.06" },
+        number: 5678
+      } as unknown as PullsGetResponseData;
+      const comments: any[] = [];
+      mockPaginate.mockResolvedValueOnce(comments);
+      mockSearchIssuesAndPullRequests.mockResolvedValueOnce({
+        data: {
+          items: [{ number: 1234 }]
+        }
+      });
+      mockPullsGet.mockResolvedValueOnce({
+        data: {
+          ...makePullResponse().data,
+          user: { login: "rapids-bot[bot]" },
+          base: { ref: "branch-25.06" }
+        }
+      });
+      
+      // Original PR commits
+      mockPaginate.mockResolvedValueOnce([
+        { sha: "commit1" },
+        { sha: "commit2" }
+      ]);
+      
+      // Current PR commits
+      mockPaginate.mockResolvedValueOnce([
+        { sha: "commit3" } // Different commit
+      ]);
+
+      const result = await autoMerger.validateNoSquashMerge(pr);
+      
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("Commit history integrity check failed");
+      expect(result.isFixableError).toBe(true);
+    });
+
+    test("should succeed when all validation passes", async () => {
+      const pr = {
+        ...makePullResponse().data,
+        head: { ref: "branch-25.06-merge-branch-25.04" },
+        base: { ref: "branch-25.06" },
+        number: 5678
+      } as unknown as PullsGetResponseData;
+      const comments: any[] = [];
+      mockPaginate.mockResolvedValueOnce(comments);
+      mockSearchIssuesAndPullRequests.mockResolvedValueOnce({
+        data: {
+          items: [{ number: 1234 }]
+        }
+      });
+      mockPullsGet.mockResolvedValueOnce({
+        data: {
+          ...makePullResponse().data,
+          user: { login: "rapids-bot[bot]" },
+          base: { ref: "branch-25.06" }
+        }
+      });
+      
+      // Original PR commits
+      mockPaginate.mockResolvedValueOnce([
+        { sha: "commit1" },
+        { sha: "commit2" }
+      ]);
+      
+      // Current PR commits - includes all original commits
+      mockPaginate.mockResolvedValueOnce([
+        { sha: "commit1" },
+        { sha: "commit2" },
+        { sha: "commit3" } // Extra commit is fine
+      ]);
+
+      const result = await autoMerger.validateNoSquashMerge(pr);
+      
+      expect(result.success).toBe(true);
+      expect(result.message).toContain("Validation successful");
+    });
+  });
+
+  describe("hasPermanentNosquashValidationFailure", () => {
+    let autoMerger: AutoMerger;
+
+    beforeEach(() => {
+      autoMerger = new AutoMerger(statusContext.successStatus);
+    });
+
+    test("should return true when failure comment exists", () => {
+      const comments = [
+        { body: "This PR has failed nosquash validation checks: Some failure message" },
+        { body: "Some other comment" }
+      ];
+
+      const result = (autoMerger as any).hasPermanentNosquashValidationFailure(comments);
+      
+      expect(result).toBe(true);
+    });
+
+    test("should return false when no failure comments exist", () => {
+      const comments = [
+        { body: "This is a regular comment" },
+        { body: "Another regular comment" }
+      ];
+
+      const result = (autoMerger as any).hasPermanentNosquashValidationFailure(comments);
+      
+      expect(result).toBe(false);
+    });
+
+    test("should return false for empty comments array", () => {
+      const comments: any[] = [];
+
+      const result = (autoMerger as any).hasPermanentNosquashValidationFailure(comments);
+      
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("isPrMergeable", () => {
+    let autoMerger: AutoMerger;
+
+    beforeEach(() => {
+      autoMerger = new AutoMerger(statusContext.successStatus);
+    });
+
+    test("should return true for mergeable PR to default branch", () => {
+      const pr = {
+        mergeable_state: "clean",
+        mergeable: true,
+        base: { ref: "main" }
+      } as unknown as PullsGetResponseData;
+
+      const result = autoMerger.isPrMergeable(pr, "main");
+      
+      expect(result).toBe(true);
+    });
+
+    test("should return true for unstable but mergeable PR to default branch", () => {
+      const pr = {
+        mergeable_state: "unstable",
+        mergeable: true,
+        base: { ref: "main" }
+      } as unknown as PullsGetResponseData;
+
+      const result = autoMerger.isPrMergeable(pr, "main");
+      
+      expect(result).toBe(true);
+    });
+
+    test("should return true for mergeable PR to non-main branch", () => {
+      const pr = {
+        mergeable_state: "clean",
+        mergeable: true,
+        base: { ref: "feature-branch" }
+      } as unknown as PullsGetResponseData;
+
+      const result = autoMerger.isPrMergeable(pr, "main");
+      
+      expect(result).toBe(true);
+    });
+
+    test("should return false for non-mergeable PR", () => {
+      const pr = {
+        mergeable_state: "dirty",
+        mergeable: false,
+        base: { ref: "main" }
+      } as unknown as PullsGetResponseData;
+
+      const result = autoMerger.isPrMergeable(pr, "main");
+      
+      expect(result).toBe(false);
+    });
+
+    test("should return false for PR to main when main is not default", () => {
+      const pr = {
+        mergeable_state: "clean",
+        mergeable: true,
+        base: { ref: "main" }
+      } as unknown as PullsGetResponseData;
+
+      const result = autoMerger.isPrMergeable(pr, "branch-25.06");
+      
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("extractDescription", () => {
+    let autoMerger: AutoMerger;
+
+    beforeEach(() => {
+      autoMerger = new AutoMerger(statusContext.successStatus);
+    });
+
+    test("should extract text between description and checklist", () => {
+      const prBody = "Some intro\n## Description\nThis is the description\n## Checklist\n- [ ] Item 1";
+      
+      const result = autoMerger.extractDescription(prBody);
+      
+      expect(result).toBe("\nThis is the description\n");
+    });
+
+    test("should handle case insensitive headers", () => {
+      const prBody = "Some intro\n## description\nThis is the description\n## CHECKLIST\n- [ ] Item 1";
+      
+      const result = autoMerger.extractDescription(prBody);
+      
+      expect(result).toBe("\nThis is the description\n");
+    });
+
+    test("should handle missing description section", () => {
+      const prBody = "This is the whole description\n## Checklist\n- [ ] Item 1";
+      
+      const result = autoMerger.extractDescription(prBody);
+      
+      expect(result).toBe("This is the whole description\n");
+    });
+
+    test("should handle missing checklist section", () => {
+      const prBody = "Some intro\n## Description\nThis is the description without checklist";
+      
+      const result = autoMerger.extractDescription(prBody);
+      
+      expect(result).toBe("\nThis is the description without checklist");
+    });
+
+    test("should handle empty body", () => {
+      const prBody = "";
+      
+      const result = autoMerger.extractDescription(prBody);
+      
+      expect(result).toBe("");
+    });
   });
 });
