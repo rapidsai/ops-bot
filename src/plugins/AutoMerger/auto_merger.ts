@@ -262,11 +262,11 @@ export class AutoMerger extends OpsBotPlugin {
     const targetBranch = parsedBranch.target;
     
     const { data: searchResults } = await this.context.octokit.search.issuesAndPullRequests({
-      q: `repo:${repo.full_name} is:pr is:open head:${sourceBranch} base:${targetBranch} author:app/rapids-bot author:gputester`,
+      q: `repo:${encodeURIComponent(repo.full_name)} is:pr is:open head:${encodeURIComponent(sourceBranch)} base:${encodeURIComponent(targetBranch)} author:app/rapids-bot`,
     });
     
     if (searchResults.items.length === 0) {
-      return { 
+      return {
         success: false, 
         message: `Could not find any open bot-authored PRs from ${sourceBranch} to ${targetBranch}. ` + 
                 "Please contact @rapids-devops on Slack for assistance." 
@@ -274,7 +274,7 @@ export class AutoMerger extends OpsBotPlugin {
     }
     
     if (searchResults.items.length > 1) {
-      return { 
+      return {
         success: false, 
         message: `Found multiple (${searchResults.items.length}) open bot-authored PRs from ${sourceBranch} to ${targetBranch}. ` + 
                 "Cannot uniquely identify which PR this is resolving. Please contact @rapids-devops on Slack for assistance." 
