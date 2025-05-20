@@ -163,6 +163,12 @@ export const isRapidsBotPR = (
   return pullRequest.user?.login.toLowerCase() === "rapids-bot[bot]";
 };
 
+export const isOpsBotTestingPR = (
+  pullRequest: PullRequestLike
+): boolean => {
+  return pullRequest.user?.login.toLowerCase() === "ops-bot-testing[bot]";
+};
+
 /**
  * Returns true if the payload associated with the provided context
  * is from a GitHub Pull Request (as opposed to a GitHub Issue).
