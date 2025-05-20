@@ -51,6 +51,13 @@ export const versionedBranchExp = /^branch-\d\d\.\d\d$/;
 export const manualForwardMergeBranchExp = /^(branch-\d\d\.\d\d)-merge-(branch-\d\d\.\d\d)$/;
 
 /**
+ * RegEx representing LEGACY manual forward-merge branch name patterns 
+ * where the source doesn't have 'branch-' prefix
+ * (i.e. "branch-25.06-merge-25.04", "branch-25.08-merge-25.06", etc)
+ */
+export const legacyManualForwardMergeBranchExp = /^(branch-\d\d\.\d\d)-merge-(\d\d\.\d\d)$/;
+
+/**
  * RegEx representing manual forward-merge branch name patterns for the new branch scheme
  * (i.e. "main-merge-release/25.02", etc)
  */
@@ -89,7 +96,8 @@ export const getVersionFromBranch = (branchName: string): string => {
 export const isManualForwardMergeBranch = (branchName: string): boolean => {
   return Boolean(
     branchName.match(manualForwardMergeBranchExp) || 
-    branchName.match(manualForwardMergeReleaseBranchExp)
+    branchName.match(manualForwardMergeReleaseBranchExp) ||
+    branchName.match(legacyManualForwardMergeBranchExp)
   );
 };
 
@@ -113,6 +121,13 @@ export const parseManualForwardMergeBranch = (branchName: string): { source: str
       target: newStyleMatch[1],
       source: newStyleMatch[2]
     };
+  }
+  
+  // Check for legacy format without "branch-" prefix on source
+  const legacyMatch = branchName.match(legacyManualForwardMergeBranchExp);
+  if (legacyMatch) {
+    // Return null to force users to use the new format with explicit error message
+    return null;
   }
 
   return null;
