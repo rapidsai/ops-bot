@@ -18,6 +18,7 @@ import {
   AutoMergerContext,
   PullsGetResponseData,
   UsersGetByUsernameResponseData,
+  IssuesCommentsResponseData,
 } from "../../types.ts";
 import strip from "strip-comments";
 import {
@@ -235,13 +236,8 @@ export class AutoMerger extends OpsBotPlugin {
       }
     );
     
-    const botFailureComments = allComments.filter(comment => 
-      comment.user?.login === "rapids-bot[bot]" && 
-      (comment.body || "").includes("failed nosquash validation checks") &&
-      !(comment.body || "").includes("Commit history integrity check failed")
-    );
-    
-    if (botFailureComments.length > 0) {
+    // Check if PR has a permanent lockout from previous validation failures
+    if (this.hasPermanentNosquashValidationFailure(allComments)) {
       return { 
         success: false, 
         message: "This PR has previously failed nosquash validation checks. Please contact @rapids-devops on Slack for assistance." 
@@ -363,6 +359,20 @@ export class AutoMerger extends OpsBotPlugin {
       success: true, 
       message: `Validation successful. Proceeding with non-squash merge of PR #${pr.number}.` 
     };
+  }
+
+  /**
+   * Checks if this PR has a previous permanent validation failure 
+   * that should prevent further nosquash merge attempts.
+   */
+  private hasPermanentNosquashValidationFailure(comments: IssuesCommentsResponseData): boolean {
+    return comments.some(comment => {
+      const isFromBot = comment.user?.login === "rapids-bot[bot]";
+
+      const isPermanentFailureFormat = (comment.body || "").includes("This PR has failed nosquash validation checks:");
+      
+      return isFromBot && isPermanentFailureFormat;
+    });
   }
 
   /**
