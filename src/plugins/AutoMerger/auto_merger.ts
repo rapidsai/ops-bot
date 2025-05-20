@@ -86,17 +86,14 @@ export class AutoMerger extends OpsBotPlugin {
         try {
           const validationResult = await this.validateNoSquashMerge(pr);
           if (!validationResult.success) {
-            await this.issueComment(pr.number, validationResult.message);
-            
-            // Don't lock out if it's a commit history integrity failure
+            // Add a specific message prefix for non-commit history failures to enable lockout detection
             if (!validationResult.isCommitHistoryFailure) {
-              // Add a label to mark this PR as having a failed nosquash validation
-              await context.octokit.issues.addLabels({
-                owner: repo.owner.login,
-                repo: repo.name,
-                issue_number: pr.number,
-                labels: ["nosquash-validation-failed"]
-              });
+              await this.issueComment(
+                pr.number, 
+                `This PR has failed nosquash validation checks: ${validationResult.message}`
+              );
+            } else {
+              await this.issueComment(pr.number, validationResult.message);
             }
             
             return;
@@ -228,14 +225,23 @@ export class AutoMerger extends OpsBotPlugin {
   }> {
     const { repository: repo } = this.context.payload;
     
-    // Check if this PR has already failed validation (except for commit history failure)
-    const { data: prLabels } = await this.context.octokit.issues.listLabelsOnIssue({
-      owner: repo.owner.login,
-      repo: repo.name,
-      issue_number: pr.number,
-    });
+    // Check if this PR has already failed non-commit validation by looking for our failure comment
+    const allComments = await this.context.octokit.paginate(
+      this.context.octokit.issues.listComments,
+      {
+        owner: repo.owner.login,
+        repo: repo.name,
+        issue_number: pr.number,
+      }
+    );
     
-    if (prLabels.some(label => label.name === "nosquash-validation-failed")) {
+    const botFailureComments = allComments.filter(comment => 
+      comment.user?.login === "rapids-bot[bot]" && 
+      (comment.body || "").includes("failed nosquash validation checks") &&
+      !(comment.body || "").includes("Commit history integrity check failed")
+    );
+    
+    if (botFailureComments.length > 0) {
       return { 
         success: false, 
         message: "This PR has previously failed nosquash validation checks. Please contact @rapids-devops on Slack for assistance." 
