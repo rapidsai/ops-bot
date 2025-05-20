@@ -31,6 +31,7 @@ import {
   parseManualForwardMergeBranch,
   isRapidsBotPR,
   isGPUTesterPR,
+  isOpsBotTestingPR,
 } from "../../shared.ts";
 import { OpsBotPlugin } from "../../plugin.ts";
 import { PRNumberResolver } from "./resolve_prs.ts";
@@ -273,7 +274,7 @@ export class AutoMerger extends OpsBotPlugin {
     const targetBranch = parsedBranch.target;
     
     const { data: searchResults } = await this.context.octokit.search.issuesAndPullRequests({
-      q: encodeURIComponent(`repo:${repo.full_name} is:pr is:open head:${sourceBranch} base:${targetBranch} author:app/rapids-bot author:app/ops-bot-testing`),
+      q: (`repo:${repo.full_name} is:pr is:open head:${sourceBranch} base:${targetBranch} author:app/rapids-bot author:app/ops-bot-testing`),
     });
     
     if (searchResults.items.length === 0) {
@@ -303,7 +304,7 @@ export class AutoMerger extends OpsBotPlugin {
     });
     
     // Validate original PR author
-    if (!isRapidsBotPR(originalPr) && !isGPUTesterPR(originalPr)) {
+    if (!isRapidsBotPR(originalPr) && !isGPUTesterPR(originalPr) && !isOpsBotTestingPR(originalPr)) {
       return { 
         success: false, 
         message: `Original PR #${originalPrNumber} was not authored by a known bot account. ` + 
