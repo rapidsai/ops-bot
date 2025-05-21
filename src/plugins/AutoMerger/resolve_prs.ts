@@ -3,7 +3,6 @@ import {
   issueIsPR, 
   isMergeComment, 
   isOldMergeComment,
-  // getMergeMethod,
   isNoSquashMergeComment
 } from "../../shared.ts";
 import {
