@@ -35,7 +35,7 @@ export const Command = {
   Merge: new RegExp("^/merge$"),
   MergeNoSquash: new RegExp("^/merge\\s+nosquash$"),
   OldMerge: new RegExp("^@gpucibot merge$"),
-  OldMergeNoSquash: new RegExp("^@gpucibot merge\\s+nosquash$"),
+  OldMergeNoSquash: new RegExp("^@gpucibot merge\\s+nosquash$"), // just for consistency
 };
 
 /**

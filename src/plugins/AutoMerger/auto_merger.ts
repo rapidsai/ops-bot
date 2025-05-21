@@ -24,9 +24,7 @@ import strip from "strip-comments";
 import {
   isMergeComment,
   Permission,
-  // validCommentsExistByPredicate,
   getMergeMethod,
-  // isNoSquashMergeComment,
   isManualForwardMergeBranch,
   parseManualForwardMergeBranch,
   isRapidsBotPR,
@@ -151,7 +149,7 @@ export class AutoMerger extends OpsBotPlugin {
     mergeMethod: "squash" | "merge", 
     commentBody: string
   ): Promise<boolean> {
-    // Rule 1: Reject any merge command on bot-authored PRs (3.3.1)
+    // Reject any merge command on bot-authored PRs
     if (isRapidsBotPR(pr) || isGPUTesterPR(pr)) {
       await this.issueComment(
         pr.number,
@@ -162,7 +160,7 @@ export class AutoMerger extends OpsBotPlugin {
       return false;
     }
 
-    // Rule 2: Reject `/merge` (squash) on manual forward-merge resolution PRs (3.3.2)
+    // Reject `/merge` (squash) on manual forward-merge resolution PRs
     const branchName = pr.head?.ref || "";
     if (mergeMethod === "squash" && isManualForwardMergeBranch(branchName)) {
       await this.issueComment(
@@ -257,7 +255,7 @@ export class AutoMerger extends OpsBotPlugin {
       };
     }
 
-    // 3.3.3: Parse branch name to identify source/target branches
+    // Parse branch name to identify source/target branches
     const branchName = pr.head?.ref || "";
     const parsedBranch = parseManualForwardMergeBranch(branchName);
     
@@ -314,7 +312,7 @@ export class AutoMerger extends OpsBotPlugin {
       };
     }
     
-    // 3.3.5: Base branch consistency check
+    // Base branch consistency check
     if (pr.base.ref !== originalPr.base.ref) {
       return { 
         success: false, 
@@ -324,7 +322,7 @@ export class AutoMerger extends OpsBotPlugin {
       };
     }
     
-    // 3.3.6: Commit history integrity validation
+    // Commit history integrity validation
     const originalCommits = await this.context.octokit.paginate(
       this.context.octokit.pulls.listCommits,
       {
