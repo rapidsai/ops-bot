@@ -33,7 +33,9 @@ export const Permission = {
 export const Command = {
   OkToTest: new RegExp("^/ok(ay)? to test$"),
   Merge: new RegExp("^/merge$"),
+  MergeNoSquash: new RegExp("^/merge\\s+nosquash$"),
   OldMerge: new RegExp("^@gpucibot merge$"),
+  OldMergeNoSquash: new RegExp("^@gpucibot merge\\s+nosquash$"), // just for consistency
 };
 
 /**
@@ -41,6 +43,25 @@ export const Command = {
  * (i.e. "branch-21.06", "branch-22.08", etc.)
  */
 export const versionedBranchExp = /^branch-\d\d\.\d\d$/;
+
+/**
+ * RegEx representing manual forward-merge branch name patterns for the old branch scheme
+ * (i.e. "branch-25.06-merge-branch-25.04", "branch-25.08-merge-branch-25.06", etc)
+ */
+export const manualForwardMergeBranchExp = /^(branch-\d\d\.\d\d)-merge-(branch-\d\d\.\d\d)$/;
+
+/**
+ * RegEx representing LEGACY manual forward-merge branch name patterns 
+ * where the source doesn't have 'branch-' prefix
+ * (i.e. "branch-25.06-merge-25.04", "branch-25.08-merge-25.06", etc)
+ */
+export const legacyManualForwardMergeBranchExp = /^(branch-\d\d\.\d\d)-merge-(\d\d\.\d\d)$/;
+
+/**
+ * RegEx representing manual forward-merge branch name patterns for the new branch scheme
+ * (i.e. "main-merge-release/25.02", etc)
+ */
+export const manualForwardMergeReleaseBranchExp = /^(main)-merge-(release\/\d\d\.\d\d)$/;
 
 /**
  * Returns true if the provided string is a versioned branch
@@ -66,6 +87,50 @@ export const isVersionedUCXBranch = (branchName: string): boolean => {
  */
 export const getVersionFromBranch = (branchName: string): string => {
   return branchName.split("-")[1];
+};
+
+/**
+ * Returns true if the provided branch name follows a manual forward-merge naming convention
+ * @param branchName
+ */
+export const isManualForwardMergeBranch = (branchName: string): boolean => {
+  return Boolean(
+    branchName.match(manualForwardMergeBranchExp) || 
+    branchName.match(manualForwardMergeReleaseBranchExp) ||
+    branchName.match(legacyManualForwardMergeBranchExp)
+  );
+};
+
+/**
+ * Parses a manual forward-merge branch name to extract source and target branches
+ * @param branchName 
+ * @returns Object with source and target branch names, or null if not a valid forward-merge branch name
+ */
+export const parseManualForwardMergeBranch = (branchName: string): { source: string; target: string } | null => {
+  const oldStyleMatch = branchName.match(manualForwardMergeBranchExp);
+  if (oldStyleMatch) {
+    return {
+      target: oldStyleMatch[1],
+      source: oldStyleMatch[2]
+    };
+  }
+
+  const newStyleMatch = branchName.match(manualForwardMergeReleaseBranchExp);
+  if (newStyleMatch) {
+    return {
+      target: newStyleMatch[1],
+      source: newStyleMatch[2]
+    };
+  }
+  
+  // Check for legacy format without "branch-" prefix on source
+  const legacyMatch = branchName.match(legacyManualForwardMergeBranchExp);
+  if (legacyMatch) {
+    // Return null to force users to use the new format with explicit error message
+    return null;
+  }
+
+  return null;
 };
 
 /**
@@ -113,6 +178,12 @@ export const isRapidsBotPR = (
   return pullRequest.user?.login.toLowerCase() === "rapids-bot[bot]";
 };
 
+export const isOpsBotTestingPR = (
+  pullRequest: PullRequestLike
+): boolean => {
+  return pullRequest.user?.login.toLowerCase() === "ops-bot-testing[bot]";
+};
+
 /**
  * Returns true if the payload associated with the provided context
  * is from a GitHub Pull Request (as opposed to a GitHub Issue).
@@ -123,19 +194,39 @@ export const issueIsPR = (context: IssueCommentContext): boolean => {
 };
 
 /**
- * Returns true if the given comment is the merge comment string.
+ * Returns true if the given comment is the merge comment string (with or without nosquash parameter).
  * @param comment
  */
 export const isMergeComment = (comment: string): boolean => {
-  return Boolean(comment.trim().match(Command.Merge));
+  const trimmedComment = comment.trim();
+  return Boolean(trimmedComment.match(Command.Merge) || trimmedComment.match(Command.MergeNoSquash));
 };
 
 /**
- * Returns true if the given comment is the old merge comment string.
+ * Returns true if the given comment is the old merge comment string (with or without nosquash parameter).
  * @param comment
  */
 export const isOldMergeComment = (comment: string): boolean => {
-  return Boolean(comment.trim().match(Command.OldMerge));
+  const trimmedComment = comment.trim();
+  return Boolean(trimmedComment.match(Command.OldMerge) || trimmedComment.match(Command.OldMergeNoSquash));
+};
+
+/**
+ * Returns true if the given comment is a nosquash merge comment.
+ * @param comment
+ */
+export const isNoSquashMergeComment = (comment: string): boolean => {
+  const trimmedComment = comment.trim();
+  return Boolean(trimmedComment.match(Command.MergeNoSquash) || trimmedComment.match(Command.OldMergeNoSquash));
+};
+
+/**
+ * Returns the merge method to use based on the comment content.
+ * @param comment
+ * @returns "merge" for nosquash comments, "squash" otherwise
+ */
+export const getMergeMethod = (comment: string): "squash" | "merge" => {
+  return isNoSquashMergeComment(comment) ? "merge" : "squash";
 };
 
 /**
