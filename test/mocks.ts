@@ -34,6 +34,7 @@ export const mockListComments = jest.fn().mockName("mockListComments");
 export const mockListCommits = jest.fn().mockName("mockListCommits");
 export const mockListPulls = jest.fn().mockName("mockListPulls");
 export const mockListReviews = jest.fn().mockName("mockListReviews");
+export const mockListTags = jest.fn().mockName("mockListTags");
 export const mockLogger = {
   trace: () => {},
   debug: () => {},

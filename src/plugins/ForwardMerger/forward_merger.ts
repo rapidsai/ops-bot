@@ -17,10 +17,8 @@
 import { OpsBotPlugin } from "../../plugin.ts";
 import { PayloadRepository } from "../../types.ts";
 import { isVersionedBranch, getVersionFromBranch, isVersionedUCXBranch } from "../../shared.ts";
-import { basename } from "path";
 import { Context } from "probot";
 import { Octokit } from "@octokit/rest"
-
 
 export class ForwardMerger extends OpsBotPlugin {
   context: Context;
@@ -33,24 +31,134 @@ export class ForwardMerger extends OpsBotPlugin {
   ) {
     super("forward_merger", context);
     this.context = context;
-    this.currentBranch = basename(this.payload.ref);
+    this.currentBranch = this.payload.ref.replace("refs/heads/", "");
     this.repo = payload.repository;
+  }
+
+  /**
+   * Extracts the version (e.g., "25.02") from a release branch name.
+   * @param branchName The name of the branch (e.g., "release/25.02").
+   * @returns The version string or null if the format is incorrect.
+   */
+  getVersionFromReleaseBranch(branchName: string): string | null {
+    const versionMatch = branchName.match(/^release\/(\d+\.\d{2})$/);
+    return versionMatch ? versionMatch[1] : null;
+  }
+
+  /**
+   * Checks if a tag name corresponds to a non-alpha release tag for a given version.
+   * Example: Checks if "v25.02.00" is a non-alpha tag for version "25.02".
+   * @param tagName The tag name (e.g., "v25.02.00", "v25.02.00a1").
+   * @param version The release version (e.g., "25.02").
+   * @returns True if the tag is a non-alpha release tag for the version, false otherwise.
+   */
+  isNonAlphaReleaseTag(tagName: string, version: string): boolean {
+    // Ensure tagName is a string
+    if (typeof tagName !== 'string') {
+      return false;
+    }
+    // Pattern: starts with 'v', followed by the escaped version, a literal dot, then one or more digits, and nothing after.
+    const versionRegex = version.replace('.', '\\.'); // Escape dot for regex
+    const nonAlphaTagPattern = new RegExp(`^v${versionRegex}\\.(\\d+)$`);
+    return nonAlphaTagPattern.test(tagName);
+  }
+
+  isReleaseBranch(branchName: string): boolean {
+    return branchName.startsWith("release/");
+  }
+
+  /**
+   * Checks if any non-alpha tags exist for a given version.
+   * @param version The version string (e.g., "25.02").
+   * @param tags The array of tags to check.
+   * @returns True if any non-alpha tag exists for the version, false otherwise.
+   */
+  async anyNonAlphaTagsForVersion(version: string, tags: any[]): Promise<boolean> {
+    const hasNonAlphaTag = tags.some(tag => {
+      const matches = this.isNonAlphaReleaseTag(tag.name, version);
+      this.logger.info(`Tag ${tag.name} matches pattern: ${matches}`);
+      return matches;
+    });
+
+    if (hasNonAlphaTag) {
+      this.logger.info(`Found non-alpha tag for version ${version}`);
+    } else {
+      this.logger.info(`No non-alpha tag found for version ${version}`);
+    }
+
+    return hasNonAlphaTag
+  }
+
+  /**
+   * Checks if a release branch has a non-alpha tag for a given version.
+   * @returns True if a non-alpha tag exists for the release branch version, false otherwise.
+   */
+  async hasNonAlphaTag(): Promise<boolean> {
+    try {
+      // Extract version from the release branch (e.g., 25.02 from release/25.02)
+      const version = this.getVersionFromReleaseBranch(this.currentBranch);
+      if (!version) {
+        this.logger.info(`Could not extract version from branch name: ${this.currentBranch}`);
+        return false;
+      }
+
+      // Get all tags from the repository with pagination
+      const tags = await this.context.octokit.paginate(
+        this.context.octokit.repos.listTags,
+        {
+          owner: this.repo.owner.login,
+          repo: this.repo.name,
+          per_page: 100
+        }
+      );
+      this.logger.info(`Checking for non-alpha tags for version ${version}`);
+
+      // Check if any tag matches the non-alpha pattern for the release branch version
+      return await this.anyNonAlphaTagsForVersion(version, tags);
+    } catch (error) {
+      this.logger.info(`Error checking tags: ${JSON.stringify(error)}`);
+      return false;
+    }
   }
 
   async mergeForward(): Promise<void> {
     if (await this.pluginIsDisabled()) return;
 
-    if (!isVersionedBranch(this.currentBranch) && !isVersionedUCXBranch(this.currentBranch)) {
-      this.logger.info("Will not merge forward on non-versioned branch");
+    // Handle both old and new branching strategies
+    if (this.isReleaseBranch(this.currentBranch)) {
+      // New branching strategy (release/*)
+      this.logger.info("Detected release branch in new branching strategy");
+
+      // Check if the branch has a non-alpha tag (which means it's already been released)
+      if (await this.hasNonAlphaTag()) {
+        this.logger.info("Will not merge forward on branch with non-alpha tag (already released)");
+        return;
+      }
+
+      // For release branches, the next branch is always 'main'
+      const nextBranch = "main";
+      await this.createAndMergeForwardPR(nextBranch);
+    } else if (isVersionedBranch(this.currentBranch) || isVersionedUCXBranch(this.currentBranch)) {
+      // Old branching strategy (branch-*)
+      this.logger.info("Detected branch in old branching strategy");
+
+      const branches = await this.getBranches();
+      const sortedBranches = this.sortBranches(branches);
+      const nextBranch = this.getNextBranch(sortedBranches);
+
+      if (!nextBranch) {
+        this.logger.info("No next branch found for forward merge");
+        return;
+      }
+
+      await this.createAndMergeForwardPR(nextBranch);
+    } else {
+      this.logger.info("Will not merge forward on non-versioned and non-release branch");
       return;
     }
+  }
 
-    const branches = await this.getBranches();
-    const sortedBranches = this.sortBranches(branches);
-    const nextBranch = this.getNextBranch(sortedBranches);
-
-    if (!nextBranch) return;
-
+  async createAndMergeForwardPR(nextBranch: string): Promise<void> {
     const { data: pr } = await this.context.octokit.pulls.create({
       owner: this.repo.owner.login,
       repo: this.repo.name,
